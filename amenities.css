@@ -1,0 +1,85 @@
+/* =========================================
+   AMENITIES — FINAL, CLEAN STYLES
+   ========================================= */
+
+/* tiny spacing around headings */
+#amenities-section .section-header { margin-block: 8px; }
+#amenities-section .subheader      { margin-block: 4px; display: flex; justify-content: center; }
+#amenities-section .section-title  { max-height: 64px; display: block; margin: 0 auto; }
+
+#amenities-section .amenities-heading { margin: 0 0 8px; font-weight: 700; }
+#amenities-section .amenity-list      { margin: 0; padding-left: 1.1em; list-style: disc; }
+#amenities-section .amenity-list li   { margin: 4px 0; line-height: 1.35; }
+
+/* feature/policies grid */
+#amenities-section .feature-grid{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px; align-items: start;
+}
+
+#amenities-section .feature-grid .amenity-item,
+#amenities-section .policies-grid .amenity-item{
+  display: flex; flex-direction: row; align-items: center; gap: 10px;
+  padding: 10px 8px; background: transparent; border: none; box-shadow: none; text-align: left; height: auto;
+}
+
+#amenities-section .feature-grid .amenity-icon img,
+#amenities-section .policies-grid .amenity-icon img{ width: 28px; height: 28px; object-fit: contain; display: block; }
+
+#amenities-section .feature-grid .amenity-text,
+#amenities-section .policies-grid .amenity-text{ font-size: 16px; line-height: 1.35; }
+
+/* lists grids */
+#amenities-section .lists-grid{
+  display: grid; gap: 20px;
+  border-top: 1px solid rgba(0,0,0,.06); padding-top: 16px;
+}
+#amenities-section .lists-grid .list-col{ min-width: 0; text-align: left; }
+
+/* ≥ 1200px */
+@media (min-width: 1200px){
+  #amenities-section .lists-grid--three,
+  #amenities-section .lists-grid--two{
+    grid-template-columns: repeat(3, minmax(280px, 1fr));
+    gap: 24px; max-width: 1100px; margin-inline: auto; align-items: start;
+  }
+  #amenities-section .lists-grid--two .list-col:nth-child(1){ grid-column: 1; }
+  #amenities-section .lists-grid--two .list-col:nth-child(2){ grid-column: 2; }
+}
+
+/* 992—1199px */
+@media (min-width: 992px) and (max-width: 1199px){
+  #amenities-section .lists-grid--three{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+  #amenities-section .lists-grid--two  { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+
+/* ≤ 992px — stack lists */
+@media (max-width: 992px), (max-height: 500px){
+  #amenities-section .lists-grid--three,
+  #amenities-section .lists-grid--two{ grid-template-columns: 1fr; gap: 14px; }
+}
+
+/* feature grid responsiveness */
+@media (max-width: 1200px){
+  #amenities-section .feature-grid{
+    grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px;
+  }
+  #amenities-section .feature-grid .amenity-icon img,
+  #amenities-section .policies-grid .amenity-icon img{ width: 30px; height: 30px; }
+}
+
+@media (max-width: 992px), (max-height: 500px){
+  #amenities-section .feature-grid{
+    grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px;
+  }
+  #amenities-section .feature-grid .amenity-item{ align-items: flex-start; }
+}
+
+@media (max-width: 576px), (max-height: 500px){
+  #amenities-section .feature-grid{ grid-template-columns: 1fr; gap: 10px; }
+  #amenities-section .feature-grid .amenity-icon img,
+  #amenities-section .policies-grid .amenity-icon img{ width: 26px; height: 26px; }
+  #amenities-section .feature-grid .amenity-text,
+  #amenities-section .policies-grid .amenity-text{ font-size: 15px; }
+}

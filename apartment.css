@@ -1,0 +1,359 @@
+/* =========================================
+   APARTMENT — CLEAN (updated as discussed)
+   All comments are in English.
+   ========================================= */
+
+/* ---------- Header ---------- */
+.apartment-header { margin-bottom: 20px; }
+
+/* ---------- Main image & info ---------- */
+.main-photo-cell { padding: 0; text-align: center; }
+.main-info-cell  { text-align: left; padding: 10px; }
+
+.main-photo-frame {
+  display: block;
+  width: 100%;
+  box-shadow: 0 0 8px #ccc;
+  padding: 20px;
+  background: #fff;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.main-photo-frame img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* ---------- Arrows (desktop) ---------- */
+.slideshow-btn {
+  background: #fff;
+  border: 2px solid #000;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  padding: 0;
+  cursor: pointer;
+  transition: background .3s, color .3s;
+  box-sizing: border-box;
+}
+.slideshow-btn:hover { background: #000; color: #fff; }
+
+.triangle { width: 0; height: 0; border-style: solid; display: block; }
+.triangle-left  { border-width: 10px 12px 10px 0;  border-color: transparent #000 transparent transparent; }
+.triangle-right { border-width: 10px 0 10px 12px; border-color: transparent transparent transparent #000; }
+.slideshow-btn:hover .triangle-left  { border-color: transparent #fff transparent transparent; }
+.slideshow-btn:hover .triangle-right { border-color: transparent transparent transparent #fff; }
+
+/* ---------- Thumbnails (desktop) ---------- */
+.thumbs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  margin-top: 30px;
+}
+.thumb {
+  width: 100%;
+  height: 60px;
+  object-fit: cover;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+.thumb.active-thumb { border: 3px solid #000; }
+
+/* Focus styles */
+.slideshow-btn:focus,
+.thumb:focus,
+.carousel-dots button:focus {
+  outline: 3px solid rgba(0,123,255,.7);
+  outline-offset: 2px;
+}
+
+/* ---------- Fullscreen overlay ---------- */
+/* Overlay above everything, prevent jumps */
+#fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  z-index: 2147483647;
+  background: rgba(0,0,0,0.95);
+  display: none; /* toggled by .active */
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+}
+#fullscreen-overlay.active { display: flex; }
+
+html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
+
+/* Fullscreen image sizing (edge-to-edge with safe headroom) */
+#fs-image {
+  max-width: 100%;
+  max-height: 100dvh;  /* occupy full viewport height */
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  will-change: opacity, transform; /* for fade */
+}
+
+/* When the thumb strip is visible, still keep image edge-to-edge.
+   Strip overlays the photo instead of shrinking it. */
+#fullscreen-overlay.strip-visible #fs-image {
+  max-height: 100dvh;
+}
+
+/* Fade animation utilities */
+.fs-fade-out { opacity: 0; transition: opacity 220ms ease; }
+.fs-fade-in  { opacity: 1; transition: opacity 220ms ease; }
+
+/* Close button (top-right) */
+#fs-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  bottom: auto;
+  background: #fff;
+  border: 2px solid #000;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-sizing: border-box;
+  z-index: 1000; /* above thumbs bar */
+}
+#fs-close::before,
+#fs-close::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 2px;
+  background: #000;
+}
+#fs-close::before { transform: rotate(45deg); }
+#fs-close::after  { transform: rotate(-45deg); }
+#fs-close:hover { background: #000; }
+#fs-close:hover::before,
+#fs-close:hover::after { background: #fff; }
+
+/* =========================================
+   MOBILE CAROUSEL (scroll-snap) — full-bleed
+   ========================================= */
+
+/* Show/structure */
+.mobile-carousel {
+  display: none;
+  position: relative;
+  margin-top: 8px;
+  /* Full-bleed across viewport on mobile (keeps aspect via images) */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+
+/* Track: each slide = full viewport width for perfect snapping */
+.carousel-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100vw;       /* key change: viewport-based width */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scroll-snap-stop: always;
+  scroll-behavior: smooth;
+  scroll-padding-inline: 0;
+}
+.carousel-track::-webkit-scrollbar { display: none; }
+
+/* Slides */
+.slide {
+  position: relative;
+  scroll-snap-align: start;       /* start avoids drift on rotation */
+  scroll-snap-stop: always;
+}
+
+/* Images keep proportions, no cropping */
+.slide img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* Mobile carousel dots — rings */
+.carousel-dots {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.carousel-dots button {
+  all: unset;
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  margin: 0 5px;
+  background: transparent;
+  border: 2px solid #000;
+  opacity: .6;
+  cursor: pointer;
+  transition: background .2s ease, border .2s ease, opacity .2s ease;
+}
+
+/* Active = solid black circle */
+.carousel-dots button[aria-current="true"] {
+  background: #000;
+  border-color: #000;
+  opacity: 1;
+}
+
+/* =========================================
+   LAYOUT (Unified breakpoints)
+   ========================================= */
+
+/* DESKTOP (≥ 992px) */
+@media (min-width: 992px) {
+  .apartment-grid{
+    display: grid;
+    grid-template-columns: 60px minmax(0,1fr) 60px 20rem;
+    column-gap: 16px;
+    align-items: center;
+  }
+  .main-photo-cell, #photo-info-cell { min-width: 0; }
+  #main-photo-frame { display: block !important; }
+  .mobile-carousel, .carousel-dots { display: none !important; }
+  #thumb-left, #thumb-right { display: flex !important; }
+}
+
+/* TABLET (768–991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+  .apartment-grid{
+    display: grid;
+    grid-template-columns: 48px minmax(0,1fr) 48px 22rem;
+    column-gap: 12px;
+    align-items: center;
+  }
+  .main-photo-cell, #photo-info-cell { min-width: 0; }
+  #main-photo-frame { display: block !important; }
+  .mobile-carousel, .carousel-dots { display: none !important; }
+  #thumb-left, #thumb-right { display: flex !important; }
+}
+
+/* PHONES (≤ 768px or short height) */
+@media (max-width: 768px), (max-height: 500px) {
+  .apartment-grid{ display: block; }
+  #main-left, #main-right, #thumb-left, #thumb-right,
+  .thumbs-row, #main-photo-frame { display: none !important; }
+
+  /* Ensure full-bleed carousel on small screens */
+  .mobile-carousel,
+  .carousel-dots {
+    display: block !important;
+  }
+  .mobile-carousel {
+    width: 100vw !important;
+    margin-left: calc(50% - 50vw) !important;
+    margin-right: calc(50% - 50vw) !important;
+  }
+
+  .slide { height: auto !important; }
+  .slide img { height: auto !important; object-fit: contain !important; }
+}
+
+/* =========================================
+   HOT FIX - FORCE MOBILE RULES
+   ========================================= */
+.force-mobile .apartment-grid{ display:block !important; }
+.force-mobile #main-left,
+.force-mobile #main-right,
+.force-mobile #thumb-left,
+.force-mobile #thumb-right,
+.force-mobile .thumbs-row,
+.force-mobile #main-photo-frame { display:none !important; }
+
+.force-mobile .mobile-carousel,
+.force-mobile .carousel-dots {
+  display:block !important;
+}
+.force-mobile .mobile-carousel {
+  width:100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+}
+.force-mobile .slide { height:auto !important; }
+.force-mobile .slide img { height:auto !important; object-fit:contain !important; }
+
+/* Mobile: section container is the single source of side padding */
+@media (max-width: 768px), (max-height: 500px) {
+  #apartment-section .container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    box-sizing: border-box;
+  }
+  #apartment-section .main-photo-frame,
+  #apartment-section .main-info-cell {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+/* Kill accidental horizontal scrollbar globally */
+html, body { overflow-x: clip; }
+
+/* =========================
+   Fullscreen thumb strip
+   ========================= */
+#fs-thumbs {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  padding: 8px;
+  transform: translateY(100%);           /* hidden by default */
+  transition: transform .25s ease;
+  will-change: transform;
+}
+#fs-thumbs.visible { transform: translateY(0%); }
+#fs-thumbs.hidden  { transform: translateY(100%); }
+
+/* Grid "revolver": exactly 7 columns in view (gaps included) */
+#fs-thumbs-track {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 8px;
+  grid-auto-columns: calc((100% - 6 * 8px) / 7); /* 7 slots */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+#fs-thumbs-track::-webkit-scrollbar { display: none; }
+
+/* Each slot has fixed height; image keeps natural aspect */
+.fs-thumb {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 64px;      /* 56–72px also fine */
+  opacity: .5;       /* dim by default */
+}
+.fs-thumb.is-active { opacity: 1; } /* active = undimmed, no border */
+
+.fs-thumb img {
+  height: 100%;      /* fixed height */
+  width: auto;       /* keep aspect ratio */
+  max-width: 100%;   /* prevent horizontal overflow */
+  display: block;
+}

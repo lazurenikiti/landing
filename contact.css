@@ -1,0 +1,131 @@
+/* =========================================
+   CONTACT — DESKTOP BASE
+   ========================================= */
+
+.contact-actions-table { margin-top: 8px; }
+.contact-actions-table td { padding: 14px 10px; }
+
+.contact-action {
+  display: inline-block;
+  text-decoration: none;
+  color: inherit;
+  outline: none;
+}
+
+.contact-action figure {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 14px 10px;
+  border-radius: 12px;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.contact-action img {
+  width: 64px; height: 64px; object-fit: contain; display: block;
+}
+
+.contact-action figcaption {
+  font-weight: 600; font-size: 0.95rem; line-height: 1.2;
+}
+
+.contact-action:hover figure,
+.contact-action:focus-visible figure {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+}
+
+.contact-action:focus-visible figure {
+  outline: 2px solid #7aa2ff;
+  outline-offset: 2px;
+}
+
+.icon-with-text { display: flex; align-items: center; justify-content: flex-start; gap: 10px; }
+.icon-with-text .extra-text { font-size: 0.9rem; font-weight: 200; white-space: nowrap; }
+
+.contact-actions-table .sr-only-row td {
+  padding: 0; height: 0; line-height: 0; font-size: 0; border: 0;
+}
+
+/* =========================================
+   CONTACT — VISIBILITY GATES
+   ========================================= */
+@media (max-width: 576px), (max-height: 500px){
+  #contact-section .desktop-row { display: none; }
+  #contact-section .mobile-row  { display: table-row; }
+}
+@media (min-width: 576px){
+  #contact-section .mobile-row  { display: none; }
+}
+
+/* =========================================
+   CONTACT — MOBILE (≤ 576px)
+   ========================================= */
+@media (max-width: 576px), (max-height: 500px){
+  :root { --mobile-edge: 20px; }
+
+  #contact-section .container{
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  #contact-section .section-table{
+    width: 100vw !important;
+    margin-left: calc(50% - 50vw) !important;
+    margin-right: calc(50% - 50vw) !important;
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+    display: table !important;
+  }
+  #contact-section .section-table colgroup{ display: table-column-group !important; }
+  #contact-section .section-table tbody   { display: table-row-group !important; }
+  #contact-section .section-table tr      { display: table-row !important; }
+  #contact-section .section-table td      { display: table-cell !important; padding-left:0 !important; padding-right:0 !important; }
+
+  #contact-section .contact-actions-table{
+    display: none !important; visibility: hidden !important;
+    height: 0 !important; margin: 0 !important; padding: 0 !important; border: 0 !important;
+  }
+
+  #contact-section .contact-mobile-grid{
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 var(--mobile-edge) !important;
+    box-sizing: border-box !important;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+
+  #contact-section .contact-action{
+    display: block; width: 100%; box-sizing: border-box;
+    background: #f7f7f9; border: 1px solid #ddd; border-radius: 12px;
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+  }
+  #contact-section .contact-action:hover{
+    background:#f0f0f3; border-color:#cfcfd4; box-shadow:0 6px 18px rgba(0,0,0,.08);
+    transform: translateY(-2px);
+  }
+
+  #contact-section .phone-action figure,
+  #contact-section .email-action figure{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    margin:0; padding:12px;
+  }
+  #contact-section .icon-stack{
+    display:flex; flex-direction:column; align-items:center; gap:6px; min-width:84px;
+  }
+  #contact-section .contact-action img{ width:52px; height:52px; }
+  #contact-section .contact-action figcaption{ font-weight:600; font-size:.9rem; line-height:1.2; margin:0; }
+  #contact-section .extra-text{ margin-left:12px; font-size:.95rem; font-weight:300; white-space:nowrap; text-align:right; flex:1 1 auto; }
+
+  #contact-section .contact-row-two,
+  #contact-section .booking-row{
+    display:grid !important; grid-template-columns: 1fr 1fr !important; gap: 12px !important; width: 100% !important;
+  }
+  #contact-section .contact-row-two figure,
+  #contact-section .booking-row figure{
+    display:flex; flex-direction:column; align-items:center; gap:10px; margin:0; padding:14px 10px;
+  }
+  #contact-section .booking-row .booking-action{ grid-column: 1; }
+  #contact-section .booking-row .spacer{ grid-column: 2; }
+}

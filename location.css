@@ -1,0 +1,141 @@
+/* =========================================
+   LOCATION — CLEAN, ORDERED STYLES
+   ========================================= */
+
+/* --- Section headings (desktop base) --- */
+#location-section .section-title {
+  display: block;
+  max-height: 64px;
+  margin: 0 auto;             /* как в amenities */
+}
+#location-section .section-header { margin-block: 8px; }
+
+#location-section .cell-subtitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 10px 0;
+}
+
+/* Первая строка с картинкой-заголовком — компактнее */
+#location-section .section-table tr:first-child td {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* --- Map (desktop) --- */
+#location-section .map-cell { padding: 0; }
+#location-section .map-frame {
+  display: block;
+  width: 100%;
+  box-shadow: 0 0 8px #ccc;
+  padding: 20px;
+  background: #fff;
+  box-sizing: border-box;
+}
+#location-section .map-frame iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+}
+
+/* --- QR (desktop) --- */
+#location-section .qr-wrapper {
+  display: flex; align-items: center; justify-content: center; height: 100%;
+}
+#location-section .qr-image {
+  max-width: 80%; height: auto; display: block;
+}
+
+/* --- OR divider (desktop) --- */
+#location-section .or-cell { padding: 0; text-align: center; vertical-align: middle; }
+#location-section .or-divider { display: flex; flex-direction: column; align-items: center; }
+#location-section .or-divider .line { width: 2px; background: #000; }
+#location-section .or-divider .line.top { height: 100px; }
+#location-section .or-divider .line.bottom { height: 100px; }
+#location-section .or-divider span {
+  font-size: 1rem; font-weight: 700; margin: 8px 0; background: transparent;
+}
+
+/* --- Table visibility (desktop default) --- */
+#location-section .mobile-row { display: none; }
+#location-section .desktop-row { display: table-row; }
+
+/* =========================================
+   MOBILE (≤ 768px) — как в Amenities, без «воздуха»
+   ========================================= */
+@media (max-width: 768px), (max-height: 500px) {
+  /* В мобильной вёрстке показываем мобильные ряды и прячем десктопные */
+  #location-section .desktop-row { display: none; }
+  #location-section .mobile-row  { display: table-row; }
+
+  #location-section .container { padding-left: 0; padding-right: 0; }
+  #location-section .section-table {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+  #location-section .section-table td {
+    padding: 6px 0;            /* компактные вертикальные отступы вместо 20px */
+  }
+
+  /* Сбрасываем bootstrap-обёртку, чтобы карта не «прыгала» при повороте */
+  #location-section .map-frame.embed-responsive {
+    position: static !important;
+    padding: 0 !important;
+    height: auto !important;
+    box-shadow: none;
+    background: transparent;
+    border-radius: 0;
+  }
+  #location-section .map-frame.embed-responsive .embed-responsive-item {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+  }
+
+  /* Карта: сохраняем прежнюю «высокую» геометрию на телефоне */
+  #location-section .map-frame.mobile-map {
+    box-shadow: none; padding: 0; background: transparent; border-radius: 0;
+  }
+  #location-section .map-frame.mobile-map iframe {
+    width: 100vw;
+    height: 125vw;             /* как было: портрет — вытянутая карта */
+    border: 0; border-radius: 0; display: block;
+  }
+
+  #location-section .section-title { margin: 6px auto; }
+  #location-section .cell-subtitle { margin: 4px 0; padding: 0; font-size: 1.05rem; }
+
+  #location-section .location-actions {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 12px; margin: 10px 0; padding: 0 16px;
+  }
+  #location-section .location-action {
+    display: inline-block; width: 100%; max-width: 300px;
+    background: #f7f7f9; border: 1px solid #ddd; border-radius: 12px;
+    padding: 12px 14px; text-align: center;
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+  }
+  #location-section .location-action:hover {
+    background: #f0f0f3; border-color: #cfcfd4;
+    box-shadow: 0 6px 18px rgba(0,0,0,.08); transform: translateY(-2px);
+  }
+  #location-section .location-action img {
+    max-height: 40px; width: auto; display: block; margin: 0 auto;
+  }
+
+  #location-section .or-cell,
+  #location-section .qr-wrapper { display: none; }
+}
+
+/* =========================================
+   PHONE LOCK — не переключаться на десктоп при перевороте
+   (скрипт уже ставит html.force-mobile на телефонах)
+   ========================================= */
+html.force-mobile #location-section .desktop-row { display: none !important; }
+html.force-mobile #location-section .mobile-row  { display: table-row !important; }

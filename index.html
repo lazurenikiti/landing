@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en" class="overlay-root">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAZURE Apartment Nikiti</title>
+  <link rel="icon" type="image/x-icon" href="images/general/lazure_favicon.ico">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="scrollbar.css">
+  <link rel="stylesheet" href="parallax.css">
+  <link rel="stylesheet" href="apartment.css">
+  <link rel="stylesheet" href="amenities.css">
+  <link rel="stylesheet" href="location.css">
+  <link rel="stylesheet" href="contact.css">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+
+<body class="no-window-scroll">
+
+  <!-- <div id="page-scroll" class="overlay-scroll"> -->
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent position-absolute w-100">
+      <div class="container d-flex justify-content-between align-items-center">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="#apartment">Apartment</a></li>
+            <li class="nav-item"><a class="nav-link" href="#amenities">Amenities</a></li>
+            <li class="nav-item"><a class="nav-link" href="#location">Location</a></li>
+            <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="hero-background bg1"></div>
+      <div class="hero-background bg2"></div>
+      <div class="overlay"></div>
+      <img src="images/general/LAZURE_white.webp" alt="LAZURE Apartment Nikiti" class="logo">
+      <p id="hero-caption" class="hero-caption"></p>
+      <a href="#contact" class="contact-us-btn">CONTACT US</a>
+    </header>
+
+    <section class="section bg-white position-relative overflow-hidden" id="apartment-section">
+      <div class="bg-layer" data-parallax="apartment-parallax"></div>
+
+      <div class="container position-relative" style="z-index:1;">
+        <div class="apartment-header text-center">
+          <a href="#apartment">
+            <img id="apartment" src="images/general/apartment.webp" alt="Apartment" class="titel section-title">
+          </a>
+        </div>
+
+        <!-- СЕТКА: левая стрелка | фото | правая стрелка | текст -->
+        <div class="apartment-grid">
+          <!-- Левая стрелка -->
+          <button id="main-left" class="slideshow-btn main-nav-btn" aria-label="Previous photo">
+            <div class="triangle triangle-left"></div>
+          </button>
+
+          <!-- Фото -->
+          <div class="main-photo-cell">
+            <!-- Desktop frame -->
+            <div class="main-photo-frame" id="main-photo-frame" aria-live="polite"></div>
+
+            <!-- Mobile carousel -->
+            <div class="mobile-carousel" id="mobile-carousel" aria-label="Apartment photos" tabindex="0">
+              <div class="carousel-track" id="carousel-track"></div>
+            </div>
+            <div class="carousel-dots" id="carousel-dots" role="tablist" aria-label="Slide selector"></div>
+          </div>
+
+          <!-- Правая стрелка -->
+          <button id="main-right" class="slideshow-btn main-nav-btn" aria-label="Next photo">
+            <div class="triangle triangle-right"></div>
+          </button>
+
+          <!-- Текст (СПРАВА) -->
+          <aside id="photo-info-cell" class="main-info-cell">
+            <div class="info-content">
+              <section>
+                <h4 style="text-align: center;">Welcome to LAZURE Apartment Nikiti</h4>
+                <p style="text-align: justify;">
+                  <strong>Your private, elegant retreat in the heart of Sithonia.</strong>
+                </p>
+                <p style="text-align: justify;">
+                  This cozy <strong>25 m² one-room apartment</strong> is located on the ground floor of the
+                  <em>Bomo Nikiti complex</em>, just <strong>700 m from the beach</strong> and promenade.
+                  With a private entrance, modern amenities, and a quiet garden setting, it’s ideal for
+                  <strong>couples or small families</strong> looking for comfort and convenience. It is ideal 
+                  for discovering the natural beauty of the Sithonia peninsula, with its <strong>crystal-clear 
+                  Blue Flag beaches</strong>, as well as the breathtaking landscapes of Halkidiki, Macedonia.
+                </p>
+              </section>
+            </div>
+          </aside>
+        </div>
+
+        <!-- Миниатюры (desktop) -->
+        <div class="thumbs-grid"></div>
+
+        <!-- Полноэкранный просмотр -->
+        <div id="fullscreen-overlay">
+          <button id="fs-close"></button>
+          <img id="fs-image" src="" alt="Fullscreen view">
+        </div>
+      </div>
+    </section>
+
+    <section class="section text-center" id="amenities-section">
+      <div class="content">
+        <div class="container">
+
+          <!-- Заголовок секции -->
+          <div class="section-header">
+            <a href="#amenities">
+              <img id="amenities" src="images/general/amenities.webp" alt="Amenities" class="titel section-title">
+            </a>
+          </div>
+
+          <!-- Подзаголовок "Essential" -->
+          <div class="subheader">
+            <img id="essential" src="images/general/essential.webp" alt="Essential" class="titel section-title">
+          </div>
+
+          <!-- Карточки: ряды 3 и 4 -->
+          <div class="feature-grid">
+            <div class="amenity-item">
+              <span class="amenity-icon"><img src="images/amenities/indoor.ico" alt=""></span>
+              <span class="amenity-text">25 sq.m. of indoor space</span>
+            </div>
+            <div class="amenity-item">
+              <span class="amenity-icon"><img src="images/amenities/outdoor.ico" alt=""></span>
+              <span class="amenity-text">17 sq.m. of private outdoor area</span>
+            </div>
+            <div class="amenity-item">
+              <span class="amenity-icon"><img src="images/amenities/bed.ico" alt=""></span>
+              <span class="amenity-text">160 cm bed</span>
+            </div>
+            <div class="amenity-item">
+              <span class="amenity-icon"><img src="images/amenities/pool.ico" alt=""></span>
+              <span class="amenity-text">Shared pool</span>
+            </div>
+
+            <div class="amenity-item">
+              <span class="amenity-icon"><img src="images/amenities/kitchenette.ico" alt=""></span>
+              <span class="amenity-text">Kitchenette</span>
+            </div>
+            <div class="amenity-item">
+              <span class="amenity-icon"><img src="images/amenities/air_con.ico" alt=""></span>
+              <span class="amenity-text">Air conditioning</span>
+            </div>
+            <div class="amenity-item">
+              <span class="amenity-icon"><img src="images/amenities/wifi.ico" alt=""></span>
+              <span class="amenity-text">Wi-Fi</span>
+            </div>
+            <div class="amenity-item">
+              <span class="amenity-icon"><img src="images/amenities/safe.ico" alt=""></span>
+              <span class="amenity-text">Safe</span>
+            </div>
+          </div>
+
+          <!-- Блок списков: In-room / Kitchenette / Bathroom -->
+          <div class="lists-grid lists-grid--three">
+            <div class="list-col">
+              <p class="amenities-heading">In-room facilities:</p>
+              <ul class="amenity-list">
+                <li>Smart TV</li>
+                <li>Washing machine</li>
+                <li>Clothes drying rack</li>
+                <li>Iron & ironing board</li>
+                <li>Beach towels set for two</li>
+                <li>Ample closet space</li>
+              </ul>
+            </div>
+
+            <div class="list-col">
+              <p class="amenities-heading">Kitchenette facilities:</p>
+              <ul class="amenity-list">
+                <li>Hob</li>
+                <li>Kettle</li>
+                <li>Refrigerator</li>
+                <li>Microwave oven</li>
+                <li>Waffle maker</li>
+                <li>Coffee maker</li>
+                <li>Complete set of dishes & cutlery</li>
+              </ul>
+            </div>
+
+            <div class="list-col">
+              <p class="amenities-heading">Bathroom facilities:</p>
+              <ul class="amenity-list">
+                <li>Spacious shower</li>
+                <li>Toiletries</li>
+                <li>Bath towels</li>
+                <li>Hair dryer</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Второй блок списков: Outer / Surroundings -->
+          <div class="lists-grid lists-grid--two">
+            <div class="list-col">
+              <p class="amenities-heading">Outer facilities:</p>
+              <ul class="amenity-list">
+                <li>Private lawn area</li>
+                <li>Table & chairs for outdoor</li>
+                <li>Children’s playground</li>
+                <li>Loungers & umbrellas for guests’ use</li>
+              </ul>
+            </div>
+
+            <div class="list-col">
+              <p class="amenities-heading">The surroundings:</p>
+              <ul class="amenity-list">
+                <li>Nikiti main promenade & beach – 700 m</li>
+                <li>Nikiti historical center – 1000 m</li>
+                <li>Nikiti Historical &  Folklore Museum – 1400 m</li>
+                <li>Cafés – from 150 m</li>
+                <li>Restaurants – from 200 m</li>
+                <li>Major Greek supermarkets – from 450 m</li>
+                <li>Lidl – 1500 m</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Политики -->
+          <div class="subheader">
+            <img id="policies" src="images/general/policies.webp" alt="Policies" class="titel section-title">
+          </div>
+
+          <div class="feature-grid policies-grid">
+            <div class="amenity-item">
+              <span class="amenity-icon"><img src="images/amenities/no_pets.ico" alt=""></span>
+              <span class="amenity-text">No pets allowed</span>
+            </div>
+            <div class="amenity-item">
+              <span class="amenity-icon"><img src="images/amenities/no_smoking.ico" alt=""></span>
+              <span class="amenity-text">No smoking indoors</span>
+            </div>
+            <div class="amenity-item">
+              <span class="amenity-icon"><img src="images/amenities/no_parties.ico" alt=""></span>
+              <span class="amenity-text">No parties allowed</span>
+            </div>
+            <div class="amenity-item">
+              <span class="amenity-icon"><img src="images/amenities/parking.ico" alt=""></span>
+              <span class="amenity-text">Free public parking nearby</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="section-with-parallax bg-white" id="location-section">
+      <div class="bg-layer small-shell" data-parallax="small-shell"></div>
+      <div class="bg-layer shell-right" data-parallax="location-parallax"></div>
+
+      <div class="content text-center">
+        <div class="container">
+          <table class="section-table" role="presentation">
+            <colgroup>
+              <col style="width: 60%;">
+              <col style="width: 5%;">
+              <col style="width: 35%;">
+            </colgroup>
+            <tbody>
+
+              <!-- Title -->
+              <tr>
+                <td colspan="3">
+                  <a href="#location">
+                    <img id="location" src="images/general/location.webp" alt="Location" class="titel section-title">
+                  </a>
+                </td>
+              </tr>
+
+              <!-- ===== DESKTOP ONLY ===== -->
+              <!-- Subtitles -->
+              <tr class="desktop-row">
+                <td class="cell-subtitle">Find us on map</td>
+                <td></td>
+                <td class="cell-subtitle">Just Scan &amp; Save</td>
+              </tr>
+
+              <!-- Content -->
+              <tr class="desktop-row">
+                <!-- Map -->
+                <td class="map-cell">
+                  <div class="map-frame embed-responsive embed-responsive-16by9">
+                    <iframe class="embed-responsive-item"
+                      src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d86578.7266821985!2d23.60112671082862!3d40.21442999173056!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14a891ed895c39a3%3A0xe963b4f75cd26ecd!2sLAZURE%20Apartment%20Nikiti!5e1!3m2!1sru!2sgr!4v1755507436408!5m2!1sru!2sgr"
+                      allowfullscreen
+                      loading="lazy"
+                      referrerpolicy="no-referrer-when-downgrade"></iframe>
+                  </div>
+                </td>
+
+                <!-- OR divider -->
+                <td class="or-cell">
+                  <div class="or-divider">
+                    <div class="line top"></div>
+                    <span>OR</span>
+                    <div class="line bottom"></div>
+                  </div>
+                </td>
+
+                <!-- QR -->
+                <td class="qr-cell">
+                  <div class="qr-wrapper">
+                    <img src="images/location/qrcode.webp" alt="Qrcode" class="qr-image">
+                  </div>
+                </td>
+              </tr>
+
+              <!-- ===== MOBILE ONLY ===== -->
+              <!-- Map full-bleed -->
+              <tr class="mobile-row">
+                <td colspan="3" class="map-cell">
+                  <div class="map-frame mobile-map">
+                    <iframe
+                      src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d86578.7266821985!2d23.60112671082862!3d40.21442999173056!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14a891ed895c39a3%3A0xe963b4f75cd26ecd!2sLAZURE%20Apartment%20Nikiti!5e1!3m2!1sru!2sgr!4v1755507436408!5m2!1sru!2sgr"
+                      allowfullscreen
+                      loading="lazy"
+                      referrerpolicy="no-referrer-when-downgrade"></iframe>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Mobile label -->
+              <tr class="mobile-row">
+                <td colspan="3" class="cell-subtitle">Direct links on</td>
+              </tr>
+
+              <!-- Mobile buttons (stacked) -->
+              <tr class="mobile-row">
+                <td colspan="3">
+                  <div class="location-actions">
+                    <a href="https://maps.app.goo.gl/7jNZUGs3jN3QunUx8"
+                       target="_blank" rel="noopener" class="location-action" aria-label="Open in Google Maps">
+                      <img src="images/location/google_maps.webp" alt="Google Maps">
+                    </a>
+
+                    <a href="https://waze.com/ul?ll=40.22282140754979%2C23.667385980137798&navigate=yes"
+                       target="_blank" rel="noopener" class="location-action" aria-label="Open in Waze">
+                      <img src="images/location/waze.webp" alt="Waze">
+                    </a>
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-with-parallax text-center" id="contact-section">
+      <!-- parallax background layer -->
+      <div class="bg-layer" data-parallax="contact-parallax"></div>
+
+      <div class="content text-center">
+        <div class="container">
+          <table class="section-table" role="presentation">
+            <tbody>
+              <!-- Row: title image -->
+              <tr>
+                <td>
+                  <a href="#contact">
+                    <img id="contact" src="images/general/contact.webp" alt="Contact" class="titel section-title">
+                  </a>
+                </td>
+              </tr>
+
+              <!-- ===== DESKTOP (как было) ===== -->
+              <tr class="desktop-row">
+                <td>
+                  <table class="section-table contact-actions-table" role="presentation">
+                    <colgroup>
+                      <col style="width: 20%;">
+                      <col style="width: 20%;">
+                      <col style="width: 20%;">
+                      <col style="width: 20%;">
+                      <col style="width: 20%;">
+                    </colgroup>
+                    <tr>
+                      <td>
+                        <a class="contact-action" href="tel:+306997144061" aria-label="Call phone">
+                          <figure>
+                            <img src="images/contact/phone.webp" alt="Phone">
+                            <figcaption>Call</figcaption>
+                          </figure>
+                        </a>
+                      </td>
+                      <td>
+                        <a class="contact-action" href="mailto:contact@lazurenikiti.gr" aria-label="Send email">
+                          <figure>
+                            <img src="images/contact/mail.webp" alt="Email">
+                            <figcaption>Email</figcaption>
+                          </figure>
+                        </a>
+                      </td>
+                      <td>
+                        <a class="contact-action" href="https://wa.me/306997144061" target="_blank" rel="noopener" aria-label="Open WhatsApp chat">
+                          <figure>
+                            <img src="images/contact/whatsapp.webp" alt="WhatsApp">
+                            <figcaption>WhatsApp</figcaption>
+                          </figure>
+                        </a>
+                      </td>
+                      <td>
+                        <a class="contact-action" href="viber://chat?number=%2B306997144061" aria-label="Open Viber chat">
+                          <figure>
+                            <img src="images/contact/viber.webp" alt="Viber">
+                            <figcaption>Viber</figcaption>
+                          </figure>
+                        </a>
+                      </td>
+                      <td>
+                        <a class="contact-action" href="https://www.booking.com/Share-Ue5fAng" target="_blank" rel="noopener" aria-label="Open Booking.com page">
+                          <figure>
+                            <img src="images/contact/booking.webp" alt="Booking.com">
+                            <figcaption>Booking.com</figcaption>
+                          </figure>
+                        </a>
+                      </td>
+                    </tr>
+
+                    <!-- structural row (invisible via CSS) -->
+                    <tr class="sr-only-row">
+                      <td>Call</td>
+                      <td>Email</td>
+                      <td>WhatsApp</td>
+                      <td>Viber</td>
+                      <td>Booking.com</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <!-- ===== MOBILE (новая раскладка) ===== -->
+              <tr class="mobile-row">
+                <td>
+                  <div class="contact-mobile-grid">
+
+                    <!-- PHONE (полная ширина) -->
+                    <a class="contact-action phone-action" href="tel:+306997144061" aria-label="Call phone">
+                      <figure>
+                        <div class="icon-stack">
+                          <img src="images/contact/phone.webp" alt="Phone">
+                          <figcaption>Call</figcaption>
+                        </div>
+                        <div class="extra-text">+30 699 7144061</div>
+                      </figure>
+                    </a>
+
+                    <!-- EMAIL (полная ширина) -->
+                    <a class="contact-action email-action" href="mailto:contact@lazurenikiti.gr" aria-label="Send email">
+                      <figure>
+                        <div class="icon-stack">
+                          <img src="images/contact/mail.webp" alt="Email">
+                          <figcaption>Email</figcaption>
+                        </div>
+                        <div class="extra-text">contact@lazurenikiti.gr</div>
+                      </figure>
+                    </a>
+
+                    <!-- WHATSAPP + VIBER (ряд 50/50) -->
+                    <div class="contact-row-two">
+                      <a class="contact-action whatsapp-action" href="https://wa.me/306997144061" target="_blank" rel="noopener" aria-label="Open WhatsApp chat">
+                        <figure>
+                          <img src="images/contact/whatsapp.webp" alt="WhatsApp">
+                          <figcaption>WhatsApp</figcaption>
+                        </figure>
+                      </a>
+                      <a class="contact-action viber-action" href="viber://chat?number=%2B306997144061" aria-label="Open Viber chat">
+                        <figure>
+                          <img src="images/contact/viber.webp" alt="Viber">
+                          <figcaption>Viber</figcaption>
+                        </figure>
+                      </a>
+                    </div>
+
+                    <!-- BOOKING (левая половинка как WhatsApp; справа — пустой столбец) -->
+                    <div class="booking-row">
+                      <a class="contact-action booking-action" href="https://www.booking.com/Share-Ue5fAng" target="_blank" rel="noopener" aria-label="Open Booking.com page">
+                        <figure>
+                          <img src="images/contact/booking.webp" alt="Booking.com">
+                          <figcaption>Booking.com</figcaption>
+                        </figure>
+                      </a>
+                      <span class="spacer" aria-hidden="true"></span>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="container text-center">
+        <img src="images/general/LAZURE_white.webp" alt="Lazure Logo" class="footer-logo">
+        <p class="footer-text">© 2025 LAZURE Apartment Nikiti. All rights reserved.</p>
+      </div>
+    </footer>
+
+  <!-- </div> -->
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+  <script src="script.js"></script>
+  <script src="apartment.js"></script>
+  <script src="parallax.js"></script>
+
+</body>
+</html>

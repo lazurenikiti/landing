@@ -1,0 +1,116 @@
+/* =========================================
+   Overlay Scrollbar for the whole page (ROOT mode)
+   Keep window scroll (parallax-friendly), hide native bar, draw overlay on the RIGHT.
+   Activate by adding class "overlay-root" on <html> or <body>.
+   ========================================= */
+
+/* Hide native window scrollbar only on desktop with a fine pointer */
+@media (pointer: fine) and (min-width: 992px) {
+  html.overlay-root,
+  body.overlay-root {
+    /* Firefox: hide gutter but keep scroll */
+    scrollbar-width: none;
+  }
+  html.overlay-root::-webkit-scrollbar,
+  body.overlay-root::-webkit-scrollbar {
+    /* WebKit/Blink: hide gutter */
+    width: 0;
+    height: 0;
+  }
+}
+
+/* Fixed rail pinned to the RIGHT edge of the SCREEN with small padding */
+.osb-rail {
+  position: fixed;
+  top: 8px;                 /* tiny headroom */
+  bottom: 8px;              /* tiny footroom */
+  right: 8px;               /* small inset so edges don’t clip */
+  width: 16px;              /* thickness */
+  pointer-events: none;     /* wheel/touch pass through */
+  z-index: 9999;            /* above page content */
+  background: transparent;
+}
+
+/* Dark-grey thumb, no glow; pointer cursor */
+.osb-thumb {
+  position: absolute;
+  left: 0; right: 0;
+  top: 0;                   /* JS updates translateY and height */
+  height: 40px;             /* min visual size; real size via JS */
+  border-radius: 12px;
+
+  background: rgba(32,32,32,0.25);   /* base color */
+  /* no box-shadow / no glow */
+
+  /* subtle glassy feel without glow */
+  backdrop-filter: blur(8px) saturate(1.05);
+  -webkit-backdrop-filter: blur(8px) saturate(1.05);
+
+  pointer-events: auto;     /* draggable */
+  transition: background .15s ease;
+  cursor: pointer;          /* change cursor on hover */
+}
+.osb-thumb:hover  { background: rgba(32,32,32,0.45); }
+.osb-thumb:active { background: rgba(32,32,32,0.60); cursor: grabbing; }
+
+/* Hide overlay rail on touch devices */
+@media (pointer: coarse) { .osb-rail { display: none; } }
+
+/* =========================================
+   Optional: per-element overlay scrollbar
+   (keep if you want local overlay bars on specific scrollable blocks)
+   Add class .overlay-scroll to a scrollable container.
+   ========================================= */
+
+.overlay-scroll {
+  position: relative;
+  overflow: auto;         /* must actually scroll */
+  scrollbar-width: none;  /* hide native in Firefox */
+}
+.overlay-scroll::-webkit-scrollbar { width: 0; height: 0; } /* hide in WebKit/Blink */
+
+/* You may reuse the same .osb-rail/.osb-thumb styles above.
+   For per-element mode, create a rail per element via JS and position: fixed;
+   or compute element’s viewport rect and pin rail accordingly. */
+
+/* =========================================
+   Optional: Native scrollbar styling (component scope)
+   Apply class .glass-scroll to any element that keeps its native scrollbar area.
+   Not used for the root overlay bar, but handy for internal panels.
+   ========================================= */
+
+@media (pointer: fine) and (min-width: 992px) {
+  .glass-scroll {
+    --sb-size: 16px;
+    --thumb-bg: rgba(32,32,32,0.25);
+    --thumb-bg-hover: rgba(32,32,32,0.45);
+    --thumb-bg-active: rgba(32,32,32,0.60);
+    --thumb-radius: 12px;
+    --thumb-blur: 8px;
+    --thumb-saturate: 1.05;
+    scrollbar-width: thin;                           /* Firefox fallback */
+    scrollbar-color: rgba(32,32,32,0.6) transparent; /* thumb | track */
+  }
+
+  .glass-scroll::-webkit-scrollbar {
+    width:  var(--sb-size);
+    height: var(--sb-size);
+    background: transparent;
+  }
+  .glass-scroll::-webkit-scrollbar-track {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+  .glass-scroll::-webkit-scrollbar-thumb {
+    background: var(--thumb-bg);
+    border-radius: var(--thumb-radius);
+    /* no glow */
+    backdrop-filter: blur(var(--thumb-blur)) saturate(var(--thumb-saturate));
+    -webkit-backdrop-filter: blur(var(--thumb-blur)) saturate(var(--thumb-saturate));
+    cursor: pointer;
+  }
+  .glass-scroll::-webkit-scrollbar-thumb:hover  { background: var(--thumb-bg-hover); }
+  .glass-scroll::-webkit-scrollbar-thumb:active { background: var(--thumb-bg-active); }
+  .glass-scroll::-webkit-scrollbar-corner { background: transparent; }
+}
