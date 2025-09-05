@@ -1,5 +1,6 @@
 /* =========================================
    ROOT & BASE
+   (Global site styles; NO nav/hero here)
    ========================================= */
 
 /* --- Fonts --- */
@@ -19,10 +20,8 @@
   --white: #fff;
   --black: #000;
 
-  /* mobile navbar+menu */
-  --nav-h: 56px;   /* navbar height on mobile */
-  --menu-up: 20vh; /* lift menu a bit above vertical center */
-  --vh: 1vh;       /* real viewport unit helper (can be updated via JS) */
+  /* viewport helpers */
+  --vh: 1vh;
 }
 
 /* --- Base reset --- */
@@ -42,6 +41,9 @@ body {
   padding: 0;
 }
 
+/* Media defaults */
+img, iframe { max-width: 100%; height: auto; }
+
 img {
   /* prevent dragging images on desktop browsers */
   -webkit-user-drag: none;
@@ -52,129 +54,11 @@ img {
 }
 
 /* =========================================
-   HERO
-   ========================================= */
-
-.hero {
-  position: relative;
-  height: 100vh;
-  overflow: hidden;
-  padding-top: 100px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  color: var(--white);
-  text-align: center;
-  /* smoothen visual change when padding-top is adjusted for mobile navbar */
-  transition: padding-top .2s ease;
-}
-
-.hero-background {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 1.5s ease-in-out;
-  z-index: 0;
-}
-.hero-background.active { opacity: 1; }
-
-.overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  z-index: 1;
-}
-
-.hero p,
-.hero a,
-.hero .logo { position: relative; z-index: 2; }
-
-/* --- Typing caption with caret --- */
-.hero-caption {
-  font-size: 1.4rem;
-  font-weight: 300;
-  margin-top: 10px;
-  color: var(--white);
-  z-index: 2;
-  position: relative;
-  white-space: nowrap;
-  overflow: hidden;
-  min-height: 2em;
-  display: inline-block;
-}
-.hero-caption::after {
-  content: "";
-  display: inline-block;
-  width: 2px;
-  height: 0.8em;
-  transform: translateY(-0.1em);
-  background-color: var(--white);
-  margin-left: 4px;
-  animation: blink 0.9s step-end infinite;
-  vertical-align: middle;
-  position: relative;
-  top: 0.05em;
-}
-@keyframes blink { 0%,100%{opacity:0} 50%{opacity:1} }
-
-/* --- Hero logo --- */
-.logo {
-  max-width: 350px;
-  height: auto;
-  margin-bottom: 20px;
-}
-
-/* --- CTA button --- */
-.contact-us-btn {
-  display: inline-block;
-  border: 2px solid var(--white);
-  padding: 10px 24px;
-  color: var(--white);
-  text-decoration: none;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: background 0.3s, color 0.3s;
-  margin-top: 20px;
-  border-radius: 0;
-}
-.contact-us-btn:hover {
-  background: var(--white);
-  color: var(--black);
-  text-decoration: none;
-}
-
-/* =========================================
-   NAVBAR (sits on top of hero)
-   ========================================= */
-
-.hero { position: relative; } /* anchor for absolute nav on desktop */
-
-.navbar {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  z-index: 1000;
-  background: transparent;
-}
-
-/* desktop links (keep on the right via your markup classes, e.g. justify-content-end) */
-.navbar .nav-link {
-  color: var(--white) !important;
-  font-weight: 500;
-  margin-left: 20px;
-  transition: color 0.3s ease;
-}
-.navbar .nav-link:hover { color: var(--text-muted) !important; }
-
-/* =========================================
    SECTION LAYOUT (shared by all sections)
    ========================================= */
 
-.section {
+.section,
+.section-with-parallax {
   padding-block: var(--section-padding-block);
   padding-inline: var(--section-padding-inline);
 }
@@ -188,11 +72,13 @@ img {
   box-sizing: border-box;
 }
 
-/* anchors offset */
+/* Anchor offsets for in-page links */
 #apartment,
 #amenities,
 #location,
-#contact { scroll-margin-top: var(--section-padding-block); }
+#contact {
+  scroll-margin-top: var(--section-padding-block);
+}
 
 /* =========================================
    TABLE STRUCTURE (gallery, amenities, etc.)
@@ -211,12 +97,14 @@ img {
   table-layout: fixed;
   border-collapse: collapse;
 }
+
 .section-table td {
   padding: 20px;
   text-align: center;
   vertical-align: middle;
 }
 
+/* Section image titles */
 .section-header {
   width: 100%;
   table-layout: fixed;
@@ -227,26 +115,9 @@ img {
 /* Prevent title image links from being clickable as anchors */
 .section-header > a { pointer-events: none; }
 
+/* Title image sizing */
 .titel { max-height: 60px; }
 .section-title { cursor: default; }
-
-/* =========================================
-   FOOTER
-   ========================================= */
-
-.site-footer {
-  background-color: var(--footer-bg);
-  color: var(--text-muted);
-  padding: 40px 0;
-  font-family: 'Montserrat', sans-serif;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-.footer-logo {
-  max-width: 150px;
-  margin-bottom: 15px;
-  opacity: 0.8;
-}
-.footer-text { font-size: 0.9rem; margin-bottom: 10px; }
 
 /* =========================================
    ACCESSIBILITY TWEAKS
@@ -262,25 +133,20 @@ button:focus {
    CONSISTENCY FIXES (Location & Contact)
    ========================================= */
 
-.section-with-parallax {
-  padding-block: var(--section-padding-block);
-  padding-inline: var(--section-padding-inline);
-}
-
-/* Contact title row: compact spacing */
 #contact-section .section-table tr:first-child td {
+  /* compact spacing for contact title row */
   padding-top: 0;
   padding-bottom: 10px;
 }
 
-/* Contact spacer row: visually collapsed */
+/* visually collapsed spacer row in contact table */
 #contact-section .section-table tr:nth-child(2) td {
   padding: 0;
   height: 0;
   line-height: 0;
 }
 
-/* Ensure Location/Contact tables use the same baseline metrics */
+/* same baseline metrics for Location/Contact tables */
 #location-section .section-table,
 #contact-section .section-table {
   width: 100%;
@@ -288,66 +154,64 @@ button:focus {
   border-collapse: collapse;
 }
 #location-section .section-table td,
-#contact-section .section-table td { padding: 20px; }
+#contact-section .section-table td {
+  padding: 20px;
+}
+
+/* Rounded map wrapper */
+.embed-responsive {
+  border-radius: .5rem;
+  overflow: hidden;
+}
+
+/* Prevent conflicts with Bootstrap responsive wrappers */
+.map-frame { display: block; }
 
 /* =========================================
    RESPONSIVE (Unified breakpoints)
    ========================================= */
 
 /* Tablets and down (≤ 992px) */
- @media (max-width: 992px), (max-height: 500px) {
+@media (max-width: 992px), (max-height: 500px) {
   :root { --section-padding-inline: 32px; }
-
-  /* keep hero comfortably below fixed navbar on mobile/tablet */
-  .hero { padding-top: 80px; }
-
-  .logo { max-width: 300px; }
 }
 
 /* Phones (≤ 576px) */
 @media (max-width: 576px), (max-height: 500px) {
   :root { --section-padding-inline: 16px; }
-  .nav-link { margin-left: 12px; }
-  .hero-caption { font-size: 1.1rem; }
   .footer-text { font-size: 0.85rem; }
 }
 
-/* Adaptivity helpers */
-img, iframe { max-width: 100%; height: auto; }
-
-.hero .logo { width: min(65vw, 320px); height: auto; }
-.hero-caption { font-size: clamp(16px, 2.8vw, 24px); }
-.contact-us-btn { padding: .75rem 1.25rem; font-size: clamp(14px, 1.8vw, 18px); }
-
-.navbar-toggler { padding: .5rem .75rem; }
-
-/* Mobile stack for tables */
+/* Mobile stack for tables (≤ 768px) */
 @media (max-width: 768px), (max-height: 500px) {
   .section-table { width: 100%; }
+
   .section-table:not(.inner-amenities-table) colgroup,
   .section-table:not(.inner-amenities-table) tbody,
   .section-table:not(.inner-amenities-table) tr,
   .section-table:not(.inner-amenities-table) td {
-    display: block; width: 100% !important;
+    display: block;
+    width: 100% !important;
   }
 
-  /* Contact icons: default 50% cells (2 in a row) */
+  /* Contact icons default 2-per-row on small screens */
   .contact-actions-table colgroup,
   .contact-actions-table tr { display: contents; }
-  .contact-actions-table td { display: inline-block; width: 50%; padding: .5rem; }
+  .contact-actions-table td {
+    display: inline-block;
+    width: 50%;
+    padding: .5rem;
+  }
   .contact-action figure { margin: 0; }
 }
 
-/* Tablets: 3 in a row for contacts */
+/* Tablets (768–992px): 3-per-row contacts */
 @media (min-width: 768px) and (max-width: 992px) {
   .contact-actions-table td { width: 33.3333%; }
 }
 
-/* Responsive map wrapper with rounded corners */
-.embed-responsive { border-radius: .5rem; overflow: hidden; }
-
 /* =========================================
-   SNAP SCROLLING (mobile)
+   SNAP SCROLLING (mobile only)
    ========================================= */
 @media (max-width: 768px), (max-height: 500px) {
   html, body {
@@ -359,191 +223,26 @@ img, iframe { max-width: 100%; height: auto; }
     overflow-y: scroll;
   }
 
+  /* Snap targets: include .hero to participate in snap,
+     but hero’s visual styles live in nav-header.css */
   .hero,
   .section,
   .section-with-parallax {
     min-height: 100vh;
-    scroll-snap-align: start;
+    scroll-snap-align: var(--snap-align, start); /* default to top */
     scroll-snap-stop: always;
   }
+
+  /* Snap mode helpers (toggle on <html>) */
+  .snap-start .hero,
+  .snap-start .section,
+  .snap-start .section-with-parallax {
+    --snap-align: start;
+  }
+
+  .snap-end .hero,
+  .snap-end .section,
+  .snap-end .section-with-parallax {
+    --snap-align: end;
+  }
 }
-
-/* Prevent conflicts with Bootstrap responsive wrappers */
-.map-frame { display: block; }
-
-/* Navbar stays above hero slides and backgrounds */
-.navbar { z-index: 1000; }
-
-/* Hero: prevent logo overflow on narrow screens */
-.hero .logo { max-width: 90vw; }
-
-/* ============================
-   Mobile navbar + blur overlay
-   (Integrated, unified breakpoints)
-   ============================ */
-
-/* Mobile navbar behavior (≤ 992px or low-height landscape) */
-@media (max-width: 992px), (max-height: 500px) {
-  /* Keep header fixed so the burger stays in place */
-  .navbar {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 1100;
-    background: transparent;
-  }
-
-  /* Push hero content below fixed header (base) */
-  .hero { padding-top: var(--nav-h); }
-
-  /* Reserve header space explicitly during opening/open states to avoid jump */
-  body.menu-opening .hero,
-  body.menu-open .hero { padding-top: var(--nav-h); }
-
-  /* Place burger on the right side */
-  .navbar .navbar-toggler {
-    margin-left: auto;   /* push to the right */
-    margin-right: 12px;  /* small safe inset */
-  }
-
-  /* Blur/dim overlay (hidden by default) */
-  .menu-backdrop{
-    position: fixed;
-    inset: 0;
-    z-index: 1050;               /* below menu, above content */
-    display: none;
-    background: rgba(0,0,0,.6);
-    backdrop-filter: blur(6px);
-  }
-  /* Show overlay while opening/open */
-  body.menu-open .menu-backdrop,
-  body.menu-opening .menu-backdrop { display: block; }
-
-  /* Do NOT style hidden collapse state to avoid auto-opening */
-  .navbar .navbar-collapse { /* intentionally empty */ }
-
-  /* Fixed, centered container for both .collapsing and .show */
-  .navbar .navbar-collapse.collapsing,
-  .navbar .navbar-collapse.show{
-    position: fixed !important;
-    top: var(--nav-h); left: 0; right: 0; bottom: 0;
-    z-index: 1110;
-    background: transparent;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    overflow: hidden; /* page is locked via body class */
-    height: calc(var(--vh) * 100);
-  }
-
-  /* Kill Bootstrap height animation jump */
-  .navbar .navbar-collapse.collapsing { height: auto !important; }
-
-  /* Menu list centered and raised above center with smooth fade/slide */
-  .navbar .navbar-collapse .navbar-nav{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    margin: 0; padding: 0;
-    width: 100%; text-align: center;
-
-    transform: translateY(calc(-1 * var(--menu-up))) scale(1);
-    opacity: 0;
-    transition: transform .35s ease, opacity .28s ease;
-    will-change: transform, opacity;
-  }
-
-  /* Start animating links immediately when opening/open */
-  body.menu-opening .navbar .navbar-collapse .navbar-nav,
-  body.menu-open .navbar .navbar-collapse .navbar-nav{
-    opacity: 1;
-    transform: translateY(calc(-1 * var(--menu-up))) scale(1);
-  }
-
-  .navbar .navbar-collapse.collapsing .navbar-nav{
-    opacity: 0;
-    transform: translateY(calc(-1 * var(--menu-up) + 8px)) scale(.99);
-  }
-
-  .navbar .nav-link{
-    font-size: 1.125rem;
-    padding: 10px 0;
-    transition: opacity .2s ease;
-  }
-
-  /* Lock page scroll while opening/open */
-  body.menu-opening,
-  body.menu-open{
-    overflow: hidden;
-    touch-action: none;
-  }
-
-  /* Hide burger while fullscreen overlay is active */
-  body.fullscreen-active .navbar .navbar-toggler{ display: none !important; }
-}
-
-/* Force mobile navbar while fullscreen is active, regardless of width (≥ 992px) */
-@media (min-width: 992px) {
-  body.fullscreen-active .navbar {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 1100;
-    background: transparent;
-  }
-  body.fullscreen-active .hero { padding-top: var(--nav-h, 56px); }
-
-  body.fullscreen-active .menu-backdrop{
-    position: fixed; inset: 0;
-    z-index: 1050;
-    display: block;
-    background: rgba(0,0,0,.6);
-    backdrop-filter: blur(6px);
-  }
-
-  body.fullscreen-active .navbar .navbar-collapse.collapsing,
-  body.fullscreen-active .navbar .navbar-collapse.show{
-    position: fixed !important;
-    top: var(--nav-h, 56px); left: 0; right: 0; bottom: 0;
-    z-index: 1110;
-    background: transparent;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    overflow: hidden;
-    height: calc(var(--vh) * 100);
-  }
-
-  body.fullscreen-active .navbar .navbar-collapse .navbar-nav{
-    display: flex; flex-direction: column; align-items: center;
-    gap: 14px; margin: 0; padding: 0; text-align: center; width: 100%;
-  }
-
-  .desktop-only { /* optional guard if you use such helpers */ }
-  .mobile-only  { /* optional guard if you use such helpers */ }
-}
-
-/* =========================================
-   HOT FIX - FORCE MOBILE RULES
-   ========================================= */
-
-html.force-mobile { --section-padding-inline: 16px; }
-
-html.force-mobile .container { 
-  padding-inline: 0 !important;
-  margin-inline: auto;
-  box-sizing: border-box;
-  max-width: 720px;
-}
-
-html.force-mobile .apartment-grid{ display:block !important; }
-html.force-mobile .thumbs-grid,
-html.force-mobile #main-left,
-html.force-mobile #main-right{ display:none !important; }
-
-html.force-mobile #main-photo-frame{
-  margin: 0 auto !important;
-  max-width: 100% !important;
-}
-

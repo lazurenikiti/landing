@@ -17,7 +17,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var ORIG_DIR  = 'images/apartment/';
   var THUMB_DIR = 'images/apartment/thumbs/';
-  var FS_STRIP_HIDE_DELAY = 1500; // ms
+
+  // Fullscreen thumbs bar timing (ms)
+  var FS_STRIP_HIDE_DELAY = 1500;       // default auto-hide
+  var FS_STRIP_HIDE_DELAY_MANUAL = 3500; // when explicitly shown by double-tap
+
+  // Timer handle for the strip
+  var fsStripTimer = null;
+
   var FS_ANIM_MS = 220;           // fade duration
 
   var imageList = [
@@ -138,95 +145,364 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  /* =================== Mobile carousel (scroll-snap) =================== */
+  /* =================== Mobile carousel — 5-car train (robust, orientation-safe) =================== */
   function buildMobileCarouselOnce() {
-    if (!carouselTrack || !carouselDots || slides.length) return;
+    if (!carouselTrack || !carouselDots) return;
 
-    var fragSlides = document.createDocumentFragment();
-    var fragDots   = document.createDocumentFragment();
+    // Always rebuild mobile carousel content (clean state for slides)
+    if (typeof slides !== 'undefined') slides = [];
 
-    for (var i = 0; i < imageList.length; i++) {
-      var filename = imageList[i];
+    var n = imageList.length;
+    if (n === 0) return;
 
-      var slide = document.createElement('div');
-      slide.className = 'slide';
+    // ----- Local state -----
+    var current = 0;            // logical index [0..n-1], kept in sync with currentIndex
+    var w = 1;                  // slide width in px (measured from container)
+    var dragging = false;
+    var startX = 0, dx = 0, startT = 0;
+    var pointerId = null;
+    var animating = false;
 
+    // ----- Stable measurement target (container, not the track) -----
+    var mobileCarouselEl = document.getElementById('mobile-carousel');
+
+    // ----- Prebuild/cache ALL images off-DOM (once per init) -----
+    var cache = new Array(n);
+    for (var i = 0; i < n; i++) {
+      var im = new Image();
+      im.decoding = 'async';
+      if ('fetchPriority' in im) im.fetchPriority = 'low';
+      im.src = ORIG_DIR + imageList[i];
+      cache[i] = im;
+    }
+
+    // ----- Build exactly five cars in the DOM: [prev2 | prev1 | current | next1 | next2] -----
+    carouselTrack.innerHTML = '';
+    var indices = [0,1,2,3,4]; // logical indices for the 5-car window (computed below)
+
+    function makeCar() {
+      var el = document.createElement('div');
+      el.className = 'slide';
       var img = document.createElement('img');
-      img.alt = 'Apartment photo ' + (i + 1);
-      img.src = ORIG_DIR + filename;
-      img.loading = 'lazy';
       img.decoding = 'async';
-      (function (idx) {
-        img.addEventListener('click', function () { openFullscreen(idx); });
-      })(i);
+      el.appendChild(img);
+      return { el: el, img: img };
+    }
 
-      slide.appendChild(img);
-      fragSlides.appendChild(slide);
-      slides.push(slide);
+    var carPrev2 = makeCar();
+    var carPrev1 = makeCar();
+    var carCurr  = makeCar();
+    var carNext1 = makeCar();
+    var carNext2 = makeCar();
 
+    // Open fullscreen on tap (current car only; ignore when dragging/animating)
+    carCurr.img.addEventListener('click', function(){
+      if (!animating && !dragging) openFullscreen(current);
+    });
+
+    [carPrev2, carPrev1, carCurr, carNext1, carNext2].forEach(function(c){
+      carouselTrack.appendChild(c.el);
+    });
+
+    // ----- Dots (rebuild) -----
+    carouselDots.innerHTML = '';
+    for (var d = 0; d < n; d++) {
       var dot = document.createElement('button');
       dot.type = 'button';
       dot.setAttribute('role', 'tab');
-      dot.setAttribute('aria-label', 'Slide ' + (i + 1));
-      (function (idx) {
-        dot.addEventListener('click', function () {
-          if (slides[idx]) {
-            slides[idx].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
-            setActiveDot(idx);
-            currentIndex = idx;
-          }
+      dot.setAttribute('aria-label', 'Slide ' + (d + 1));
+      (function(idx){
+        dot.addEventListener('click', function(){
+          if (animating) return;
+          var delta = shortestDelta(current, idx, n);
+          if (delta === 0) return;
+          // If |delta| <= 2: animate via sequence of single steps; else teleport
+          if (Math.abs(delta) <= 2) stepSequence(delta);
+          else teleportTo(idx);
         });
-      })(i);
-      fragDots.appendChild(dot);
+      })(d);
+      carouselDots.appendChild(dot);
     }
 
-    carouselTrack.appendChild(fragSlides);
-    carouselDots.appendChild(fragDots);
-
-    var ticking = false;
-    carouselTrack.addEventListener('scroll', function () {
-      if (ticking) return;
-      ticking = true;
-      window.requestAnimationFrame(function () {
-        var w = carouselTrack.clientWidth || 1;
-        var i = Math.round(carouselTrack.scrollLeft / w);
-        i = Math.max(0, Math.min(i, imageList.length - 1));
-        setActiveDot(i);
-        currentIndex = i;
-        ticking = false;
-      });
-    }, { passive: true });
-
-    setActiveDot(0);
-  }
-
-  function setActiveDot(i) {
-    if (!carouselDots) return;
-    var dots = carouselDots.children;
-    for (var k = 0; k < dots.length; k++) {
-      dots[k].setAttribute('aria-current', k === i ? 'true' : 'false');
+    // ===== Helpers =====
+    function mod(i, m){ return (i % m + m) % m; }
+    function shortestDelta(a, b, m){
+      a = mod(a, m); b = mod(b, m);
+      var raw = b - a, alt = raw > 0 ? raw - m : raw + m;
+      return Math.abs(raw) <= Math.abs(alt) ? raw : alt;
     }
+
+    function callSetActiveDot(i){
+      if (typeof setActiveDot === 'function') setActiveDot(i);
+      else {
+        // fallback: update aria-current if helper is not present
+        var dots = carouselDots.children;
+        for (var k = 0; k < dots.length; k++) {
+          dots[k].setAttribute('aria-current', k === i ? 'true' : 'false');
+        }
+      }
+    }
+
+    // Measure the visible container width (more stable than 100vw/track width)
+    function measure() {
+      var base = (mobileCarouselEl && mobileCarouselEl.clientWidth) ||
+                 (carouselTrack && carouselTrack.clientWidth) ||
+                 window.innerWidth || 1;
+      w = base;
+    }
+
+    function setTransition(on){
+      carouselTrack.style.transition = on ? 'transform 320ms cubic-bezier(.22,.61,.36,1)' : 'none';
+    }
+
+    // Do not round — subpixel precision avoids drift on some DPRs
+    function commitTransform(px){
+      carouselTrack.style.transform = 'translate3d(' + px + 'px,0,0)';
+    }
+
+    // Compute logical indices for the 5-car window around center
+    function computeWindow(center) {
+      return [
+        mod(center - 2, n),
+        mod(center - 1, n),
+        mod(center,     n),
+        mod(center + 1, n),
+        mod(center + 2, n)
+      ];
+    }
+
+    // Mount cached images into cars per indices[]
+    function renderCars() {
+      var w5 = indices;
+
+      var i0 = w5[0]; carPrev2.img.src = cache[i0].src; carPrev2.img.alt = 'Apartment photo ' + (i0 + 1);
+      var i1 = w5[1]; carPrev1.img.src = cache[i1].src; carPrev1.img.alt = 'Apartment photo ' + (i1 + 1);
+
+      var i2 = w5[2];
+      carCurr.img.loading = 'eager'; // visible image loads immediately
+      carCurr.img.src = cache[i2].src; carCurr.img.alt = 'Apartment photo ' + (i2 + 1);
+
+      var i3 = w5[3]; carNext1.img.src = cache[i3].src; carNext1.img.alt = 'Apartment photo ' + (i3 + 1);
+      var i4 = w5[4]; carNext2.img.src = cache[i4].src; carNext2.img.alt = 'Apartment photo ' + (i4 + 1);
+
+      currentIndex = current;      // keep global in sync for fullscreen
+      callSetActiveDot(current);
+    }
+
+    // Center (3rd car) WITHOUT animation, with reflow to lock-in
+    function centerInstant() {
+      setTransition(false);
+      commitTransform(-2 * w);
+      void carouselTrack.offsetHeight;      // force reflow
+      requestAnimationFrame(function(){ setTransition(true); });
+    }
+
+    // Single animated step: dir = +1 (next) or -1 (prev)
+    function step(dir){
+      if (animating) return;
+      animating = true;
+      setTransition(true);
+      commitTransform(-2 * w - dir * w);
+
+      var onEnd = function(ev){
+        if (ev && ev.propertyName && ev.propertyName !== 'transform') return;
+        carouselTrack.removeEventListener('transitionend', onEnd);
+
+        // Rearrange around new center silently
+        setTransition(false);
+        current = mod(current + dir, n);
+        indices = computeWindow(current);
+        renderCars();
+        commitTransform(-2 * w);
+        void carouselTrack.offsetHeight;
+        requestAnimationFrame(function(){
+          setTransition(true);
+          animating = false;
+        });
+      };
+      carouselTrack.addEventListener('transitionend', onEnd);
+    }
+
+    // Sequence of ±1 steps (for |delta|==2 we do two chained steps)
+    function stepSequence(delta){
+      if (delta === 0) return;
+      var dir = delta > 0 ? +1 : -1;
+      var count = Math.abs(delta);
+
+      // Run first step; chain the rest on transitionend from step()
+      function runNext(){
+        if (count === 0) return;
+        count--;
+        var once = function(ev){
+          if (ev && ev.propertyName && ev.propertyName !== 'transform') return;
+          carouselTrack.removeEventListener('transitionend', once);
+          if (count > 0) runNext();
+        };
+        carouselTrack.addEventListener('transitionend', once);
+        step(dir);
+      }
+      if (!animating) runNext();
+    }
+
+    // Instant jump to arbitrary slide (no long multi-slide animation)
+    function teleportTo(targetIdx){
+      setTransition(false);
+      current = mod(targetIdx, n);
+      indices = computeWindow(current);
+      renderCars();
+      commitTransform(-2 * w);
+      void carouselTrack.offsetHeight;
+      requestAnimationFrame(function(){ setTransition(true); });
+    }
+
+    // ----- Pointer/Touch gestures (with duplicate-binding protection) -----
+    // Remove old handlers if present (avoid duplicates on rebuilds)
+    if (buildMobileCarouselOnce._handlers) {
+      var H = buildMobileCarouselOnce._handlers;
+      if (H.pointer && 'PointerEvent' in window) {
+        carouselTrack.removeEventListener('pointerdown', H.pointer.down);
+        carouselTrack.removeEventListener('pointermove', H.pointer.move);
+        carouselTrack.removeEventListener('pointerup', H.pointer.up);
+        carouselTrack.removeEventListener('pointercancel', H.pointer.up);
+        carouselTrack.removeEventListener('lostpointercapture', H.pointer.up);
+      }
+      if (H.touch && !('PointerEvent' in window)) {
+        carouselTrack.removeEventListener('touchstart', H.touch.start);
+        carouselTrack.removeEventListener('touchmove',  H.touch.move);
+        carouselTrack.removeEventListener('touchend',   H.touch.end);
+        carouselTrack.removeEventListener('touchcancel',H.touch.end);
+      }
+    }
+    buildMobileCarouselOnce._handlers = buildMobileCarouselOnce._handlers || {};
+
+    // Pointer version
+    if ('PointerEvent' in window) {
+      var pd = function(e){
+        if (animating || pointerId !== null) return;
+        pointerId = e.pointerId || 'touch';
+        dragging = true; setTransition(false);
+        startX = e.clientX; dx = 0; startT = performance.now();
+        if (carouselTrack.setPointerCapture && e.pointerId) {
+          carouselTrack.setPointerCapture(e.pointerId);
+        }
+      };
+      var pm = function(e){
+        if (!dragging || (e.pointerId && e.pointerId !== pointerId)) return;
+        dx = e.clientX - startX;
+        commitTransform(-2 * w + dx);
+      };
+      var pu = function(e){
+        if (!dragging || (e.pointerId && e.pointerId !== pointerId)) return;
+        dragging = false; pointerId = null;
+
+        var dt = Math.max(1, performance.now() - startT);
+        var v = dx / dt;                 // px/ms
+        var TH = Math.max(40, w * 0.15); // distance threshold
+        var VEL = 0.5;                   // velocity threshold
+
+        if (dx > TH || v >  VEL) step(-1);      // swipe right -> previous
+        else if (dx < -TH || v < -VEL) step(+1);// swipe left  -> next
+        else {
+          setTransition(true);
+          commitTransform(-2 * w);
+          var once = function(ev){
+            if (ev && ev.propertyName && ev.propertyName !== 'transform') return;
+            carouselTrack.removeEventListener('transitionend', once);
+            setTransition(false);
+          };
+          carouselTrack.addEventListener('transitionend', once);
+        }
+      };
+
+      carouselTrack.addEventListener('pointerdown', pd);
+      carouselTrack.addEventListener('pointermove', pm);
+      carouselTrack.addEventListener('pointerup', pu);
+      carouselTrack.addEventListener('pointercancel', pu);
+      carouselTrack.addEventListener('lostpointercapture', pu);
+
+      buildMobileCarouselOnce._handlers.pointer = { down: pd, move: pm, up: pu };
+    } else {
+      // Touch fallback
+      var ts = function(e){
+        if (!e.touches || !e.touches.length || animating) return;
+        dragging = true; setTransition(false);
+        startX = e.touches[0].clientX; dx = 0; startT = performance.now();
+      };
+      var tm = function(e){
+        if (!dragging || !e.touches || !e.touches.length) return;
+        dx = e.touches[0].clientX - startX;
+        commitTransform(-2 * w + dx);
+      };
+      var te = function(){
+        if (!dragging) return;
+        dragging = false;
+        var dt = Math.max(1, performance.now() - startT), v = dx/dt, TH = Math.max(40, w*0.15), VEL = 0.5;
+        if (dx > TH || v >  0.5) step(-1);
+        else if (dx < -TH || v < -0.5) step(+1);
+        else { setTransition(true); commitTransform(-2 * w);
+          var once=function(ev){ if(ev && ev.propertyName && ev.propertyName!=='transform')return;
+            carouselTrack.removeEventListener('transitionend', once); setTransition(false); };
+          carouselTrack.addEventListener('transitionend', once);
+        }
+      };
+
+      carouselTrack.addEventListener('touchstart', ts, { passive: true });
+      carouselTrack.addEventListener('touchmove',  tm, { passive: true });
+      carouselTrack.addEventListener('touchend',   te, { passive: true });
+      carouselTrack.addEventListener('touchcancel',te, { passive: true });
+
+      buildMobileCarouselOnce._handlers.touch = { start: ts, move: tm, end: te };
+    }
+
+    // ----- Orientation/resize realign (bind once globally) -----
+    function realignNow() {
+      setTransition(false);
+      measure();
+      commitTransform(-2 * w);
+      void carouselTrack.offsetHeight;
+      requestAnimationFrame(function(){ setTransition(true); });
+    }
+
+    var _rlRAF = 0, _rlT1 = 0, _rlT2 = 0;
+    function scheduleStableRealign(){
+      if (_rlRAF) cancelAnimationFrame(_rlRAF);
+      if (_rlT1)  clearTimeout(_rlT1);
+      if (_rlT2)  clearTimeout(_rlT2);
+      _rlRAF = requestAnimationFrame(realignNow); // immediate frame
+      _rlT1  = setTimeout(realignNow, 120);       // after UI chrome adjusts
+      _rlT2  = setTimeout(realignNow, 360);       // final settle (iOS toolbars)
+    }
+
+    if (!buildMobileCarouselOnce._viewportListenersBound) {
+      window.addEventListener('resize',           scheduleStableRealign, { passive: true });
+      window.addEventListener('orientationchange',scheduleStableRealign, { passive: true });
+      if (window.visualViewport) {
+        visualViewport.addEventListener('resize', scheduleStableRealign, { passive: true });
+        visualViewport.addEventListener('scroll', scheduleStableRealign, { passive: true });
+      }
+      buildMobileCarouselOnce._viewportListenersBound = true;
+    }
+
+    // Expose realign hook for external callers
+    buildMobileCarouselOnce._realign = scheduleStableRealign;
+
+    // ----- Init window and center -----
+    indices = computeWindow(current);
+    renderCars();
+    requestAnimationFrame(function(){
+      measure();
+      // ensure current visible image is eager for first paint
+      carCurr.img.loading = 'eager';
+      centerInstant();
+    });
   }
 
-  // Align using native scrollLeft; no CSS transforms.
+  /* Back-compat: keep external realign hook */
   function realignMobileCarousel() {
-    if (!mql.matches || !carouselTrack) return;
-    var w = carouselTrack.clientWidth || 0;
-    if (!w) return;
-    var x = currentIndex * w;
-    carouselTrack.scrollTo({ left: x, behavior: 'auto' });
-    setActiveDot(currentIndex);
+    if (typeof buildMobileCarouselOnce._realign === 'function') {
+      buildMobileCarouselOnce._realign();
+    }
   }
-
-  var _rl_t;
-  function _debounceRealign() {
-    if (_rl_t) clearTimeout(_rl_t);
-    _rl_t = setTimeout(realignMobileCarousel, 150);
-  }
-  window.addEventListener('resize', _debounceRealign, { passive: true });
-  window.addEventListener('orientationchange', function () {
-    setTimeout(realignMobileCarousel, 200);
-  }, { passive: true });
 
   /* =================== Scroll locking helpers (fullscreen) =================== */
   function keepScrollLocked() {
@@ -234,8 +510,10 @@ document.addEventListener('DOMContentLoaded', function () {
     window.scrollTo(0, _scrollY || 0);
   }
 
+  // Allow pinch-zoom and multi-touch gestures; only block one-finger scroll
   function preventScroll(e) {
     if (!overlay || !overlay.classList.contains('active')) return;
+    if (e.touches && e.touches.length > 1) return;
     e.preventDefault();
   }
 
@@ -292,6 +570,7 @@ document.addEventListener('DOMContentLoaded', function () {
       currentIndex = idx;
       setActiveFsThumb(currentIndex);
       scrollFsThumbIntoView(currentIndex);
+      resetThumbsBarAfterNavigation();
     };
 
     if (pre.decode) pre.decode().then(apply).catch(apply);
@@ -340,7 +619,7 @@ document.addEventListener('DOMContentLoaded', function () {
     buildFsThumbsOnce();
     setActiveFsThumb(currentIndex);
     scrollFsThumbIntoView(currentIndex);
-    showFsThumbsBar();
+    showFsThumbsBar({ manual: false });
     bindFsSwipe();
   }
 
@@ -379,12 +658,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     fsImage.addEventListener('touchstart', function (e) {
       if (!e.changedTouches || !e.changedTouches.length) return;
+      // Do not show thumbs here; allow pinch and single tap to do nothing
       startX = e.changedTouches[0].clientX;
-      showFsThumbsBar(); // appear instantly on interaction
     }, { passive: true });
 
     fsImage.addEventListener('touchmove', function () {
-      showFsThumbsBar(); // keep visible while moving
+      // Do not show thumbs here either; keep UI calm during pinch/drag
     }, { passive: true });
 
     fsImage.addEventListener('touchend', function (e) {
@@ -401,10 +680,9 @@ document.addEventListener('DOMContentLoaded', function () {
           setFsImage((currentIndex + 1) % imageList.length);
         }
       }
-
-      scheduleHideFsThumbsBar(); // hide after inactivity
     }, { passive: true });
   }
+
 
   function syncFullscreenVisuals() {
     // If overlay is open and main changed, keep fullscreen in sync (fade-less swap)
@@ -526,6 +804,81 @@ document.addEventListener('DOMContentLoaded', function () {
       if (overlay) overlay.classList.remove('strip-visible');
     }, FS_STRIP_HIDE_DELAY);
   }
+
+  /* ======= Toggle FS thumbs by double-tap (single-tap does nothing)  ======= */
+
+  // Ensure thumbs bar exists before toggling (your project likely builds it lazily)
+  function ensureFsThumbsBuilt() {
+    if (!fsThumbsBar) {
+      buildFsThumbsOnce(); // your existing builder should assign fsThumbsBar / fsThumbsTrack
+    }
+  }
+
+  function hideFsThumbsBar() {
+    if (!overlay || !fsThumbsBar) return;
+    fsThumbsBar.classList.remove('visible');
+    fsThumbsBar.classList.add('hidden');
+    overlay.classList.remove('strip-visible');
+    if (fsStripTimer) { clearTimeout(fsStripTimer); fsStripTimer = null; }
+    overlay.dataset.fsManual = '0';
+  }
+
+  /** Show the thumbs bar and (re)start the auto-hide timer.
+   *  opts.manual=true => keep visible longer (3.5s); false/omitted => 1.5s
+   */
+  function showFsThumbsBar(opts) {
+    ensureFsThumbsBuilt();
+    if (!overlay || !fsThumbsBar) return;
+
+    var manual = !!(opts && opts.manual);
+    var delay = manual ? FS_STRIP_HIDE_DELAY_MANUAL : FS_STRIP_HIDE_DELAY;
+
+    fsThumbsBar.classList.add('visible');
+    fsThumbsBar.classList.remove('hidden');
+    overlay.classList.add('strip-visible');
+
+    overlay.dataset.fsManual = manual ? '1' : '0';
+
+    if (fsStripTimer) clearTimeout(fsStripTimer);
+    fsStripTimer = setTimeout(hideFsThumbsBar, delay);
+  }
+
+  function toggleFsThumbsBar() {
+    ensureFsThumbsBuilt();
+    if (!overlay || !fsThumbsBar) return;
+    var isVisible = fsThumbsBar.classList.contains('visible');
+    if (isVisible) {
+      hideFsThumbsBar();
+    } else {
+      showFsThumbsBar({ manual: true }); // manual => 3.5s
+    }
+  }
+
+  /** After any navigation (swipe or click a thumb), return to default behavior:
+   *  show (if hidden) and set auto-hide timer to 1.5s.
+   */
+  function resetThumbsBarAfterNavigation() {
+    showFsThumbsBar({ manual: false });
+  }
+
+  (function enableFsDoubleTapToggle() {
+    if (!fsImage) return;
+
+    let lastTap = 0;
+    const DBL_TAP_MS = 300;
+
+    fsImage.addEventListener('click', function () {
+      var now = Date.now();
+      if (now - lastTap <= DBL_TAP_MS) {
+        // Double-tap: toggle thumbs bar with manual timing (3.5s when shown)
+        toggleFsThumbsBar();
+        lastTap = 0;
+      } else {
+        lastTap = now;
+        // Single tap: do nothing (keeps pinch-zoom available)
+      }
+    }, { passive: true });
+  })();
 
   /* =================== Navigation (desktop buttons only) =================== */
   function prev() {

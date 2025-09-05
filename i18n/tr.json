@@ -1,0 +1,164 @@
+{
+  "meta": {
+    "title": "LAZURE Apartment Nikiti"
+  },
+
+  "nav": {
+    "aria.primary": "Ana menü",
+    "aria.primaryNav": "Ana gezinme",
+    "brand.aria": "Ana sayfa",
+    "menu.apartment": "Daire",
+    "menu.amenities": "Olanaklar",
+    "menu.location": "Konum",
+    "menu.contact": "İletişim",
+    "burger.label": "Menü",
+    "burger.aria": "Menüyü aç/kapat",
+    "mobile.aria": "Mobil gezinme"
+  },
+
+  "hero": {
+    "logo.alt": "LAZURE Apartment Nikiti",
+    "captions": [
+      "Sithonia'nın güzelliklerini keşfedin.",
+      "Muhteşem manzaralar.",
+      "Rahatlayın.",
+      "Lazure plajlarını ziyaret edin.",
+      "Halkidiki'yi keşfedin."
+    ],
+    "cta": "BİZE ULAŞIN"
+  },
+
+  "apartment": {
+    "title.img.alt": "Daire",
+    "carousel.aria": "Daire fotoğrafları",
+    "carousel.dots.aria": "Slayt seçici",
+    "btn.prev.aria": "Önceki fotoğraf",
+    "btn.next.aria": "Sonraki fotoğraf",
+    "info.h4": "LAZURE Apartment Nikiti'ye Hoş Geldiniz",
+    "info.p1": "Sithonia'nın kalbinde özel, şık bir kaçış noktası.",
+    "info.p2.part1": "Bu konforlu",
+    "info.p2.strong1": "25 m² tek odalı daire",
+    "info.p2.part2": "Bomo Nikiti kompleksinin zemin katında yer almaktadır, sadece",
+    "info.p2.strong2": "plaja 700 m",
+    "info.p2.part3": "ve sahil yoluna mesafede. Özel girişi, modern olanakları ve sessiz bahçesi ile",
+    "info.p2.strong3": "çiftler veya küçük aileler",
+    "info.p2.part4": "için idealdir. Sithonia yarımadasının doğal güzelliklerini,",
+    "info.p2.strong4": "tertemiz Mavi Bayraklı plajlarını",
+    "info.p2.part5": "ve Makedonya, Halkidiki'nin büyüleyici manzaralarını keşfetmek için mükemmeldir."
+  },
+
+  "amenities": {
+    "title.img.alt": "Olanaklar",
+    "subtitle.essential.img.alt": "Temel",
+
+    "cards.indoor": "25 m² kapalı alan",
+    "cards.outdoor": "17 m² özel açık alan",
+    "cards.bed": "160 cm yatak",
+    "cards.pool": "Ortak havuz",
+    "cards.kitchenette": "Mutfak",
+    "cards.aircon": "Klima",
+    "cards.wifi": "Wi-Fi",
+    "cards.safe": "Kasa",
+
+    "lists.inroom.title": "Oda içi olanaklar:",
+    "lists.inroom.items": [
+      "Akıllı TV",
+      "Çamaşır makinesi",
+      "Çamaşır kurutma askısı",
+      "Ütü ve ütü masası",
+      "İki kişilik plaj havlusu seti",
+      "Geniş gardırop"
+    ],
+
+    "lists.kitchenette.title": "Mutfak olanakları:",
+    "lists.kitchenette.items": [
+      "Ocak",
+      "Su ısıtıcısı",
+      "Buzdolabı",
+      "Mikrodalga fırın",
+      "Waffle makinesi",
+      "Kahve makinesi",
+      "Tam takım tabak & çatal-bıçak"
+    ],
+
+    "lists.bathroom.title": "Banyo olanakları:",
+    "lists.bathroom.items": [
+      "Geniş duş",
+      "Banyo malzemeleri",
+      "Banyo havluları",
+      "Saç kurutma makinesi"
+    ],
+
+    "lists.outer.title": "Dış alan olanakları:",
+    "lists.outer.items": [
+      "Özel çim alanı",
+      "Dış mekan masa & sandalyeler",
+      "Çocuk oyun alanı",
+      "Şezlong ve şemsiyeler"
+    ],
+
+    "lists.surroundings.title": "Çevre:",
+    "lists.surroundings.items": [
+      "Nikiti sahil yolu & plaj – 700 m",
+      "Nikiti tarihi merkez – 1000 m",
+      "Nikiti Tarih & Folklor Müzesi – 1400 m",
+      "Kafeler – 150 m'den itibaren",
+      "Restoranlar – 200 m'den itibaren",
+      "Büyük Yunan süpermarketleri – 450 m'den itibaren",
+      "Lidl – 1500 m"
+    ]
+  },
+
+  "policies": {
+    "title.img.alt": "Kurallar",
+    "noPets": "Evcil hayvan kabul edilmez",
+    "noSmoking": "Kapalı alanlarda sigara içmek yasaktır",
+    "noParties": "Partilere izin verilmez",
+    "parking": "Yakında ücretsiz halka açık otopark"
+  },
+
+  "location": {
+    "title.img.alt": "Konum",
+    "desktop.left.subtitle": "Haritada bizi bulun",
+    "desktop.right.subtitle": "Sadece tarayın & kaydedin",
+    "or": "VEYA",
+    "qr.alt": "QR kodu",
+
+    "mobile.links.subtitle": "Doğrudan bağlantılar",
+    "gmaps.img.alt": "Google Haritalar",
+    "waze.img.alt": "Waze",
+
+    "aria.openGmaps": "Google Haritalar'da aç",
+    "aria.openWaze": "Waze'de aç"
+  },
+
+  "contact": {
+    "title.img.alt": "İletişim",
+
+    "actions.phone.fig": "Ara",
+    "actions.email.fig": "E-posta",
+    "actions.whatsapp.fig": "WhatsApp",
+    "actions.viber.fig": "Viber",
+    "actions.booking.fig": "Booking.com",
+
+    "phone.extra": "+30 699 7144061",
+    "email.extra": "contact@lazurenikiti.gr",
+
+    "aria.call": "Telefon et",
+    "aria.email": "E-posta gönder",
+    "aria.whatsapp": "WhatsApp sohbetini aç",
+    "aria.viber": "Viber sohbetini aç",
+    "aria.booking": "Booking.com sayfasını aç",
+
+    "icons.phone.alt": "Telefon",
+    "icons.email.alt": "E-posta",
+    "icons.whatsapp.alt": "WhatsApp",
+    "icons.viber.alt": "Viber",
+    "icons.booking.alt": "Booking.com"
+  },
+
+  "footer": {
+    "logo.alt": "Lazure Logosu",
+    "text": "© 2025 LAZURE Apartment Nikiti. Tüm hakları saklıdır."
+  }
+}

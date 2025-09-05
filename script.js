@@ -1,362 +1,286 @@
-document.addEventListener("DOMContentLoaded", function () {
-  // =============================
-  // HERO: background crossfade + typing/erasing caption
-  // =============================
-  const backgrounds = [
-    'images/hero/karidi.webp',
-    'images/hero/halkidiki.webp',
-    'images/hero/sunset.webp',
-    'images/hero/platanitsi.webp',
-    'images/hero/daisymeadow.webp'
-  ];
+// =============================
+// Dynamic snap alignment by scroll direction
+// =============================
+(function dynamicSnapAlignByDirection(){
+  const root = document.documentElement;
+  let mode = 'start';
+  let touchStartY = null;
 
-  const captions = [
-    'Explore the Beauties of Sithonia.',
-    'Dream Wied.',
-    'Relax.',
-    'Visit the Lazure Beaches.',
-    'Feel the Greece.'
-  ];
-
-  const bg1 = document.querySelector('.bg1');
-  const bg2 = document.querySelector('.bg2');
-  const captionEl = document.getElementById('hero-caption');
-
-  let index = 0;
-  let active = true;
-
-  if (bg1 && bg2) {
-    bg1.style.backgroundImage = `url('${backgrounds[0]}')`;
-    bg1.classList.add('active');
-  }
-
-  if (captionEl) {
-    typeText(captions[0], () => {
-      setTimeout(scheduleSlideChange, 5000);
-    });
-  }
-
-  function scheduleSlideChange() {
-    eraseText(() => {
-      changeBackground();
-      typeText(captions[index], () => {
-        setTimeout(scheduleSlideChange, 5000);
-      });
-    });
-  }
-
-  function changeBackground() {
-    if (!bg1 || !bg2) return;
-    const nextIndex = (index + 1) % backgrounds.length;
-    const incoming = active ? bg2 : bg1;
-    const outgoing = active ? bg1 : bg2;
-
-    incoming.style.backgroundImage = `url('${backgrounds[nextIndex]}')`;
-    incoming.classList.add('active');
-    outgoing.classList.remove('active');
-
-    active = !active;
-    index = nextIndex;
-  }
-
-  function typeText(text, callback) {
-    if (!captionEl) { if (callback) callback(); return; }
-    let charIndex = 0;
-    function type() {
-      if (charIndex <= text.length) {
-        captionEl.textContent = text.substring(0, charIndex);
-        charIndex++;
-        setTimeout(type, 60);
-      } else {
-        if (callback) callback();
-      }
-    }
-    type();
-  }
-
-  function eraseText(callback) {
-    if (!captionEl) { if (callback) callback(); return; }
-    let text = captionEl.textContent;
-    let charIndex = text.length;
-    function erase() {
-      if (charIndex >= 0) {
-        captionEl.textContent = text.substring(0, charIndex);
-        charIndex--;
-        setTimeout(erase, 30);
-      } else {
-        if (callback) callback();
-      }
-    }
-    setTimeout(erase, 500);
-  }
-
-  // =============================
-  // NAVBAR: burger menu w/ blur overlay and smooth center reveal
-  // =============================
-  (function initMobileNavbar() {
-    const nav = document.getElementById("navbarNav");
-    const toggler = document.querySelector(".navbar-toggler");
-    if (!nav || !toggler) return;
-
-    // Create the blur/dim overlay once
-    let backdrop = document.querySelector(".menu-backdrop");
-    if (!backdrop) {
-      backdrop = document.createElement("div");
-      backdrop.className = "menu-backdrop";
-      document.body.appendChild(backdrop);
-    }
-
-    // If Bootstrap/jQuery are present, wire up collapse lifecycle for smooth timing
-    if (window.jQuery && typeof jQuery.fn.collapse === "function") {
-      const $nav = jQuery(nav);
-
-      // Start opening: show overlay and lock page immediately (removes gap between overlay and menu animation)
-      $nav.on("show.bs.collapse", function () {
-        document.body.classList.add("menu-open");
-        document.body.classList.remove("menu-opening");
-      });
-
-      // Fully opened: ensure final state
-      $nav.on("shown.bs.collapse", function () {
-        document.body.classList.add("menu-open");
-        document.body.classList.remove("menu-opening");
-      });
-
-      // Start closing: keep short intermediate state (prevents flicker on fast taps)
-      $nav.on("hide.bs.collapse", function () {
-        document.body.classList.remove("menu-open");
-        document.body.classList.add("menu-opening");
-      });
-
-      // Fully closed: clear all helper classes
-      $nav.on("hidden.bs.collapse", function () {
-        document.body.classList.remove("menu-opening");
-      });
-
-      // Click on overlay closes the menu
-      backdrop.addEventListener("click", function () {
-        if ($nav.hasClass("show")) $nav.collapse("hide");
-      });
-
-      // Click on any nav link closes the menu
-      document.querySelectorAll(".navbar .nav-link").forEach((link) => {
-        link.addEventListener("click", function () {
-          if ($nav.hasClass("show")) $nav.collapse("hide");
-        });
-      });
-
-      // Safety: if the menu appears open on load (e.g., hot reload), close it
-      if ($nav.hasClass("show")) $nav.collapse("hide");
+  function setMode(next) {
+    if (next === mode) return;
+    mode = next;
+    if (mode === 'end') {
+      root.classList.add('snap-end');
+      root.classList.remove('snap-start');
     } else {
-      // Fallback (no Bootstrap): simple toggle to add/remove body classes and overlay behavior
-      toggler.addEventListener("click", () => {
-        const isOpen = document.body.classList.toggle("menu-open");
-        if (!isOpen) document.body.classList.remove("menu-opening");
-      });
-      backdrop.addEventListener("click", () => {
-        document.body.classList.remove("menu-open", "menu-opening");
-      });
-      document.querySelectorAll(".navbar .nav-link").forEach((link) => {
-        link.addEventListener("click", () => {
-          document.body.classList.remove("menu-open", "menu-opening");
-        });
-      });
+      root.classList.add('snap-start');
+      root.classList.remove('snap-end');
     }
-  })();
+  }
 
-  /* Overlay Scrollbar — window (root) mode (normalized, zero-lag) */
-  (function () {
-    function initRootOverlayScroll() {
-      if (window.__osbRoot) return;
+  // Initial state: snap to top
+  root.classList.add('snap-start');
 
-      // Включать root-режим только если есть класс overlay-root на html или body
-      const rootHasClass =
-        document.documentElement.classList.contains('overlay-root') ||
-        document.body.classList.contains('overlay-root');
-      if (!rootHasClass) return;
+  // Wheel/trackpad
+  window.addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return; // ignore mostly horizontal
+    setMode(e.deltaY > 0 ? 'end' : 'start');
+  }, { passive: true });
 
-      // ЕДИНСТВЕННЫЙ скроллер страницы
-      const scroller = document.scrollingElement || document.documentElement;
+  // Keyboard navigation
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'PageDown' || e.key === 'ArrowDown' || e.key === 'End') {
+      setMode('end');
+    } else if (e.key === 'PageUp' || e.key === 'ArrowUp' || e.key === 'Home') {
+      setMode('start');
+    }
+  }, { passive: true });
 
-      // Рельса и ползунок (фикс справа экрана)
-      const rail  = document.createElement('div');
-      rail.className = 'osb-rail';
-      const thumb = document.createElement('div');
-      thumb.className = 'osb-thumb';
-      rail.appendChild(thumb);
-      document.body.appendChild(rail);
+  // Touch gestures
+  window.addEventListener('touchstart', (e) => {
+    if (!e.touches || !e.touches.length) return;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
 
-      // Оптимизации
-      thumb.style.willChange = 'transform';
-      thumb.style.touchAction = 'none';
+  window.addEventListener('touchmove', (e) => {
+    if (touchStartY == null || !e.touches || !e.touches.length) return;
+    const dy = touchStartY - e.touches[0].clientY;
+    if (Math.abs(dy) < 3) return; // dead zone for jitter
+    setMode(dy > 0 ? 'end' : 'start');
+  }, { passive: true });
 
-      // Быстрый доступ к скроллу
-      const getScrollTop = () => scroller.scrollTop || 0;
-      const setScrollTop = (y) => { scroller.scrollTop = y; };
+  window.addEventListener('touchend', () => { touchStartY = null; }, { passive: true });
+})();
 
-      // Метрики документа/вьюпорта
-      function getMetrics() {
-        const vh = window.innerHeight;
-        const sh = scroller.scrollHeight;
-        return { vh, sh };
+/* =======================================================
+   Overlay Scrollbar — window (root) mode (normalized)
+   - Activates only if html/body has class 'overlay-root'
+   - Skips on mobile/tablet (≤ 992px)
+   - Hides while mobile menu is open (html.menu-open)
+   ======================================================= */
+(function () {
+  function initRootOverlayScroll() {
+    // prevent double init
+    if (window.__osbRoot) return;
+
+    // Enable only when overlay-root is present
+    const rootHasClass =
+      document.documentElement.classList.contains('overlay-root') ||
+      document.body.classList.contains('overlay-root');
+    if (!rootHasClass) return;
+
+    // Skip on mobile/tablet (≤992px)
+    if (window.matchMedia('(max-width: 992px)').matches) {
+      const existing = document.querySelector('.osb-rail');
+      if (existing) existing.remove();
+      return;
+    }
+
+    // The single page scroller (browser default)
+    const scroller = document.scrollingElement || document.documentElement;
+
+    // Rail + Thumb (fixed at right edge)
+    const rail  = document.createElement('div');
+    rail.className = 'osb-rail';
+    rail.style.width = '10px';   // safe width, not overlapping typical UI at the corner
+    rail.style.right = '8px';
+    rail.style.top = '8px';
+    rail.style.bottom = '8px';
+
+    const thumb = document.createElement('div');
+    thumb.className = 'osb-thumb';
+    rail.appendChild(thumb);
+    document.body.appendChild(rail);
+
+    // Perf hints
+    thumb.style.willChange = 'transform';
+    thumb.style.touchAction = 'none';
+
+    // Helpers
+    const getScrollTop = () => scroller.scrollTop || 0;
+    const setScrollTop = (y) => { scroller.scrollTop = y; };
+
+    function getMetrics() {
+      const vh = window.innerHeight;
+      const sh = scroller.scrollHeight;
+      return { vh, sh };
+    }
+
+    // Cached metrics for drag session
+    let trackH = 0, thumbH = 0, maxTop = 0;
+    let viewportH = 0, scrollH = 0, maxScroll = 0;
+
+    const thumbTopFromScroll = (y) => (maxScroll <= 0 ? 0 : Math.round((y / maxScroll) * maxTop));
+    const scrollFromThumbTop = (t) => (maxTop   <= 0 ? 0 : (t / maxTop) * maxScroll);
+
+    // Sync scroll -> thumb (disabled while dragging)
+    let dragging = false;
+    function updateThumb() {
+      if (dragging) return;
+
+      const { vh, sh } = getMetrics();
+      const trackHeight = Math.max(window.innerHeight - 16, 0); // 8px padding top/bottom
+
+      // No scroll — hide rail
+      if (sh <= vh + 1) { rail.style.display = 'none'; return; }
+      rail.style.display = '';
+
+      const ratio  = vh / Math.max(sh, 1);
+      const hThumb = Math.max(40, Math.round(ratio * trackHeight));
+      const maxT   = Math.max(trackHeight - hThumb, 0);
+      const maxS   = Math.max(sh - vh, 0);
+      const y      = getScrollTop();
+      const top    = maxS > 0 ? Math.round((y / maxS) * maxT) : 0;
+
+      rail.style.height = trackHeight + 'px';
+      thumb.style.height = hThumb + 'px';
+      thumb.style.transform = 'translateY(' + top + 'px)';
+
+      trackH = trackHeight; thumbH = hThumb; maxTop = maxT;
+      viewportH = vh; scrollH = sh; maxScroll = maxS;
+    }
+
+    function positionRail() {
+      // positions already set; just update thumb
+      updateThumb();
+    }
+
+    // Hide rail while mobile menu is open (to avoid hit-testing conflicts)
+    function applyMenuOpenVisibility() {
+      const open = document.documentElement.classList.contains('menu-open');
+      rail.style.display = open ? 'none' : '';
+    }
+    const classObserver = new MutationObserver(applyMenuOpenVisibility);
+    classObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    applyMenuOpenVisibility();
+
+    // Events
+    window.addEventListener('scroll', updateThumb, { passive: true });
+    window.addEventListener('resize', () => {
+      // If resized into mobile mode — remove rail
+      if (window.matchMedia('(max-width: 992px)').matches) {
+        try { classObserver.disconnect(); } catch(_) {}
+        rail.remove();
+        window.__osbRoot = null;
+        return;
       }
-
-      // Позиционируем рельсу (фикс) и обновляем ползунок
-      function positionRail() {
-        rail.style.top = '8px';
-        rail.style.bottom = '8px';
-        rail.style.right = '8px';
-        updateThumb();
-      }
-
-      // Кэш для drag-сессии
-      let trackH = 0, thumbH = 0, maxTop = 0;
-      let viewportH = 0, scrollH = 0, maxScroll = 0;
-
-      // thumb <—> scroll
-      const thumbTopFromScroll = (y) => (maxScroll <= 0 ? 0 : Math.round((y / maxScroll) * maxTop));
-      const scrollFromThumbTop = (t) => (maxTop   <= 0 ? 0 : (t / maxTop) * maxScroll);
-
-      // Синк scroll -> thumb (пока не тащим)
-      let dragging = false;
-      function updateThumb() {
-        if (dragging) return;
-
-        const { vh, sh } = getMetrics();
-        const trackHeight = Math.max(window.innerHeight - 16, 0); // 8px сверху/снизу
-
-        // Нет скролла — прячем рельсу
-        if (sh <= vh + 1) { rail.style.display = 'none'; return; }
-        rail.style.display = '';
-
-        const ratio  = vh / Math.max(sh, 1);
-        const hThumb = Math.max(40, Math.round(ratio * trackHeight));
-        const maxT   = Math.max(trackHeight - hThumb, 0);
-        const maxS   = Math.max(sh - vh, 0);
-        const y      = getScrollTop();
-        const top    = maxS > 0 ? Math.round((y / maxS) * maxT) : 0;
-
-        // Применяем
-        rail.style.height = trackHeight + 'px';
-        thumb.style.height = hThumb + 'px';
-        thumb.style.transform = 'translateY(' + top + 'px)';
-
-        // Кэш на будущее
-        trackH = trackHeight; thumbH = hThumb; maxTop = maxT;
-        viewportH = vh; scrollH = sh; maxScroll = maxS;
-      }
-
-      // События окна
-      window.addEventListener('scroll', updateThumb, { passive: true });
-      window.addEventListener('resize', positionRail, { passive: true });
-
-      // Первый рендер
       positionRail();
+    }, { passive: true });
 
-      // ===== Drag (мгновенное соответствие; без rAF/scrollTo) =====
-      let dragStartY = 0;
-      let startThumbTop = 0;
+    // Initial render
+    positionRail();
 
-      // На время драга отключаем плавный скролл у реального скроллера
-      let prevScrollBehavior = '';
-      const disableSmooth = () => {
-        prevScrollBehavior = scroller.style.scrollBehavior || '';
-        scroller.style.scrollBehavior = 'auto';
-      };
-      const restoreSmooth = () => {
-        scroller.style.scrollBehavior = prevScrollBehavior;
-      };
+    // ===== Drag (immediate mapping; no smooth scroll) =====
+    let dragStartY = 0;
+    let startThumbTop = 0;
 
-      thumb.addEventListener('pointerdown', (e) => {
-        if (e.button !== 0 && e.pointerType === 'mouse') return;
+    let prevScrollBehavior = '';
+    const disableSmooth = () => {
+      prevScrollBehavior = scroller.style.scrollBehavior || '';
+      scroller.style.scrollBehavior = 'auto';
+    };
+    const restoreSmooth = () => {
+      scroller.style.scrollBehavior = prevScrollBehavior;
+    };
 
-        dragging = true;
-        thumb.setPointerCapture(e.pointerId);
+    thumb.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 && e.pointerType === 'mouse') return;
 
-        // Кэш метрик на старт
-        const { vh, sh } = getMetrics();
-        viewportH = vh;
-        scrollH   = sh;
-        trackH    = Math.max(window.innerHeight - 16, 0);
-        thumbH    = thumb.getBoundingClientRect().height || 40;
-        maxTop    = Math.max(trackH - thumbH, 0);
-        maxScroll = Math.max(scrollH - viewportH, 0);
+      dragging = true;
+      thumb.setPointerCapture(e.pointerId);
 
-        dragStartY = e.clientY;
-        startThumbTop = thumbTopFromScroll(getScrollTop());
+      const { vh, sh } = getMetrics();
+      viewportH = vh;
+      scrollH   = sh;
+      trackH    = Math.max(window.innerHeight - 16, 0);
+      thumbH    = thumb.getBoundingClientRect().height || 40;
+      maxTop    = Math.max(trackH - thumbH, 0);
+      maxScroll = Math.max(scrollH - viewportH, 0);
 
-        document.body.style.userSelect = 'none';
-        document.body.style.cursor = 'grabbing';
-        disableSmooth();
-        e.preventDefault();
-      });
+      dragStartY = e.clientY;
+      startThumbTop = thumbTopFromScroll(getScrollTop());
 
-      thumb.addEventListener('pointermove', (e) => {
-        if (!dragging) return;
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'grabbing';
+      disableSmooth();
+      e.preventDefault();
+    });
 
-        // Берём самый свежий coalesced event (если доступен)
-        const evts = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : null;
-        const last = evts && evts.length ? evts[evts.length - 1] : e;
+    thumb.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
 
-        const dy = last.clientY - dragStartY;
-        let nextTop = startThumbTop + dy;
-        if (nextTop < 0) nextTop = 0;
-        if (nextTop > maxTop) nextTop = maxTop;
+      const evts = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : null;
+      const last = evts && evts.length ? evts[evts.length - 1] : e;
 
-        // Двигаем визуально СРАЗУ
-        thumb.style.transform = 'translateY(' + nextTop + 'px)';
+      const dy = last.clientY - dragStartY;
+      let nextTop = startThumbTop + dy;
+      if (nextTop < 0) nextTop = 0;
+      if (nextTop > maxTop) nextTop = maxTop;
 
-        // И мгновенно ставим scrollTop напрямую (как нативный)
-        const target = scrollFromThumbTop(nextTop);
-        setScrollTop(target);
+      // Immediate visual move
+      thumb.style.transform = 'translateY(' + nextTop + 'px)';
 
-        e.preventDefault();
-      }, { passive: false });
+      // Map thumb to scrollTop directly
+      const target = scrollFromThumbTop(nextTop);
+      setScrollTop(target);
 
-      const endDrag = (e) => {
-        if (!dragging) return;
-        dragging = false;
-        try { if (e && e.pointerId != null) thumb.releasePointerCapture(e.pointerId); } catch(_) {}
-        document.body.style.userSelect = '';
-        document.body.style.cursor = '';
-        restoreSmooth();
-        updateThumb(); // финальная синхронизация
-      };
+      e.preventDefault();
+    }, { passive: false });
 
-      thumb.addEventListener('pointerup', endDrag);
-      thumb.addEventListener('pointercancel', endDrag);
-      document.addEventListener('pointerup', (e) => { if (dragging) endDrag(e); }, { passive: true });
+    const endDrag = (e) => {
+      if (!dragging) return;
+      dragging = false;
+      try { if (e && e.pointerId != null) thumb.releasePointerCapture(e.pointerId); } catch(_) {}
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+      restoreSmooth();
+      updateThumb();
+    };
 
-      // Клик по рельсе — перейти сразу
-      rail.addEventListener('mousedown', (e) => {
-        if (e.target === thumb) return;
-        const rect = rail.getBoundingClientRect();
-        const clickY = e.clientY - rect.top;
+    thumb.addEventListener('pointerup', endDrag);
+    thumb.addEventListener('pointercancel', endDrag);
+    document.addEventListener('pointerup', (e) => { if (dragging) endDrag(e); }, { passive: true });
 
-        const { vh, sh } = getMetrics();
-        const trackHeight = Math.max(window.innerHeight - 16, 0);
-        const hThumb = Math.max(40, Math.round((vh / Math.max(sh,1)) * trackHeight));
-        const maxT   = Math.max(trackHeight - hThumb, 0);
-        const maxS   = Math.max(sh - vh, 0);
+    // Click on rail to jump
+    rail.addEventListener('mousedown', (e) => {
+      if (e.target === thumb) return;
+      const rect = rail.getBoundingClientRect();
+      const clickY = e.clientY - rect.top;
 
-        const targetTop    = Math.min(Math.max(clickY - hThumb / 2, 0), maxT);
-        const targetScroll = (targetTop / Math.max(maxT,1)) * maxS;
+      const { vh, sh } = getMetrics();
+      const trackHeight = Math.max(window.innerHeight - 16, 0);
+      const hThumb = Math.max(40, Math.round((vh / Math.max(sh,1)) * trackHeight));
+      const maxT   = Math.max(trackHeight - hThumb, 0);
+      const maxS   = Math.max(sh - vh, 0);
 
-        setScrollTop(targetScroll);
-        rail.style.height = trackHeight + 'px';
-        thumb.style.height = hThumb + 'px';
-        thumb.style.transform = 'translateY(' + targetTop + 'px)';
-        e.preventDefault();
-      });
+      const targetTop    = Math.min(Math.max(clickY - hThumb / 2, 0), maxT);
+      const targetScroll = (targetTop / Math.max(maxT,1)) * maxS;
 
-      window.__osbRoot = { rail, thumb };
-    }
+      setScrollTop(targetScroll);
+      rail.style.height = trackHeight + 'px';
+      thumb.style.height = hThumb + 'px';
+      thumb.style.transform = 'translateY(' + targetTop + 'px)';
+      e.preventDefault();
+    });
 
-    // Инициализация
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initRootOverlayScroll);
+    // expose (optional)
+    window.__osbRoot = { rail, thumb, remove() { try { classObserver.disconnect(); } catch(_) {} rail.remove(); window.__osbRoot = null; } };
+  }
+
+  // init now or on DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initRootOverlayScroll, { once: true });
+  } else {
+    initRootOverlayScroll();
+  }
+
+  // Re-init when crossing the 992px breakpoint (desktop <-> mobile)
+  const mq = window.matchMedia('(max-width: 992px)');
+  (mq.addEventListener || mq.addListener).call(mq, 'change' in mq ? 'change' : undefined, () => {
+    if (mq.matches) {
+      if (window.__osbRoot && window.__osbRoot.remove) window.__osbRoot.remove();
     } else {
-      initRootOverlayScroll();
+      if (!window.__osbRoot) initRootOverlayScroll();
     }
-  })();
-});
+  });
+})();

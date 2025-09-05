@@ -87,6 +87,7 @@
   align-items: center;
   justify-content: center;
   isolation: isolate;
+  touch-action: pinch-zoom;
 }
 #fullscreen-overlay.active { display: flex; }
 
@@ -101,6 +102,7 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   object-fit: contain;
   display: block;
   will-change: opacity, transform; /* for fade */
+  touch-action: pinch-zoom;
 }
 
 /* When the thumb strip is visible, still keep image edge-to-edge.
@@ -145,39 +147,31 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
 #fs-close:hover::after { background: #fff; }
 
 /* =========================================
-   MOBILE CAROUSEL (scroll-snap) — full-bleed
+   MOBILE CAROUSEL — transform-based train-of-three (no scroll-snap)
    ========================================= */
 
 /* Show/structure */
 .mobile-carousel {
-  display: none;
-  position: relative;
-  margin-top: 8px;
-  /* Full-bleed across viewport on mobile (keeps aspect via images) */
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
+  overflow: hidden;
 }
 
-/* Track: each slide = full viewport width for perfect snapping */
+/* Track: flex row we translate with transform */
 .carousel-track {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 100vw;       /* key change: viewport-based width */
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x mandatory;
-  scroll-snap-stop: always;
-  scroll-behavior: smooth;
-  scroll-padding-inline: 0;
+  display: flex;
+  will-change: transform;
+  transition: transform 320ms cubic-bezier(.22,.61,.36,1);
+  touch-action: pan-y;
+  backface-visibility: hidden;
+  transform: translate3d(0,0,0);
 }
-.carousel-track::-webkit-scrollbar { display: none; }
 
-/* Slides */
+/* Slides occupy full viewport width */
 .slide {
+  flex: 0 0 100%;
   position: relative;
-  scroll-snap-align: start;       /* start avoids drift on rotation */
-  scroll-snap-stop: always;
 }
 
 /* Images keep proportions, no cropping */
@@ -188,32 +182,21 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   object-fit: contain;
 }
 
-/* Mobile carousel dots — rings */
-.carousel-dots {
-  margin-top: 12px;
-  text-align: center;
-}
-
+/* Dots — keep your existing styling */
+.carousel-dots { margin-top: 12px; text-align: center; }
 .carousel-dots button {
   all: unset;
   display: inline-block;
-  width: 12px;
-  height: 12px;
-  box-sizing: border-box;
-  border-radius: 50%;
-  margin: 0 5px;
-  background: transparent;
-  border: 2px solid #000;
-  opacity: .6;
-  cursor: pointer;
+  width: 12px; height: 12px; box-sizing: border-box;
+  border-radius: 50%; margin: 0 5px; background: transparent;
+  border: 2px solid #000; opacity: .6; cursor: pointer;
   transition: background .2s ease, border .2s ease, opacity .2s ease;
 }
+.carousel-dots button[aria-current="true"] { background: #000; border-color: #000; opacity: 1; }
 
-/* Active = solid black circle */
-.carousel-dots button[aria-current="true"] {
-  background: #000;
-  border-color: #000;
-  opacity: 1;
+/* Desktop/tablet keep the old behavior (hide mobile carousel) */
+@media (min-width: 992px) {
+  .mobile-carousel, .carousel-dots { display: none !important; }
 }
 
 /* =========================================

@@ -1,0 +1,22 @@
+/* =========================================
+   FOOTER
+   ========================================= */
+
+.site-footer {
+  background-color: var(--footer-bg);
+  color: var(--text-muted);
+  padding: 40px 0;
+  font-family: 'Montserrat', sans-serif;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-logo {
+  max-width: 150px;
+  margin-bottom: 15px;
+  opacity: 0.8;
+}
+
+.footer-text {
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}

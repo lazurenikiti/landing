@@ -1,0 +1,166 @@
+{
+  "meta": {
+    "title": "LAZURE Apartment Nikiti"
+  },
+
+  "nav": {
+    "aria.primary": "Головне меню",
+    "aria.primaryNav": "Основна навігація",
+    "brand.aria": "Головна",
+    "menu.apartment": "Апартаменти",
+    "menu.amenities": "Зручності",
+    "menu.location": "Локація",
+    "menu.contact": "Контакти",
+    "burger.label": "Меню",
+    "burger.aria": "Перемкнути меню",
+    "mobile.aria": "Мобільна навігація"
+  },
+
+  "hero": {
+    "logo.alt": "LAZURE Apartment Nikiti",
+    "captions": [
+      "Відкрийте красу Ситонії.",
+      "Вражаючі краєвиди.",
+      "Пориньте у відпочинок.",
+      "Відвідайте лазурові пляжі.",
+      "Дослідіть Грецію."
+    ],
+    "cta": "ЗВ’ЯЗАТИСЯ"
+  },
+
+  "apartment": {
+    "title.img.alt": "Апартаменти",
+    "carousel.aria": "Фото апартаментів",
+    "carousel.dots.aria": "Вибір слайда",
+    "btn.prev.aria": "Попереднє фото",
+    "btn.next.aria": "Наступне фото",
+    "info.h4": "Ласкаво просимо до LAZURE Apartment Nikiti",
+    "info.p1": "Ваш приватні, елегантні апартаменти у самому серці Ситонії.",
+    "info.p2.part1": "Ці затишні",
+    "info.p2.strong1": "25 м² однокімнатні апартаменти",
+    "info.p2.part2": "розташовані на першому поверсі комплексу",
+    "info.p2.em": "Bomo Nikiti",
+    "info.p2.part3": ", лише за",
+    "info.p2.strong2": "700 м від пляжу",
+    "info.p2.part4": "та набережної. З окремим входом, сучасними зручностями та тихим садом — вони ідеально підходять для",
+    "info.p2.strong3": "пар або невеликих сімей",
+    "info.p2.part5": "що прагнуть комфорту і затишку. Це чудовий вибір для відкриття природної краси півострова Ситонія з його численими",
+    "info.p2.strong4": "лазуровими пляжами, що позначені Блакитними прапорами ",
+    "info.p2.part6": "та захопливими краєвидами Халкідікі, Македонія."
+  },
+
+  "amenities": {
+    "title.img.alt": "Зручності",
+    "subtitle.essential.img.alt": "Головне",
+
+    "cards.indoor": "25 м² внутрішнього простору",
+    "cards.outdoor": "17 м² приватної тераси",
+    "cards.bed": "Ліжко 160 см",
+    "cards.pool": "Басейн комплексу",
+    "cards.kitchenette": "Міні-кухня",
+    "cards.aircon": "Кондиціонер",
+    "cards.wifi": "Wi-Fi",
+    "cards.safe": "Сейф",
+
+    "lists.inroom.title": "Номер:",
+    "lists.inroom.items": [
+      "Смарт-ТВ",
+      "Пральна машина",
+      "Сушарка для одягу",
+      "Праска та прасувальна дошка",
+      "Комплект пляжних рушників для двох",
+      "Простора шафа"
+    ],
+
+    "lists.kitchenette.title": "Міні-кухня:",
+    "lists.kitchenette.items": [
+      "Плита",
+      "Електрочайник",
+      "Холодильник",
+      "Мікрохвильова піч",
+      "Вафельниця",
+      "Кавова машина",
+      "Повний набір посуду та столових приборів"
+    ],
+
+    "lists.bathroom.title": "Ванна кімната:",
+    "lists.bathroom.items": [
+      "Просторий душ",
+      "Туалетні приналежності",
+      "Рушники для ванни",
+      "Фен"
+    ],
+
+    "lists.outer.title": "На подвір'ї:",
+    "lists.outer.items": [
+      "Приватний міні-сад",
+      "Стіл і стільці для вулиці",
+      "Дитячий майданчик",
+      "Лежаки та парасольки для гостей"
+    ],
+
+    "lists.surroundings.title": "Що навкруги:",
+    "lists.surroundings.items": [
+      "Головна набережна та пляж Нікіті – 700 м",
+      "Історичний центр Нікіті – 1000 м",
+      "Історико-фольклорний музей Нікіті – 1400 м",
+      "Кав’ярні – від 150 м",
+      "Ресторани – від 200 м",
+      "Великі грецькі мережеві супермаркети – від 450 м",
+      "Супермаркет Lidl – 1500 м"
+    ]
+  },
+
+  "policies": {
+    "title.img.alt": "Правила",
+    "noPets": "Домашні тварини заборонені",
+    "noSmoking": "Куріння в приміщенні заборонено",
+    "noParties": "Вечірки заборонені",
+    "parking": "Безкоштовна громадська парковка поруч"
+  },
+
+  "location": {
+    "title.img.alt": "Локація",
+    "desktop.left.subtitle": "Знайдіть нас на мапі",
+    "desktop.right.subtitle": "Просто відскануйте й збережіть",
+    "or": "АБО",
+    "qr.alt": "QR-код",
+
+    "mobile.links.subtitle": "Прямі посилання",
+    "gmaps.img.alt": "Google Maps",
+    "waze.img.alt": "Waze",
+
+    "aria.openGmaps": "Відкрити в Google Maps",
+    "aria.openWaze": "Відкрити в Waze"
+  },
+
+  "contact": {
+    "title.img.alt": "Контакти",
+
+    "actions.phone.fig": "Зателефонувати",
+    "actions.email.fig": "Email",
+    "actions.whatsapp.fig": "WhatsApp",
+    "actions.viber.fig": "Viber",
+    "actions.booking.fig": "Booking.com",
+
+    "phone.extra": "+30 699 7144061",
+    "email.extra": "contact@lazurenikiti.gr",
+
+    "aria.call": "Зателефонувати",
+    "aria.email": "Надіслати email",
+    "aria.whatsapp": "Відкрити чат WhatsApp",
+    "aria.viber": "Відкрити чат Viber",
+    "aria.booking": "Відкрити сторінку Booking.com",
+
+    "icons.phone.alt": "Телефон",
+    "icons.email.alt": "Email",
+    "icons.whatsapp.alt": "WhatsApp",
+    "icons.viber.alt": "Viber",
+    "icons.booking.alt": "Booking.com"
+  },
+
+  "footer": {
+    "logo.alt": "Логотип Lazure",
+    "text": "© 2025 LAZURE Apartment Nikiti. Усі права захищено."
+  }
+}

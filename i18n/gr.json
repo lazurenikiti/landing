@@ -1,0 +1,166 @@
+{
+  "meta": {
+    "title": "LAZURE Apartment Nikiti"
+  },
+
+  "nav": {
+    "aria.primary": "Κύριο μενού",
+    "aria.primaryNav": "Κύρια πλοήγηση",
+    "brand.aria": "Αρχική",
+    "menu.apartment": "Διαμέρισμα",
+    "menu.amenities": "Παροχές",
+    "menu.location": "Τοποθεσία",
+    "menu.contact": "Επικοινωνία",
+    "burger.label": "Μενού",
+    "burger.aria": "Εναλλαγή μενού",
+    "mobile.aria": "Πλοήγηση κινητού"
+  },
+
+  "hero": {
+    "logo.alt": "LAZURE Apartment Nikiti",
+    "captions": [
+      "Ανακαλύψτε τις ομορφιές της Σιθωνίας.",
+      "Εκπληκτική θέα.",
+      "Χαλαρώστε.",
+      "Επισκεφθείτε τις Λαζουρέ παραλίες.",
+      "Ανακαλύψτε τη Χαλκιδική."
+    ],
+    "cta": "ΕΠΙΚΟΙΝΩΝΗΣΤΕ ΜΑΖΙ ΜΑΣ"
+  },
+
+  "apartment": {
+    "title.img.alt": "Διαμέρισμα",
+    "carousel.aria": "Φωτογραφίες διαμερίσματος",
+    "carousel.dots.aria": "Επιλογή διαφάνειας",
+    "btn.prev.aria": "Προηγούμενη φωτογραφία",
+    "btn.next.aria": "Επόμενη φωτογραφία",
+    "info.h4": "Καλώς ήρθατε στο LAZURE Apartment Nikiti",
+    "info.p1": "Το προσωπικό, κομψό καταφύγιό σας στην καρδιά της Σιθωνίας.",
+    "info.p2.part1": "Αυτό το άνετο",
+    "info.p2.strong1": "διαμέρισμα ενός δωματίου 25 τ.μ.",
+    "info.p2.part2": "βρίσκεται στο ισόγειο του",
+    "info.p2.em": "συγκροτήματος Bomo Nikiti",
+    "info.p2.part3": ", μόλις",
+    "info.p2.strong2": "700 μ. από την παραλία",
+    "info.p2.part4": "και τον παραλιακό δρόμο. Με ιδιωτική είσοδο, σύγχρονες παροχές και ήσυχο κήπο, είναι ιδανικό για",
+    "info.p2.strong3": "ζευγάρια ή μικρές οικογένειες",
+    "info.p2.part5": "που αναζητούν άνεση και ευκολία. Είναι ιδανικό για να ανακαλύψετε τη φυσική ομορφιά της χερσονήσου Σιθωνίας, με τις",
+    "info.p2.strong4": "πεντακάθαρες παραλίες με Γαλάζια Σημαία",
+    "info.p2.part6": "καθώς και τα συναρπαστικά τοπία της Χαλκιδικής και της Μακεδονίας."
+  },
+
+  "amenities": {
+    "title.img.alt": "Παροχές",
+    "subtitle.essential.img.alt": "Βασικές",
+
+    "cards.indoor": "25 τ.μ. εσωτερικού χώρου",
+    "cards.outdoor": "17 τ.μ. ιδιωτικός εξωτερικός χώρος",
+    "cards.bed": "Κρεβάτι 160 εκ.",
+    "cards.pool": "Κοινόχρηστη πισίνα",
+    "cards.kitchenette": "Κουζινάκι",
+    "cards.aircon": "Κλιματισμός",
+    "cards.wifi": "Wi-Fi",
+    "cards.safe": "Χρηματοκιβώτιο",
+
+    "lists.inroom.title": "Παροχές δωματίου:",
+    "lists.inroom.items": [
+      "Smart TV",
+      "Πλυντήριο ρούχων",
+      "Σχάρα στεγνώματος ρούχων",
+      "Σίδερο & σιδερώστρα",
+      "Σετ πετσέτες θαλάσσης για δύο άτομα",
+      "Άφθονος αποθηκευτικός χώρος"
+    ],
+
+    "lists.kitchenette.title": "Παροχές κουζινιού:",
+    "lists.kitchenette.items": [
+      "Μάτι κουζίνας",
+      "Βραστήρας",
+      "Ψυγείο",
+      "Φούρνος μικροκυμάτων",
+      "Βαφλιέρα",
+      "Καφετιέρα",
+      "Πλήρες σετ πιάτων & μαχαιροπήρουνων"
+    ],
+
+    "lists.bathroom.title": "Παροχές μπάνιου:",
+    "lists.bathroom.items": [
+      "Άνετο ντους",
+      "Προϊόντα περιποίησης",
+      "Πετσέτες μπάνιου",
+      "Σεσουάρ"
+    ],
+
+    "lists.outer.title": "Εξωτερικές παροχές:",
+    "lists.outer.items": [
+      "Ιδιωτικός κήπος",
+      "Τραπέζι & καρέκλες εξωτερικού χώρου",
+      "Παιδική χαρά",
+      "Ξαπλώστρες & ομπρέλες για τους επισκέπτες"
+    ],
+
+    "lists.surroundings.title": "Περιοχή:",
+    "lists.surroundings.items": [
+      "Κεντρική παραλία & παραλιακός δρόμος Νικήτης – 700 μ.",
+      "Ιστορικό κέντρο Νικήτης – 1000 μ.",
+      "Ιστορικό & Λαογραφικό Μουσείο Νικήτης – 1400 μ.",
+      "Καφέ – από 150 μ.",
+      "Εστιατόρια – από 200 μ.",
+      "Μεγάλα ελληνικά σούπερ μάρκετ – από 450 μ.",
+      "Lidl – 1500 μ."
+    ]
+  },
+
+  "policies": {
+    "title.img.alt": "Πολιτικές",
+    "noPets": "Δεν επιτρέπονται κατοικίδια",
+    "noSmoking": "Απαγορεύεται το κάπνισμα σε εσωτερικούς χώρους",
+    "noParties": "Δεν επιτρέπονται πάρτι",
+    "parking": "Δωρεάν δημόσιος χώρος στάθμευσης κοντά"
+  },
+
+  "location": {
+    "title.img.alt": "Τοποθεσία",
+    "desktop.left.subtitle": "Βρείτε μας στο χάρτη",
+    "desktop.right.subtitle": "Απλώς σαρώστε & αποθηκεύστε",
+    "or": "Ή",
+    "qr.alt": "QR κωδικός",
+
+    "mobile.links.subtitle": "Απευθείας σύνδεσμοι",
+    "gmaps.img.alt": "Google Maps",
+    "waze.img.alt": "Waze",
+
+    "aria.openGmaps": "Άνοιγμα στο Google Maps",
+    "aria.openWaze": "Άνοιγμα στο Waze"
+  },
+
+  "contact": {
+    "title.img.alt": "Επικοινωνία",
+
+    "actions.phone.fig": "Κλήση",
+    "actions.email.fig": "Email",
+    "actions.whatsapp.fig": "WhatsApp",
+    "actions.viber.fig": "Viber",
+    "actions.booking.fig": "Booking.com",
+
+    "phone.extra": "+30 699 7144061",
+    "email.extra": "contact@lazurenikiti.gr",
+
+    "aria.call": "Τηλεφωνική κλήση",
+    "aria.email": "Αποστολή email",
+    "aria.whatsapp": "Άνοιγμα συνομιλίας WhatsApp",
+    "aria.viber": "Άνοιγμα συνομιλίας Viber",
+    "aria.booking": "Άνοιγμα σελίδας Booking.com",
+
+    "icons.phone.alt": "Τηλέφωνο",
+    "icons.email.alt": "Email",
+    "icons.whatsapp.alt": "WhatsApp",
+    "icons.viber.alt": "Viber",
+    "icons.booking.alt": "Booking.com"
+  },
+
+  "footer": {
+    "logo.alt": "Λογότυπο Lazure",
+    "text": "© 2025 LAZURE Apartment Nikiti. Όλα τα δικαιώματα διατηρούνται."
+  }
+}

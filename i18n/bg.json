@@ -1,0 +1,166 @@
+{
+  "meta": {
+    "title": "LAZURE Apartment Nikiti"
+  },
+
+  "nav": {
+    "aria.primary": "Главно меню",
+    "aria.primaryNav": "Основна навигация",
+    "brand.aria": "Начало",
+    "menu.apartment": "Апартамент",
+    "menu.amenities": "Удобства",
+    "menu.location": "Локация",
+    "menu.contact": "Контакт",
+    "burger.label": "Меню",
+    "burger.aria": "Превключване на менюто",
+    "mobile.aria": "Мобилна навигация"
+  },
+
+  "hero": {
+    "logo.alt": "LAZURE Apartment Nikiti",
+    "captions": [
+      "Открийте красотата на Ситония.",
+      "Зашеметяващи гледки.",
+      "Отпуснете се.",
+      "Посетете плажовете Lazure.",
+      "Открийте Халкидики."
+    ],
+    "cta": "СВЪРЖИ СЕ"
+  },
+
+  "apartment": {
+    "title.img.alt": "Апартамент",
+    "carousel.aria": "Снимки на апартамента",
+    "carousel.dots.aria": "Избор на слайд",
+    "btn.prev.aria": "Предишна снимка",
+    "btn.next.aria": "Следваща снимка",
+    "info.h4": "Добре дошли в LAZURE Apartment Nikiti",
+    "info.p1": "Вашето частно, елегантно убежище в сърцето на Ситония.",
+    "info.p2.part1": "Този уютен",
+    "info.p2.strong1": "едностаен апартамент от 25 м²",
+    "info.p2.part2": "се намира на приземния етаж на комплекса",
+    "info.p2.em": "Bomo Nikiti",
+    "info.p2.part3": ", само на",
+    "info.p2.strong2": "700 м от плажа",
+    "info.p2.part4": "и крайбрежната алея. С частен вход, модерни удобства и тих двор, той е идеален за",
+    "info.p2.strong3": "двойки или малки семейства",
+    "info.p2.part5": "в търсене на комфорт и удобство. Той е чудесен избор за откриване на природната красота на полуостров Ситония с неговите",
+    "info.p2.strong4": "кристално чисти плажове със Син флаг",
+    "info.p2.part6": "както и впечатляващите пейзажи на Халкидики и Македония."
+  },
+
+  "amenities": {
+    "title.img.alt": "Удобства",
+    "subtitle.essential.img.alt": "Основни",
+
+    "cards.indoor": "25 м² вътрешно пространство",
+    "cards.outdoor": "17 м² частен външен двор",
+    "cards.bed": "Легло 160 см",
+    "cards.pool": "Споделен басейн",
+    "cards.kitchenette": "Кухненски бокс",
+    "cards.aircon": "Климатик",
+    "cards.wifi": "Wi-Fi",
+    "cards.safe": "Сейф",
+
+    "lists.inroom.title": "Удобства в стаята:",
+    "lists.inroom.items": [
+      "Smart TV",
+      "Пералня",
+      "Сушилник за дрехи",
+      "Ютия и дъска за гладене",
+      "Комплект плажни кърпи за двама",
+      "Просторен гардероб"
+    ],
+
+    "lists.kitchenette.title": "Кухненски удобства:",
+    "lists.kitchenette.items": [
+      "Котлон",
+      "Електрическа кана",
+      "Хладилник",
+      "Микровълнова печка",
+      "Гофретник",
+      "Кафемашина",
+      "Пълен комплект съдове и прибори"
+    ],
+
+    "lists.bathroom.title": "Баня:",
+    "lists.bathroom.items": [
+      "Просторна душ кабина",
+      "Тоалетни принадлежности",
+      "Хавлии за баня",
+      "Сешоар"
+    ],
+
+    "lists.outer.title": "Външни удобства:",
+    "lists.outer.items": [
+      "Частна тревна площ",
+      "Маса и столове за вън",
+      "Детска площадка",
+      "Шезлонги и чадъри за гостите"
+    ],
+
+    "lists.surroundings.title": "Околности:",
+    "lists.surroundings.items": [
+      "Главна алея и плаж Никити – 700 м",
+      "Исторически център на Никити – 1000 м",
+      "Исторически и етнографски музей на Никити – 1400 м",
+      "Кафенета – от 150 м",
+      "Ресторанти – от 200 м",
+      "Големи гръцки супермаркети – от 450 м",
+      "Lidl – 1500 м"
+    ]
+  },
+
+  "policies": {
+    "title.img.alt": "Политики",
+    "noPets": "Домашни любимци не са позволени",
+    "noSmoking": "Пушенето в помещенията е забранено",
+    "noParties": "Купони не са позволени",
+    "parking": "Безплатен обществен паркинг наблизо"
+  },
+
+  "location": {
+    "title.img.alt": "Локация",
+    "desktop.left.subtitle": "Намерете ни на картата",
+    "desktop.right.subtitle": "Сканирайте и запазете",
+    "or": "ИЛИ",
+    "qr.alt": "QR код",
+
+    "mobile.links.subtitle": "Директни връзки",
+    "gmaps.img.alt": "Google Maps",
+    "waze.img.alt": "Waze",
+
+    "aria.openGmaps": "Отвори в Google Maps",
+    "aria.openWaze": "Отвори в Waze"
+  },
+
+  "contact": {
+    "title.img.alt": "Контакт",
+
+    "actions.phone.fig": "Обадете се",
+    "actions.email.fig": "Имейл",
+    "actions.whatsapp.fig": "WhatsApp",
+    "actions.viber.fig": "Viber",
+    "actions.booking.fig": "Booking.com",
+
+    "phone.extra": "+30 699 7144061",
+    "email.extra": "contact@lazurenikiti.gr",
+
+    "aria.call": "Телефонно обаждане",
+    "aria.email": "Изпрати имейл",
+    "aria.whatsapp": "Отвори чат в WhatsApp",
+    "aria.viber": "Отвори чат в Viber",
+    "aria.booking": "Отвори страницата на Booking.com",
+
+    "icons.phone.alt": "Телефон",
+    "icons.email.alt": "Имейл",
+    "icons.whatsapp.alt": "WhatsApp",
+    "icons.viber.alt": "Viber",
+    "icons.booking.alt": "Booking.com"
+  },
+
+  "footer": {
+    "logo.alt": "Лого Lazure",
+    "text": "© 2025 LAZURE Apartment Nikiti. Всички права запазени."
+  }
+}

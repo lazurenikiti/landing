@@ -1,0 +1,166 @@
+{
+  "meta": {
+    "title": "LAZURE Apartment Nikiti"
+  },
+
+  "nav": {
+    "aria.primary": "Hauptmenü",
+    "aria.primaryNav": "Hauptnavigation",
+    "brand.aria": "Startseite",
+    "menu.apartment": "Apartment",
+    "menu.amenities": "Ausstattung",
+    "menu.location": "Lage",
+    "menu.contact": "Kontakt",
+    "burger.label": "Menü",
+    "burger.aria": "Menü umschalten",
+    "mobile.aria": "Mobile Navigation"
+  },
+
+  "hero": {
+    "logo.alt": "LAZURE Apartment Nikiti",
+    "captions": [
+      "Entdecken Sie die Schönheiten von Sithonia.",
+      "Atemberaubende Ausblicke.",
+      "Entspannen.",
+      "Besuchen Sie die lazure Strände.",
+      "Entdecken Sie Griechenland."
+    ],
+    "cta": "KONTAKT "
+  },
+
+  "apartment": {
+    "title.img.alt": "Apartment",
+    "carousel.aria": "Apartment-Fotos",
+    "carousel.dots.aria": "Folie auswählen",
+    "btn.prev.aria": "Vorheriges Foto",
+    "btn.next.aria": "Nächstes Foto",
+    "info.h4": "Herzlich willkommen im LAZURE Apartment Nikiti",
+    "info.p1": "Ihr privater, eleganter Rückzugsort im Herzen von Sithonia.",
+    "info.p2.part1": "Dieses gemütliche",
+    "info.p2.strong1": "25 m² Einzimmerapartment",
+    "info.p2.part2": "befindet sich im Erdgeschoss des",
+    "info.p2.em": "Bomo Nikiti Komplexes",
+    "info.p2.part3": ", nur",
+    "info.p2.strong2": "700 m vom Strand",
+    "info.p2.part4": "und der Promenade entfernt. Mit eigenem Eingang, moderner Ausstattung und privatem Garten eignet es sich ideal für",
+    "info.p2.strong3": "Paare oder kleine Familien",
+    "info.p2.part5": ", die Komfort und Bequemlichkeit suchen. Perfekt, um die natürliche Schönheit der Halbinsel Sithonia mit ihren",
+    "info.p2.strong4": "kristallklaren Stränden mit Blauer Flagge",
+    "info.p2.part6": "sowie die faszinierenden Landschaften von Chalkidiki, Makedonien, zu entdecken."
+  },
+
+  "amenities": {
+    "title.img.alt": "Ausstattung",
+    "subtitle.essential.img.alt": "Wichtig",
+
+    "cards.indoor": "25 m² Innenbereich",
+    "cards.outdoor": "17 m² private Außenfläche",
+    "cards.bed": "160 cm Bett",
+    "cards.pool": "Gemeinschaftspool",
+    "cards.kitchenette": "Kochnische",
+    "cards.aircon": "Klimaanlage",
+    "cards.wifi": "WLAN",
+    "cards.safe": "Safe",
+
+    "lists.inroom.title": "Ausstattung im Zimmer:",
+    "lists.inroom.items": [
+      "Smart-TV",
+      "Waschmaschine",
+      "Wäscheständer",
+      "Bügeleisen & Bügeltische",
+      "Strandtuch-Set für zwei Personen",
+      "Großer Kleiderschrank"
+    ],
+
+    "lists.kitchenette.title": "Kochnische:",
+    "lists.kitchenette.items": [
+      "Kochfeld",
+      "Wasserkocher",
+      "Kühlschrank",
+      "Mikrowelle",
+      "Waffeleisen",
+      "Kaffeemaschine",
+      "Komplettes Geschirr & Besteck"
+    ],
+
+    "lists.bathroom.title": "Badezimmer:",
+    "lists.bathroom.items": [
+      "Geräumige Dusche",
+      "Toilettenartikel",
+      "Badetücher",
+      "Haartrockner"
+    ],
+
+    "lists.outer.title": "Außenbereich:",
+    "lists.outer.items": [
+      "Privater Rasenbereich",
+      "Tisch & Stühle für draußen",
+      "Kinderspielplatz",
+      "Liegen & Sonnenschirme für alle Gäste"
+    ],
+
+    "lists.surroundings.title": "Umgebung:",
+    "lists.surroundings.items": [
+      "Hauptpromenade & Strand von Nikiti – 700 m",
+      "Historisches Zentrum von Nikiti – 1000 m",
+      "Historisches & Volkskundemuseum Nikiti – 1400 m",
+      "Cafés – ab 150 m",
+      "Restaurants – ab 200 m",
+      "Große griechische Supermärkte – ab 450 m",
+      "Lidl – 1500 m"
+    ]
+  },
+
+  "policies": {
+    "title.img.alt": "Richtlinien",
+    "noPets": "Keine Haustiere erlaubt",
+    "noSmoking": "Rauchen im Innenbereich verboten",
+    "noParties": "Keine Partys erlaubt",
+    "parking": "Kostenlose öffentliche Parkplätze in der Nähe"
+  },
+
+  "location": {
+    "title.img.alt": "Lage",
+    "desktop.left.subtitle": "Finden Sie uns auf der Karte",
+    "desktop.right.subtitle": "Einfach scannen & speichern",
+    "or": "ODER",
+    "qr.alt": "QR-Code",
+
+    "mobile.links.subtitle": "Direkte Links",
+    "gmaps.img.alt": "Google Maps",
+    "waze.img.alt": "Waze",
+
+    "aria.openGmaps": "In Google Maps öffnen",
+    "aria.openWaze": "In Waze öffnen"
+  },
+
+  "contact": {
+    "title.img.alt": "Kontakt",
+
+    "actions.phone.fig": "Anrufen",
+    "actions.email.fig": "E-Mail",
+    "actions.whatsapp.fig": "WhatsApp",
+    "actions.viber.fig": "Viber",
+    "actions.booking.fig": "Booking.com",
+
+    "phone.extra": "+30 699 7144061",
+    "email.extra": "contact@lazurenikiti.gr",
+
+    "aria.call": "Telefonanruf",
+    "aria.email": "E-Mail senden",
+    "aria.whatsapp": "WhatsApp-Chat öffnen",
+    "aria.viber": "Viber-Chat öffnen",
+    "aria.booking": "Booking.com-Seite öffnen",
+
+    "icons.phone.alt": "Telefon",
+    "icons.email.alt": "E-Mail",
+    "icons.whatsapp.alt": "WhatsApp",
+    "icons.viber.alt": "Viber",
+    "icons.booking.alt": "Booking.com"
+  },
+
+  "footer": {
+    "logo.alt": "Lazure Logo",
+    "text": "© 2025 LAZURE Apartment Nikiti. Alle Rechte vorbehalten."
+  }
+}
