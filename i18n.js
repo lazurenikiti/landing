@@ -107,6 +107,19 @@
       const key = el.getAttribute('data-i18n');
       const val = get(dict, key);
       if (val == null) return;
+
+      if (Array.isArray(val) && (el.tagName === 'UL' || el.tagName === 'OL')) {
+        el.innerHTML = '';
+        val.forEach(item => {
+          const li = document.createElement('li');
+          // allow simple strings or nested values
+          li.textContent = Array.isArray(item) ? item.join(' ') : String(item);
+          el.appendChild(li);
+        });
+        return;
+      }
+
+      // non-list containers: keep previous behavior
       el.textContent = Array.isArray(val) ? val.join(' ') : String(val);
     });
 
@@ -158,55 +171,113 @@
 
   // ---- Build UI: desktop dropdown & mobile grid ----
   function buildUI(currentLang) {
-    // Desktop dropdown
+    // -------- Desktop dropdown (idempotent binding) --------
     const desktop = $('#lang-switcher-desktop');
     if (desktop) {
-      const btn  = desktop.querySelector('.lang-btn');
-      const list = desktop.querySelector('.lang-list');
-      if (list) {
-        list.innerHTML = '';
-        LANGS.forEach(l => {
-          const li = document.createElement('li');
-          li.setAttribute('role', 'option');
-          li.setAttribute('data-lang', l.code);
-          li.innerHTML = `<img class="flag" src="${PATHS.flags + l.flag}" alt="${l.label} flag"><span>${l.label}</span>`;
-          list.appendChild(li);
-        });
+      // Bind handlers only once
+      if (!desktop.dataset.bound) {
+        const btn  = desktop.querySelector('.lang-btn');
+        const list = desktop.querySelector('.lang-list');
 
-        // Current state visuals
-        const meta = LANGS.find(l => l.code === currentLang) || LANGS[0];
-        if (btn) {
-          btn.querySelector('.flag').src = PATHS.flags + meta.flag;
-          btn.querySelector('.lang-code').textContent = meta.label;
-
-          btn.addEventListener('click', () => {
+        if (btn && list) {
+          // Toggle open/close
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation(); // prevent immediate close by document handler
             const open = desktop.classList.toggle('open');
             btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (open) {
+              // focus first option for accessibility
+              const first = list.querySelector('li[data-lang]');
+              if (first) first.focus?.();
+            }
           });
 
-          // Pick language
+          // Choose language
           list.addEventListener('click', (e) => {
             const li = e.target.closest('li[data-lang]');
             if (!li) return;
             setLanguage(li.getAttribute('data-lang'), true);
             desktop.classList.remove('open');
             btn.setAttribute('aria-expanded', 'false');
+            btn.focus?.();
           });
 
-          // Close on outside click
+          // Keyboard support on the list (Enter/Space to select, Esc to close)
+          list.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+              desktop.classList.remove('open');
+              btn.setAttribute('aria-expanded', 'false');
+              btn.focus?.();
+            } else if (e.key === 'Enter' || e.key === ' ') {
+              const li = document.activeElement?.closest?.('li[data-lang]');
+              if (li) {
+                e.preventDefault();
+                setLanguage(li.getAttribute('data-lang'), true);
+                desktop.classList.remove('open');
+                btn.setAttribute('aria-expanded', 'false');
+                btn.focus?.();
+              }
+            }
+          });
+
+          // Close on outside click (single global handler)
           document.addEventListener('click', (e) => {
             if (!desktop.contains(e.target)) {
               desktop.classList.remove('open');
               btn.setAttribute('aria-expanded', 'false');
             }
           });
+
+          desktop.dataset.bound = '1';
         }
+      }
+
+      // Rebuild the options list each time (labels/flags may vary per lang)
+      const list = desktop.querySelector('.lang-list');
+      if (list) {
+        list.innerHTML = '';
+        LANGS.forEach(l => {
+          const li = document.createElement('li');
+          li.setAttribute('role', 'option');
+          li.setAttribute('tabindex', '0'); // focusable for keyboard selection
+          li.setAttribute('data-lang', l.code);
+          li.innerHTML = `
+            <img class="flag" src="${PATHS.flags + l.flag}" alt="${l.label} flag">
+            <span>${l.label}</span>
+          `;
+          list.appendChild(li);
+        });
+      }
+
+      // Update button visuals to reflect the current language
+      const btn  = desktop.querySelector('.lang-btn');
+      const meta = LANGS.find(l => l.code === currentLang) || LANGS[0];
+      if (btn && meta) {
+        const flagEl = btn.querySelector('.flag');
+        const codeEl = btn.querySelector('.lang-code');
+        if (flagEl) flagEl.src = PATHS.flags + meta.flag;
+        if (codeEl) codeEl.textContent = meta.label;
+        btn.setAttribute('aria-expanded', 'false');
+        btn.setAttribute('aria-haspopup', 'listbox');
       }
     }
 
-    // Mobile grid
+    // -------- Mobile grid (idempotent binding) --------
+    const gridWrap = $('#lang-switcher-mobile');
     const grid = $('#lang-switcher-mobile .lang-grid');
-    if (grid) {
+    if (gridWrap && grid) {
+      // Bind once
+      if (!gridWrap.dataset.bound) {
+        grid.addEventListener('click', (e) => {
+          const btn = e.target.closest('.lang-item[data-lang]');
+          if (!btn) return;
+          setLanguage(btn.getAttribute('data-lang'), true);
+        });
+        gridWrap.dataset.bound = '1';
+      }
+
+      // Rebuild items
       grid.innerHTML = '';
       LANGS.forEach(l => {
         const item = document.createElement('button');
@@ -214,13 +285,11 @@
         item.className = 'lang-item' + (l.code === currentLang ? ' active' : '');
         item.setAttribute('data-lang', l.code);
         item.setAttribute('role', 'option');
-        item.innerHTML = `<img class="flag" src="${PATHS.flags + l.flag}" alt="${l.label} flag"><span>${l.label}</span>`;
+        item.innerHTML = `
+          <img class="flag" src="${PATHS.flags + l.flag}" alt="${l.label} flag">
+          <span>${l.label}</span>
+        `;
         grid.appendChild(item);
-      });
-      grid.addEventListener('click', (e) => {
-        const btn = e.target.closest('.lang-item[data-lang]');
-        if (!btn) return;
-        setLanguage(btn.getAttribute('data-lang'), true);
       });
     }
   }
