@@ -213,7 +213,7 @@ body.menu-open .menu-backdrop {
 /* Mobile panel */
 .mobile-panel {
   position: fixed;
-  left: 50%; top: 50%; 
+  left: 50%; 
   padding-top: 50vh; 
   transform: translate(-50%, -50%) scale(.95);
   width: min(420px, 92vw);
@@ -250,17 +250,17 @@ body.menu-open .mobile-panel {
   .nav-burger { display: inline-flex; }
 }
 
-/* =====  Language switcher (desktop) =====  */
+/* ===== Language switcher (desktop) ===== */
 .lang-switcher {
   position: relative;
   margin-left: 12px;
 }
 .lang-switcher .lang-btn {
   display: inline-flex; align-items: center; gap: 8px;
-  background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.6);
+  background: transparent; color: #fff;
+  border: 1px solid rgba(255,255,255,.6);
   padding: 6px 10px; border-radius: 999px; cursor: pointer;
 }
-.lang-switcher .flag { height: 18px; border-radius: 2px; }
 .lang-switcher .chevron { opacity: .8; }
 .lang-switcher .lang-list {
   position: absolute; top: calc(100% + 6px); right: 0;
@@ -274,20 +274,33 @@ body.menu-open .mobile-panel {
   display: flex; align-items: center; gap: 8px;
   padding: 8px 10px; color: #fff; cursor: pointer; border-radius: 8px;
 }
-.lang-switcher .lang-list li:hover { background: rgba(255,255,255,.12); }
-.lang-switcher .lang-list img { width: 18px; height: 18px; border-radius: 2px; }
+.lang-switcher .lang-list li:hover {
+  background: rgba(255,255,255,.12);
+}
 
-/* =====  Language switcher (mobile) =====  */
+/* ===== Language switcher (mobile) ===== */
 .lang-sep { border-color: rgba(255,255,255,.2); margin: 10px 0 6px; }
 .lang-switcher-mobile { text-align: center; }
-.lang-switcher-mobile .lang-label { color: #fff; opacity: .85; margin: 4px 0 10px; }
+.lang-switcher-mobile .lang-label {
+  color: #fff; opacity: .85; margin: 4px 0 10px;
+}
 .lang-switcher-mobile .lang-grid {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
 }
 .lang-switcher-mobile .lang-item {
   display: flex; align-items: center; justify-content: center; gap: 6px;
-  padding: 10px 8px; border: 1px solid rgba(255,255,255,.25);
-  color: #fff; border-radius: 10px; background: rgba(255,255,255,.06);
+  padding: 10px 8px;
+  border: 1px solid rgba(255,255,255,.25);
+  color: #fff; border-radius: 10px;
+  background: rgba(255,255,255,.06);
 }
-.lang-switcher-mobile .lang-item .flag { width: 18px; height: 18px; border-radius: 2px; }
-.lang-switcher-mobile .lang-item.active { outline: 2px solid #fff; outline-offset: -2px; }
+.lang-switcher-mobile .lang-item.active {
+  outline: 2px solid #fff; outline-offset: -2px;
+}
+
+/* ===== Flags ===== */
+.flag {
+  height: 16px;
+  width: auto;
+  border-radius: 2px;
+}
