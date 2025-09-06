@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var pd = function(e){
         if (animating || pointerId !== null) return;
         pointerId = e.pointerId || 'touch';
-        dragging = true; setTransition(false);
+        dragging = true; setTransition(false); window.__carouselDragging = true;
         startX = e.clientX; dx = 0; startT = performance.now();
         if (carouselTrack.setPointerCapture && e.pointerId) {
           carouselTrack.setPointerCapture(e.pointerId);
@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function () {
       };
       var pu = function(e){
         if (!dragging || (e.pointerId && e.pointerId !== pointerId)) return;
-        dragging = false; pointerId = null;
+        dragging = false; pointerId = null; window.__carouselDragging = false;
 
         var dt = Math.max(1, performance.now() - startT);
         var v = dx / dt;                 // px/ms
@@ -417,15 +417,15 @@ document.addEventListener('DOMContentLoaded', function () {
       carouselTrack.addEventListener('pointerdown', pd);
       carouselTrack.addEventListener('pointermove', pm);
       carouselTrack.addEventListener('pointerup', pu);
-      carouselTrack.addEventListener('pointercancel', pu);
-      carouselTrack.addEventListener('lostpointercapture', pu);
+      carouselTrack.addEventListener('pointercancel', function(e){ pu(e); window.__carouselDragging = false; });
+      carouselTrack.addEventListener('lostpointercapture', function(e){ pu(e); window.__carouselDragging = false; });
 
       buildMobileCarouselOnce._handlers.pointer = { down: pd, move: pm, up: pu };
     } else {
       // Touch fallback
       var ts = function(e){
         if (!e.touches || !e.touches.length || animating) return;
-        dragging = true; setTransition(false);
+        dragging = true; setTransition(false); window.__carouselDragging = true;
         startX = e.touches[0].clientX; dx = 0; startT = performance.now();
       };
       var tm = function(e){
@@ -435,7 +435,7 @@ document.addEventListener('DOMContentLoaded', function () {
       };
       var te = function(){
         if (!dragging) return;
-        dragging = false;
+        dragging = false; window.__carouselDragging = false;
         var dt = Math.max(1, performance.now() - startT), v = dx/dt, TH = Math.max(40, w*0.15), VEL = 0.5;
         if (dx > TH || v >  0.5) step(-1);
         else if (dx < -TH || v < -0.5) step(+1);
