@@ -5,9 +5,9 @@
   const LANGS = [
     // code  label  flag file       titles folder  json file
     { code: 'en', label: 'EN', flag: 'en.webp', folder: 'en', json: 'en.json' },
-    { code: 'ua', label: 'UA', flag: 'ua.webp', folder: 'ua', json: 'ua.json' }, // UA folder for Ukrainian
+    { code: 'ua', label: 'UA', flag: 'ua.webp', folder: 'ua', json: 'ua.json' },
     { code: 'de', label: 'DE', flag: 'de.webp', folder: 'de', json: 'de.json' },
-    { code: 'el', label: 'EL', flag: 'gr.webp', folder: 'gr', json: 'el.json' },
+    { code: 'el', label: 'EL', flag: 'gr.webp', folder: 'gr', json: 'gr.json' },
     { code: 'tr', label: 'TR', flag: 'tr.webp', folder: 'tr', json: 'tr.json' },
     { code: 'sr', label: 'SR', flag: 'sr.webp', folder: 'sr', json: 'sr.json' },
     { code: 'bg', label: 'BG', flag: 'bg.webp', folder: 'bg', json: 'bg.json' }
@@ -104,21 +104,32 @@
     if (title) document.title = title;
 
     // Expose captions for header.js and notify consumers
-    if (Array.isArray(dict.captions)) {
-      window.__i18n = Object.assign({}, window.__i18n || {}, { captions: dict.captions });
+    if (Array.isArray(dict.hero?.captions)) {
+      window.__i18n = Object.assign({}, window.__i18n || {}, { captions: dict.hero.captions });
       window.dispatchEvent(new CustomEvent('i18n:change', { detail: { lang: currentLang } }));
     }
   }
 
   // ---- Swap language-specific title images ----
   function applyTitleImages(langMeta, dict) {
-    const folder = langMeta.folder; // e.g., "gr", "en", "ua"
-    TITLE_TARGETS.forEach(t => {
+    const folder = langMeta.folder; // например: "en", "de", ...
+    const altKeyById = {
+      apartment: 'apartment.title.img.alt',
+      amenities: 'amenities.title.img.alt',
+      essential: 'amenities.subtitle.essential.img.alt',
+      policies:  'policies.title.img.alt',
+      location:  'location.title.img.alt',
+      contact:   'contact.title.img.alt'
+    };
+  
+    (TITLE_TARGETS || []).forEach(t => {
       const img = document.getElementById(t.id);
       if (!img) return;
       img.src = PATHS.titlesBase + folder + '/' + t.slug;
-      const alt = get(dict, t.keyAlt);
-      if (alt) img.alt = alt;
+      const key = altKeyById[t.id];
+      if (!key) return;
+      const alt = get(dict, key);
+      if (alt != null) img.alt = String(alt);
     });
   }
 
