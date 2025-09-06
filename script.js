@@ -23,30 +23,34 @@
 
   // Wheel/trackpad
   window.addEventListener('wheel', (e) => {
+    if (window.__carouselDragging) return;
     if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return; // ignore mostly horizontal
-    setMode(e.deltaY > 0 ? 'end' : 'start');
+    setMode(e.deltaY > 0 ? 'start' : 'end');
   }, { passive: true });
 
   // Keyboard navigation
   window.addEventListener('keydown', (e) => {
+    if (window.__carouselDragging) return;
     if (e.key === 'PageDown' || e.key === 'ArrowDown' || e.key === 'End') {
-      setMode('end');
-    } else if (e.key === 'PageUp' || e.key === 'ArrowUp' || e.key === 'Home') {
       setMode('start');
+    } else if (e.key === 'PageUp' || e.key === 'ArrowUp' || e.key === 'Home') {
+      setMode('end');
     }
   }, { passive: true });
 
   // Touch gestures
   window.addEventListener('touchstart', (e) => {
+    if (window.__carouselDragging) return;
     if (!e.touches || !e.touches.length) return;
     touchStartY = e.touches[0].clientY;
   }, { passive: true });
 
   window.addEventListener('touchmove', (e) => {
+    if (window.__carouselDragging) return;
     if (touchStartY == null || !e.touches || !e.touches.length) return;
     const dy = touchStartY - e.touches[0].clientY;
     if (Math.abs(dy) < 3) return; // dead zone for jitter
-    setMode(dy > 0 ? 'end' : 'start');
+    setMode(dy > 0 ? 'start' : 'end');
   }, { passive: true });
 
   window.addEventListener('touchend', () => { touchStartY = null; }, { passive: true });
