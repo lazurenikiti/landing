@@ -84,6 +84,17 @@
       const key = el.getAttribute('data-i18n');
       const val = get(dict, key);
       if (val == null) return;
+    
+      if (Array.isArray(val) && (el.tagName === 'UL' || el.tagName === 'OL')) {
+        el.innerHTML = '';
+        val.forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = String(item);
+          el.appendChild(li);
+        });
+        return;
+      }
+      
       el.textContent = Array.isArray(val) ? val.join(' ') : String(val);
     });
 
@@ -103,11 +114,10 @@
     const title = get(dict, 'meta.title');
     if (title) document.title = title;
 
-    // Expose captions for header.js and notify consumers
-    if (Array.isArray(dict.hero?.captions)) {
-      window.__i18n = Object.assign({}, window.__i18n || {}, { captions: dict.hero.captions });
-      window.dispatchEvent(new CustomEvent('i18n:change', { detail: { lang: currentLang } }));
-    }
+    // Always dispatch the event; if captions are missing, use an empty array
+    const captions = Array.isArray(dict.hero?.captions) ? dict.hero.captions : [];
+    window.__i18n = Object.assign({}, window.__i18n || {}, { captions, lang: currentLang });
+    window.dispatchEvent(new CustomEvent('i18n:change', { detail: { lang: currentLang, captions } }));
   }
 
   // ---- Swap language-specific title images ----
@@ -217,7 +227,7 @@
       buildUI(currentLang);
     } catch (err) {
       console.error('[i18n] Failed to load language:', err);
-      // мягкий фолбэк на EN, если это не EN
+
       if (meta.code !== 'en') {
         try {
           const enDict = await loadDict('en');
@@ -232,7 +242,6 @@
         }
       }
       if (userAction) {
-        // покажем точную причину пользователю
         alert(String(err.message || err));
       }
     }
@@ -243,12 +252,15 @@
     buildUI(currentLang);
     setLanguage(currentLang, false);
   }
-
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init, { once: true });
   } else {
     init();
   }
+
+  window.addEventListener('load', () => {
+    setLanguage(localStorage.getItem('lang') || currentLang, false);
+  });
 
   // ---- Optional global access ----
   window.setLanguage = setLanguage;
