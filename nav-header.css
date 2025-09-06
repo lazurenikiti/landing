@@ -294,7 +294,6 @@ body.menu-open .mobile-panel {
   border: 1px solid rgba(255,255,255,.25);
   color: #fff; border-radius: 10px;
   background: rgba(255,255,255,.06);
-<<<<<<< HEAD
 }
 .lang-switcher-mobile .lang-item img {
   height: 16px;
@@ -311,21 +310,3 @@ body.menu-open .mobile-panel {
   width: auto;
   border-radius: 2px;
 }
-=======
-}
-.lang-switcher-mobile .lang-item img {
-  height: 16px;
-  width: auto;
-  border-radius: 2px;
-}
-.lang-switcher-mobile .lang-item.active {
-  outline: 2px solid #fff; outline-offset: -2px;
-}
-
-/* ===== Flags ===== */
-.flag {
-  height: 16px;
-  width: auto;
-  border-radius: 2px;
-}
->>>>>>> 3a553a9 (Files update)
