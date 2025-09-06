@@ -213,7 +213,7 @@ body.menu-open .menu-backdrop {
 /* Mobile panel */
 .mobile-panel {
   position: fixed;
-  left: 50%; top: 30%;
+  left: 50%; top: 50%;
   transform: translate(-50%, -50%) scale(.95);
   width: min(420px, 92vw);
   max-height: calc(100vh - 120px);
