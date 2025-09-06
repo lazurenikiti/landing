@@ -156,6 +156,7 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
   overflow: hidden;
+  overscroll-behavior: contain;
 }
 
 /* Track: flex row we translate with transform */
@@ -163,7 +164,7 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   display: flex;
   will-change: transform;
   transition: transform 320ms cubic-bezier(.22,.61,.36,1);
-  touch-action: pan-y;
+  touch-action: pan-x pinch-zoom;
   backface-visibility: hidden;
   transform: translate3d(0,0,0);
 }
