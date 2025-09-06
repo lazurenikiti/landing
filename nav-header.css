@@ -213,7 +213,7 @@ body.menu-open .menu-backdrop {
 /* Mobile panel */
 .mobile-panel {
   position: fixed;
-  left: 50%; top: 50%;
+  left: 50%; top: 70%;
   transform: translate(-50%, -50%) scale(.95);
   width: min(420px, 92vw);
   max-height: calc(100vh - 120px);
@@ -259,7 +259,7 @@ body.menu-open .mobile-panel {
   background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.6);
   padding: 6px 10px; border-radius: 999px; cursor: pointer;
 }
-.lang-switcher .flag { width: 18px; height: 18px; border-radius: 2px; }
+.lang-switcher .flag { width: 27px; height: 18px; border-radius: 2px; }
 .lang-switcher .chevron { opacity: .8; }
 .lang-switcher .lang-list {
   position: absolute; top: calc(100% + 6px); right: 0;
