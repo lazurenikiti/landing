@@ -1,40 +1,45 @@
 // =============================
-// Dynamic snap alignment (lite) + Root overlay scrollbar (lite)
+// Dynamic snap alignment + Root overlay scrollbar (CSS-driven)
 // =============================
+
 /* ===========================================
-   Dynamic snap alignment (deterministic, lite)
+   Dynamic snap alignment (deterministic)
    - Forward between sections  -> snap-start (align top)
    - Backward between sections -> snap-end   (align bottom)
-   - Exception: apartment -> header => snap-start (пример)
-   - Для статичной разметки: header + ~4 секции + footer
+   - Exception: apartment -> header => snap-start
+   - Works for ALL sections collected from DOM
    =========================================== */
-(function dynamicSnapAlignLite() {
+(function dynamicSnapAlign() {
   'use strict';
 
   const root = document.documentElement;
-  const SECTION_SELECTOR = 'section[id], header[id], footer[id], [data-snap-section]';
+  let mode = 'start';
+  let touchStartY = null;
+  let touchStartX = null;
 
+  function setMode(next) {
+    if (next === mode) return;
+    mode = next;
+    if (mode === 'end') {
+      root.classList.add('snap-end');
+      root.classList.remove('snap-start');
+    } else {
+      root.classList.add('snap-start');
+      root.classList.remove('snap-end');
+    }
+  }
+
+  // Initial state
+  root.classList.add('snap-start');
+
+  // Deterministic rules for ALL transitions (with exceptions)
+  const SECTION_SELECTOR = 'section[id], header[id], footer[id], [data-snap-section]';
   // key: "fromId->toId" -> 'start' | 'end'
   const EXCEPTIONS = {
     'apartment->header': 'start'
   };
 
-  // Состояние snap через один data-атрибут
-  let mode = 'start';
-  const setMode = (next) => {
-    if (next === mode) return;
-    mode = next;
-    root.dataset.snap = mode; // CSS: html[data-snap="start"] / html[data-snap="end"]
-  };
-  root.dataset.snap = 'start';
-
-  // Кэш секций
-  let SECTIONS = [];       // [{ id, el, top, bottom }]
-  let INDEX = new Map();   // id -> index (по вертикали)
-
-  const docTop = (el) => el.getBoundingClientRect().top + window.scrollY;
-
-  function refreshSections() {
+  function collectSections() {
     const nodes = Array.from(document.querySelectorAll(SECTION_SELECTOR))
       .map(el => ({ id: el.id || el.getAttribute('data-snap-section'), el }))
       .filter(x => !!x.id);
@@ -45,33 +50,36 @@
       if (seen.has(x.id)) continue;
       const r = x.el.getBoundingClientRect();
       const h = r.height || x.el.offsetHeight || 0;
-      if (h < 120) continue; // игнорим мелкие блоки
+      if (h < 120) continue; // ignore tiny blocks
       seen.add(x.id);
       out.push(x);
     }
 
-    out.sort((a, b) => docTop(a.el) - docTop(b.el));
-
-    SECTIONS = out.map(s => {
-      const top = docTop(s.el);
-      const height = s.el.getBoundingClientRect().height || s.el.offsetHeight || 0;
-      const bottom = top + height;
-      return { id: s.id, el: s.el, top, bottom };
+    out.sort((a, b) => {
+      const ay = a.el.offsetTop ?? a.el.getBoundingClientRect().top;
+      const by = b.el.offsetTop ?? b.el.getBoundingClientRect().top;
+      return ay - by;
     });
+    return out;
+  }
+
+  let SECTIONS = collectSections();
+  let INDEX = new Map(SECTIONS.map((s, i) => [s.id, i]));
+
+  function refreshSections() {
+    SECTIONS = collectSections();
     INDEX = new Map(SECTIONS.map((s, i) => [s.id, i]));
   }
 
   function currentDominantSectionId() {
     const vh = window.innerHeight || 1;
-    const y0 = window.scrollY;
-    const y1 = y0 + vh;
-    let best = { id: null, vis: -1 };
-    for (const s of SECTIONS) {
-      const vis = Math.max(0, Math.min(s.bottom, y1) - Math.max(s.top, y0));
-      if (vis > best.vis) {
-        best = { id: s.id, vis };
-        if (vis >= vh) break; // занято весь вьюпорт — лучше не будет
-      }
+    let best = { id: null, score: 0 };
+    for (const { id, el } of SECTIONS) {
+      const r = el.getBoundingClientRect();
+      if (r.bottom <= 0 || r.top >= vh) continue;
+      const visible = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+      const score = visible / Math.max(Math.min(r.height, vh), 1);
+      if (score > best.score) best = { id, score };
     }
     return best.id;
   }
@@ -93,9 +101,7 @@
     else if (iTo < iFrom) setMode('end'); // backward
   }
 
-  // --- Инициализация и события ---
-  refreshSections();
-  let activeSectionId = currentDominantSectionId();
+  let activeSectionId = null;
   let ticking = false;
 
   function onScrollFrame() {
@@ -108,21 +114,32 @@
     activeSectionId = nextId;
   }
 
-  window.addEventListener('scroll', () => {
-    if (!ticking) { ticking = true; requestAnimationFrame(onScrollFrame); }
-  }, { passive: true });
+  // Init + observers
+  refreshSections();
+  requestAnimationFrame(() => { activeSectionId = currentDominantSectionId(); });
+
+  const ro = ('ResizeObserver' in window) ? new ResizeObserver(() => {
+    refreshSections();
+    requestAnimationFrame(onScrollFrame);
+  }) : null;
+  if (ro) SECTIONS.forEach(s => ro.observe(s.el));
 
   window.addEventListener('resize', () => {
     refreshSections();
     requestAnimationFrame(onScrollFrame);
   }, { passive: true });
 
-  // Anchor clicks (#id): применяем правило сразу (до нативного smooth-scroll)
+  window.addEventListener('scroll', () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(onScrollFrame); }
+  }, { passive: true });
+
+  // Anchor clicks (#id): apply rule immediately (before native smooth-scroll)
   document.addEventListener('click', (e) => {
-    const a = e.target.closest && e.target.closest('a[href^="#"]');
+    const a = e.target.closest('a[href^="#"]');
     if (!a) return;
     const targetId = (a.getAttribute('href') || '').slice(1);
     if (!targetId) return;
+
     if (!activeSectionId) activeSectionId = currentDominantSectionId() || targetId;
     applyDeterministicRule(activeSectionId, targetId);
     requestAnimationFrame(() => { activeSectionId = currentDominantSectionId() || targetId; });
@@ -137,11 +154,7 @@
     requestAnimationFrame(() => { activeSectionId = currentDominantSectionId() || targetId; });
   }, { passive: true });
 
-  // Directional hints (не обязательны, но оставим)
-  const TOUCH_MIN = 3;
-  const HORIZ_BIAS = 6;
-  let touchStartY = null, touchStartX = null;
-
+  // Directional inputs remain (overridden by deterministic rule when section actually changes)
   window.addEventListener('wheel', (e) => {
     if (window.__carouselDragging) return;
     if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
@@ -163,11 +176,14 @@
   window.addEventListener('touchmove', (e) => {
     if (window.__carouselDragging) return;
     if (touchStartY == null || !e.touches || !e.touches.length) return;
+
     const t = e.touches[0];
     const dy = touchStartY - t.clientY;
     const dx = touchStartX == null ? 0 : touchStartX - t.clientX;
-    if (Math.abs(dx) > Math.abs(dy) + HORIZ_BIAS) return;
-    if (Math.abs(dy) < TOUCH_MIN) return;
+
+    if (Math.abs(dx) > Math.abs(dy) + 6) return; // horizontal-dominant
+    if (Math.abs(dy) < 3) return;                // too small
+
     setMode(dy > 0 ? 'start' : 'end');
   }, { passive: true });
 
@@ -176,7 +192,7 @@
   // Optional API
   window.__snapDeterministic = {
     refresh: refreshSections,
-    addException(from, to, m) { EXCEPTIONS[`${from}->${to}`] = m; },
+    addException(from, to, mode) { EXCEPTIONS[`${from}->${to}`] = mode; },
     removeException(from, to) { delete EXCEPTIONS[`${from}->${to}`]; },
     listExceptions() { return { ...EXCEPTIONS }; },
     listSections() { return SECTIONS.map(s => s.id); }
@@ -184,13 +200,14 @@
 })();
 
 /* =======================================================
-   Overlay Scrollbar — root mode (lite, desktop only)
-   - Визуалы задаются CSS (scrollbar.css).
-   - JS только создаёт .osb-rail/.osb-thumb и синхронизирует геометрию.
-   - Активируется, если <html> или <body> имеет класс "overlay-root".
-   - Пропускается на мобильных/планшетах (≤ 992px) и при .menu-open.
+   Overlay Scrollbar — root mode (desktop only)
+   - Uses your CSS (scrollbar.css) for all visuals.
+   - JS only creates .osb-rail/.osb-thumb and updates size/position.
+   - Activates if <html> or <body> has class "overlay-root".
+   - Skips on mobile/tablet (≤ 992px) — CSS also hides on coarse pointer.
+   - Hides while html has class "menu-open".
    ======================================================= */
-(function rootOverlayScrollbarLite() {
+(function rootOverlayScrollbar() {
   'use strict';
 
   function init() {
@@ -201,25 +218,23 @@
       document.body.classList.contains('overlay-root');
     if (!hasFlag) return;
 
-    // Desktop only
+    // Skip small screens; CSS also hides via media queries,
+    // but we avoid creating DOM nodes at all here.
     if (window.matchMedia('(max-width: 992px)').matches) return;
 
     const scroller = document.scrollingElement || document.documentElement;
 
-    // DOM
+    // Create DOM structure (styles come from scrollbar.css)
     const rail = document.createElement('div');
     rail.className = 'osb-rail';
-    rail.setAttribute('role', 'scrollbar');
-    rail.setAttribute('aria-orientation', 'vertical');
-    rail.setAttribute('aria-valuemin', '0');
-    rail.setAttribute('aria-valuemax', '100');
 
     const thumb = document.createElement('div');
     thumb.className = 'osb-thumb';
+
     rail.appendChild(thumb);
     document.body.appendChild(rail);
 
-    // State
+    // Dynamic metrics/state
     let dragging = false;
     let trackH = 0, thumbH = 0, maxTop = 0;
     let viewportH = 0, scrollH = 0, maxScroll = 0;
@@ -228,11 +243,14 @@
     const getScrollTop = () => scroller.scrollTop || 0;
     const setScrollTop = (y) => { scroller.scrollTop = y; };
 
-    const metrics = () => ({ vh: window.innerHeight, sh: scroller.scrollHeight });
+    function metrics() {
+      return { vh: window.innerHeight, sh: scroller.scrollHeight };
+    }
+
     const thumbTopFromScroll = (y) => (maxScroll <= 0 ? 0 : Math.round((y / maxScroll) * maxTop));
     const scrollFromThumbTop = (t) => (maxTop   <= 0 ? 0 : (t / maxTop) * maxScroll);
 
-    // Скрывать при .menu-open
+    // Keep rail hidden when no scroll or menu is open
     function applyMenuVisibility() {
       const open = document.documentElement.classList.contains('menu-open');
       rail.style.display = open ? 'none' : '';
@@ -241,22 +259,14 @@
     classObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     applyMenuVisibility();
 
-    // Хендлеры, чтобы их можно было снять в cleanup
-    const onScroll = () => updateThumb();
-    const onResize = () => {
-      if (window.matchMedia('(max-width: 992px)').matches) { cleanup(); return; }
-      reposition();
-    };
-    const onDocPointerUp = (e) => { if (dragging) endDrag(e); };
-
     function updateThumb() {
       if (dragging) return;
 
       const { vh, sh } = metrics();
-      const padding = 16; // должен совпадать с CSS-инсетами
+      const padding = 16; // must match CSS top/bottom insets (8px + 8px)
       const trackHeight = Math.max(window.innerHeight - padding, 0);
 
-      // Нет прокрутки — скрываем
+      // Hide if page does not scroll
       if (sh <= vh + 1) {
         rail.style.display = 'none';
         return;
@@ -264,16 +274,16 @@
       rail.style.display = '';
 
       const ratio  = vh / Math.max(sh, 1);
-      const hThumb = Math.max(40, Math.round(ratio * trackHeight));
+      const hThumb = Math.max(40, Math.round(ratio * trackHeight)); // min 40px (defined in CSS too)
       const maxT   = Math.max(trackHeight - hThumb, 0);
       const maxS   = Math.max(sh - vh, 0);
       const y      = getScrollTop();
       const top    = maxS > 0 ? Math.round((y / maxS) * maxT) : 0;
 
-      rail.style.height     = trackHeight + 'px';
-      thumb.style.height    = hThumb + 'px';
+      // Only dynamic geometries here:
+      rail.style.height    = trackHeight + 'px';
+      thumb.style.height   = hThumb + 'px';
       thumb.style.transform = 'translateY(' + top + 'px)';
-      rail.setAttribute('aria-valuenow', String(Math.round((y / Math.max(maxS, 1)) * 100)));
 
       trackH = trackHeight; thumbH = hThumb; maxTop = maxT;
       viewportH = vh; scrollH = sh; maxScroll = maxS;
@@ -281,12 +291,17 @@
 
     function reposition() { updateThumb(); }
 
-    // Подписки
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onResize, { passive: true });
-    document.addEventListener('pointerup', onDocPointerUp, { passive: true });
+    // Events
+    window.addEventListener('scroll', updateThumb, { passive: true });
+    window.addEventListener('resize', () => {
+      if (window.matchMedia('(max-width: 992px)').matches) {
+        cleanup();
+        return;
+      }
+      reposition();
+    }, { passive: true });
 
-    // Drag
+    // Drag logic (no visual styling set here, CSS handles appearance)
     let prevScrollBehavior = '';
     const disableSmooth = () => {
       prevScrollBehavior = scroller.style.scrollBehavior || '';
@@ -320,6 +335,7 @@
 
     thumb.addEventListener('pointermove', (e) => {
       if (!dragging) return;
+
       const evts = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : null;
       const last = evts && evts.length ? evts[evts.length - 1] : e;
 
@@ -329,9 +345,9 @@
       if (nextTop > maxTop) nextTop = maxTop;
 
       thumb.style.transform = 'translateY(' + nextTop + 'px)';
+
       const target = scrollFromThumbTop(nextTop);
       setScrollTop(target);
-      rail.setAttribute('aria-valuenow', String(Math.round((target / Math.max(maxScroll, 1)) * 100)));
 
       e.preventDefault();
     }, { passive: false });
@@ -348,8 +364,9 @@
 
     thumb.addEventListener('pointerup', endDrag);
     thumb.addEventListener('pointercancel', endDrag);
+    document.addEventListener('pointerup', (e) => { if (dragging) endDrag(e); }, { passive: true });
 
-    // Клик по рейлу — прыжок
+    // Click on rail to jump
     rail.addEventListener('mousedown', (e) => {
       if (e.target === thumb) return;
       const rect = rail.getBoundingClientRect();
@@ -369,23 +386,19 @@
       rail.style.height = trackHeight + 'px';
       thumb.style.height = hThumb + 'px';
       thumb.style.transform = 'translateY(' + targetTop + 'px)';
-      rail.setAttribute('aria-valuenow', String(Math.round((targetScroll / Math.max(maxS, 1)) * 100)));
       e.preventDefault();
     });
 
     function cleanup() {
       try { classObserver.disconnect(); } catch(_) {}
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onResize);
-      document.removeEventListener('pointerup', onDocPointerUp);
       if (rail && rail.parentNode) rail.parentNode.removeChild(rail);
       window.__osbRoot = null;
     }
 
-    // Первая отрисовка
+    // Initial paint
     reposition();
 
-    // Экспорт
+    // Expose handle
     window.__osbRoot = { rail, thumb, remove: cleanup };
   }
 
@@ -396,10 +409,9 @@
     init();
   }
 
-  // Re-init при изменении брейкпоинта
+  // Re-init when crossing the desktop breakpoint
   const mq = window.matchMedia('(max-width: 992px)');
   const listen = mq.addEventListener ? 'addEventListener' : 'addListener';
-  const unlisten = mq.removeEventListener ? 'removeEventListener' : 'removeListener';
   const handler = () => {
     if (mq.matches) {
       if (window.__osbRoot && window.__osbRoot.remove) window.__osbRoot.remove();
@@ -409,13 +421,4 @@
   };
   // @ts-ignore legacy support
   mq[listen]('change', handler);
-
-  // При выгрузке страницы — подчистка
-  window.addEventListener('beforeunload', () => {
-    try { 
-      // @ts-ignore legacy support
-      mq[unlisten]('change', handler);
-      if (window.__osbRoot && window.__osbRoot.remove) window.__osbRoot.remove();
-    } catch(_) {}
-  }, { passive: true });
 })();
