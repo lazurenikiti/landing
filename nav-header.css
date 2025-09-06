@@ -254,6 +254,7 @@ body.menu-open .mobile-panel {
 .lang-switcher {
   position: relative;
   margin-left: 12px;
+  display: inline-block;
 }
 .lang-switcher .lang-btn {
   display: inline-flex; align-items: center; gap: 8px;
@@ -263,11 +264,12 @@ body.menu-open .mobile-panel {
 }
 .lang-switcher .chevron { opacity: .8; }
 .lang-switcher .lang-list {
-  position: absolute; top: calc(100% + 6px); right: 0;
+  position: absolute; top: calc(100% + 6px); left: 0; /* вместо right */
   background: rgba(0,0,0,.8); border: 1px solid rgba(255,255,255,.2);
   backdrop-filter: blur(6px);
   border-radius: 10px; padding: 6px; list-style: none; margin: 0;
-  min-width: 160px; display: none; z-index: 3000;
+  width: 100%; /* заменяем min-width */
+  display: none; z-index: 3000;
 }
 .lang-switcher.open .lang-list { display: block; }
 .lang-switcher .lang-list li {
@@ -293,6 +295,11 @@ body.menu-open .mobile-panel {
   border: 1px solid rgba(255,255,255,.25);
   color: #fff; border-radius: 10px;
   background: rgba(255,255,255,.06);
+}
+.lang-switcher-mobile .lang-item img {
+  height: 16px;
+  width: auto;
+  border-radius: 2px;
 }
 .lang-switcher-mobile .lang-item.active {
   outline: 2px solid #fff; outline-offset: -2px;
