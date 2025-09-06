@@ -5,6 +5,7 @@
   const root = document.documentElement;
   let mode = 'start';
   let touchStartY = null;
+  let touchStartX = null;
 
   function setMode(next) {
     if (next === mode) return;
@@ -17,14 +18,13 @@
       root.classList.remove('snap-end');
     }
   }
-
   // Initial state: snap to top
   root.classList.add('snap-start');
 
   // Wheel/trackpad
   window.addEventListener('wheel', (e) => {
     if (window.__carouselDragging) return;
-    if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return; // ignore mostly horizontal
+    if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
     setMode(e.deltaY > 0 ? 'start' : 'end');
   }, { passive: true });
 
@@ -40,22 +40,33 @@
 
   // Touch gestures
   window.addEventListener('touchstart', (e) => {
-    if (window.__carouselDragging) return;
     if (!e.touches || !e.touches.length) return;
     touchStartY = e.touches[0].clientY;
+    touchStartX = e.touches[0].clientX;
   }, { passive: true });
 
   window.addEventListener('touchmove', (e) => {
     if (window.__carouselDragging) return;
     if (touchStartY == null || !e.touches || !e.touches.length) return;
-    const dy = touchStartY - e.touches[0].clientY;
-    if (Math.abs(dy) < 3) return; // dead zone for jitter
+
+    const t = e.touches[0];
+    const dy = touchStartY - t.clientY;
+    const dx = touchStartX == null ? 0 : touchStartX - t.clientX;
+
+    if (Math.abs(dx) > Math.abs(dy) + 6) return;
+    if (Math.abs(dy) < 3) return;
+
     setMode(dy > 0 ? 'start' : 'end');
   }, { passive: true });
 
-  window.addEventListener('touchend', () => { touchStartY = null; }, { passive: true });
-})();
+  window.addEventListener('touchend', () => { touchStartY = null; touchStartX = null; }, { passive: true });
 
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    setMode('start');
+  }, { passive: true });
+})();
 /* =======================================================
    Overlay Scrollbar — window (root) mode (normalized)
    - Activates only if html/body has class 'overlay-root'
