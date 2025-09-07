@@ -212,3 +212,107 @@
     window.visualViewport.addEventListener('resize', setVh, { passive: true });
   }
 })();
+
+/* =======================================================
+   Header → Sections "Snap Gateway" (desktop + mobile)
+   — only snap between hero → #apartment-section
+   ======================================================= */
+(function headerSnapGateway() {
+  'use strict';
+
+  // elements and metrics
+  const scroller = document.scrollingElement || document.documentElement;
+  const hero = document.querySelector('header.hero');
+  const firstSection = document.querySelector('#apartment-section');
+  if (!hero || !firstSection) return;
+
+  // disable when mobile menu is open
+  const menuOpen = () => document.documentElement.classList.contains('menu-open');
+
+  let heroTop = 0;
+  let heroH = 0;
+  let busy = false;
+
+  function recalc() {
+    const rect = hero.getBoundingClientRect();
+    heroTop = scroller.scrollTop + rect.top; // usually 0
+    // height of the hero considering --vh
+    heroH = Math.max(hero.offsetHeight, window.innerHeight);
+  }
+  recalc();
+  window.addEventListener('resize', recalc, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', recalc, { passive: true });
+  }
+
+  // smooth scroll with short lock so it doesn’t fight with the user
+  function smoothTo(y) {
+    busy = true;
+    scroller.scrollTo({ top: y, behavior: 'smooth' });
+    setTimeout(() => { busy = false; }, 600); // unlock after animation
+  }
+
+  // check if we are between hero and the first section
+  function inGatewayZone() {
+    const y = scroller.scrollTop;
+    return y >= heroTop && y <= heroTop + heroH - 1;
+  }
+
+  // wheel / trackpad
+  function onWheel(e) {
+    if (busy || menuOpen() || !inGatewayZone()) return;
+    if (e.deltaY > 0) {
+      // scroll down → snap to first section
+      e.preventDefault();
+      smoothTo(heroTop + heroH);
+    } else if (e.deltaY < 0 && scroller.scrollTop > 0) {
+      // scroll up → snap back to top
+      e.preventDefault();
+      smoothTo(0);
+    }
+  }
+
+  // touch support (mobile)
+  let touchStartY = 0;
+  function onTouchStart(e) {
+    if (busy || menuOpen()) return;
+    touchStartY = e.touches[0].clientY;
+  }
+  function onTouchMove(e) {
+    if (busy || menuOpen() || !inGatewayZone()) return;
+    const dy = e.touches[0].clientY - touchStartY;
+    if (dy < -10) { 
+      // swipe up content → scroll down
+      e.preventDefault();
+      smoothTo(heroTop + heroH);
+    } else if (dy > 10 && scroller.scrollTop > 0) {
+      // swipe down content → scroll up
+      e.preventDefault();
+      smoothTo(0);
+    }
+  }
+
+  // optional: keyboard support
+  function onKeydown(e) {
+    if (busy || menuOpen() || !inGatewayZone()) return;
+    const k = e.code;
+    const downKeys = ['PageDown', 'ArrowDown', 'Space'];
+    const upKeys = ['PageUp', 'ArrowUp', 'Home'];
+    if (downKeys.includes(k)) {
+      e.preventDefault();
+      smoothTo(heroTop + heroH);
+    } else if (upKeys.includes(k)) {
+      e.preventDefault();
+      smoothTo(0);
+    }
+  }
+
+  // event listeners
+  window.addEventListener('wheel', onWheel, { passive: false });
+  window.addEventListener('touchstart', onTouchStart, { passive: true });
+  window.addEventListener('touchmove', onTouchMove, { passive: false });
+  window.addEventListener('keydown', onKeydown, { passive: false });
+
+  // recalc after hero images are loaded
+  window.addEventListener('load', recalc, { passive: true });
+})();

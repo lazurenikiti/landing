@@ -209,3 +209,13 @@ button:focus {
 @media (min-width: 768px) and (max-width: 992px) {
   .contact-actions-table td { width: 33.3333%; }
 }
+
+/* =========================================
+   HERO-SNAP
+   ========================================= */
+
+html, body { overscroll-behavior-y: contain; }
+
+header.hero {
+  min-height: calc(var(--vh) * 100);
+}
