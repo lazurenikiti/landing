@@ -465,26 +465,20 @@
                 <td>
                   <table class="section-table contact-actions-table" role="presentation">
                     <colgroup>
+                      <col style="width: 10%;">
                       <col style="width: 20%;">
                       <col style="width: 20%;">
                       <col style="width: 20%;">
                       <col style="width: 20%;">
-                      <col style="width: 20%;">
+                      <col style="width: 10%;">
                     </colgroup>
                     <tr>
+                      <td></td>
                       <td>
                         <a class="contact-action" href="tel:+306997144061" aria-label="Call phone" data-i18n-attr="aria-label:contact.aria.call">
                           <figure>
                             <img src="images/contact/phone.webp" alt="Phone" data-i18n-attr="alt:contact.icons.phone.alt">
                             <figcaption data-i18n="contact.actions.phone.fig">Call</figcaption>
-                          </figure>
-                        </a>
-                      </td>
-                      <td>
-                        <a class="contact-action" href="mailto:contact@lazurenikiti.gr" aria-label="Send email" data-i18n-attr="aria-label:contact.aria.email">
-                          <figure>
-                            <img src="images/contact/mail.webp" alt="Email" data-i18n-attr="alt:contact.icons.email.alt">
-                            <figcaption data-i18n="contact.actions.email.fig">Email</figcaption>
                           </figure>
                         </a>
                       </td>
@@ -512,15 +506,17 @@
                           </figure>
                         </a>
                       </td>
+                      <td></td>
                     </tr>
 
                     <!-- structural row (invisible via CSS) -->
                     <tr class="sr-only-row">
+                      <td></td>
                       <td>Call</td>
-                      <td>Email</td>
                       <td>WhatsApp</td>
                       <td>Viber</td>
                       <td>Booking.com</td>
+                      <td></td>
                     </tr>
                   </table>
                 </td>
@@ -539,17 +535,6 @@
                           <figcaption data-i18n="contact.actions.phone.fig">Call</figcaption>
                         </div>
                         <div class="extra-text" data-i18n="contact.phone.extra">+30 699 7144061</div>
-                      </figure>
-                    </a>
-
-                    <!-- EMAIL (full width) -->
-                    <a class="contact-action email-action" href="mailto:contact@lazurenikiti.gr" aria-label="Send email" data-i18n-attr="aria-label:contact.aria.email">
-                      <figure>
-                        <div class="icon-stack">
-                          <img src="images/contact/mail.webp" alt="Email" data-i18n-attr="alt:contact.icons.email.alt">
-                          <figcaption data-i18n="contact.actions.email.fig">Email</figcaption>
-                        </div>
-                        <div class="extra-text" data-i18n="contact.email.extra">contact@lazurenikiti.gr</div>
                       </figure>
                     </a>
 
@@ -582,6 +567,75 @@
                   </div>
                 </td>
               </tr>
+
+              <!-- === CONTACT FORM (white minimal) === -->
+              <tr>
+                <td>
+                  <div class="contact-form-block contact-form--white" id="contact-form-block">
+                    <h3 class="contact-form-title" data-i18n="contact.form.title">
+                      Or leave us a request
+                    </h3>
+
+                    <form id="contact-form" class="contact-form" novalidate>
+                      <!-- Name -->
+                      <div class="form-row">
+                        <label for="cf-name" class="form-label" data-i18n="contact.form.name.label">Your name</label>
+                        <input id="cf-name"
+                               name="name"
+                               type="text"
+                               required
+                               class="form-input"
+                               data-i18n-attr="placeholder:contact.form.name.placeholder; aria-label:contact.form.name.label">
+                        <small id="err-name" class="error-msg" hidden data-i18n="contact.form.valid.name">
+                          Please enter your name
+                        </small>
+                      </div>
+
+                      <!-- Email -->
+                      <div class="form-row">
+                        <label for="cf-email" class="form-label" data-i18n="contact.form.email.label">Your email</label>
+                        <input id="cf-email"
+                               name="email"
+                               type="email"
+                               required
+                               autocomplete="email"
+                               class="form-input"
+                               data-i18n-attr="placeholder:contact.form.email.placeholder; aria-label:contact.form.email.label">
+                        <small id="err-email" class="error-msg" hidden data-i18n="contact.form.valid.email">
+                          Please enter a valid email
+                        </small>
+                      </div>
+
+                      <!-- Message -->
+                      <div class="form-row">
+                        <label for="cf-message" class="form-label" data-i18n="contact.form.message.label">Message</label>
+                        <textarea id="cf-message"
+                                  name="message"
+                                  rows="6"
+                                  required
+                                  class="form-textarea"
+                                  data-i18n-attr="placeholder:contact.form.message.placeholder; aria-label:contact.form.message.label"></textarea>
+                        <small id="err-message" class="error-msg" hidden data-i18n="contact.form.valid.message">
+                          Message is too short
+                        </small>
+                      </div>
+
+                      <!-- Actions -->
+                      <div class="form-actions form-actions--center">
+                        <button type="submit" class="btn-send btn-send--outline" data-i18n="contact.form.submit">Send</button>
+                        <span id="cf-sending" class="sending" hidden data-i18n="contact.form.sending">Sending…</span>
+                        <span id="cf-status" class="status" aria-live="polite"></span>
+                      </div>
+                    </form>
+
+                    <!-- Success state -->
+                    <div id="contact-success" class="contact-success contact-success--white" hidden data-i18n="contact.form.success">
+                      Thank you! We’ll get back to you shortly.
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
             </tbody>
           </table>
         </div>
@@ -603,6 +657,7 @@
 
   <script src="script.js"></script>
   <script src="nav.js"></script>
+  <script src="contact-form.js"></script>
   <script src="header.js"></script>
   <script src="apartment.js"></script>
   <script src="parallax.js"></script>

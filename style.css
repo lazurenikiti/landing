@@ -214,13 +214,18 @@ button:focus {
    SNAP SCROLLING (mobile only)
    ========================================= */
 @media (max-width: 768px), (max-height: 500px) {
-  html, body {
-    margin: 0;
-    padding: 0;
+  html {
     height: 100%;
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
     scroll-snap-type: y mandatory;
-    overflow-y: scroll;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scroll-padding-top: 1px;
+    scroll-padding-bottom: max(1px, env(safe-area-inset-bottom));
+  }
+  body {
+    min-height: 100%;
+    overflow: visible;
   }
 
   /* Snap targets: include .hero to participate in snap,
@@ -228,8 +233,8 @@ button:focus {
   .hero,
   .section,
   .section-with-parallax {
-    min-height: 100vh;
-    scroll-snap-align: var(--snap-align, start); /* default to top */
+    min-height: calc(var(--vh, 1vh) * 100);
+    scroll-snap-align: var(--snap-align, start);
     scroll-snap-stop: always;
   }
 

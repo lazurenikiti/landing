@@ -71,8 +71,17 @@
     INDEX = new Map(SECTIONS.map((s, i) => [s.id, i]));
   }
 
+<<<<<<< HEAD
   function currentDominantSectionId() {
     const vh = window.innerHeight || 1;
+=======
+  function getViewportHeight() {
+    return (window.visualViewport?.height || window.innerHeight || 1);
+  }
+
+  function currentDominantSectionId() {
+    const vh = getViewportHeight();
+>>>>>>> 5871611 (Files update)
     let best = { id: null, score: 0 };
     for (const { id, el } of SECTIONS) {
       const r = el.getBoundingClientRect();
@@ -421,4 +430,17 @@
   };
   // @ts-ignore legacy support
   mq[listen]('change', handler);
+})();
+
+// Stable CSS --vh unit for mobile toolbars
+(function setCssVhVariable() {
+  function setVh() {
+    const vh = (window.visualViewport?.height || window.innerHeight || 0) * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }
+  setVh();
+  window.addEventListener('resize', setVh, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', setVh, { passive: true });
+  }
 })();

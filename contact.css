@@ -1,7 +1,6 @@
 /* =========================================
-   CONTACT — DESKTOP BASE
+   CONTACT — DESKTOP BASE (from your file)
    ========================================= */
-
 .contact-actions-table { margin-top: 8px; }
 .contact-actions-table td { padding: 14px 10px; }
 
@@ -50,7 +49,7 @@
 }
 
 /* =========================================
-   CONTACT — VISIBILITY GATES
+   CONTACT — VISIBILITY GATES (from your file)
    ========================================= */
 @media (max-width: 576px), (max-height: 500px){
   #contact-section .desktop-row { display: none; }
@@ -61,7 +60,7 @@
 }
 
 /* =========================================
-   CONTACT — MOBILE (≤ 576px)
+   CONTACT — MOBILE (≤ 576px, from your file)
    ========================================= */
 @media (max-width: 576px), (max-height: 500px){
   :root { --mobile-edge: 20px; }
@@ -128,4 +127,137 @@
   }
   #contact-section .booking-row .booking-action{ grid-column: 1; }
   #contact-section .booking-row .spacer{ grid-column: 2; }
+}
+
+/* =========================================
+   NEW — CONTACT FORM (white minimalist)
+   ========================================= */
+
+/* Palette for the white variant */
+:root {
+  --cfw-text: #111111;
+  --cfw-bg: #ffffff;
+  --cfw-border: #e5e7eb;
+  --cfw-border-strong: #111111;
+  --cfw-muted: #6b7280;
+  --cfw-error: #e11d48;
+}
+
+/* Wrapper: no radius, no shadow, white background */
+.contact-form-block.contact-form--white{
+  margin: 28px auto 0;
+  max-width: 720px;
+  background: var(--cfw-bg);
+  color: var(--cfw-text);
+  border: 1px solid var(--cfw-border);
+  border-radius: 0;           /* no rounded corners */
+  padding: 20px;
+  box-shadow: none;           /* remove drop shadow */
+  text-align: left;
+}
+
+/* Centered title */
+.contact-form-title{
+  margin: 0 0 14px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  font-size: clamp(18px, 2.4vw, 22px);
+  text-align: center;         /* centered heading */
+}
+
+/* Fields */
+.contact-form .form-row{ margin-bottom: 14px; }
+.contact-form .form-label{
+  display:block; margin-bottom:6px; font-size: .95rem; color: var(--cfw-text);
+}
+
+.form-input,.form-textarea{
+  width:100%;
+  padding: 12px 14px;
+  background: #fff;
+  color: var(--cfw-text);
+  border: 1px solid var(--cfw-border);
+  border-radius: 0;           /* squared inputs */
+  outline: none;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+.form-input::placeholder,.form-textarea::placeholder{ color: var(--cfw-muted); }
+.form-input:focus,.form-textarea:focus{
+  border-color: var(--cfw-border-strong);
+  box-shadow: 0 0 0 2px rgba(17,17,17,.08);
+}
+
+/* Validation messages */
+.error-msg{
+  display:block; margin-top:6px; color: var(--cfw-error); font-size:.85rem;
+}
+
+/* Actions row: centered button */
+.form-actions{
+  display:flex; align-items:center; gap:12px; margin-top: 6px;
+}
+.form-actions--center{ justify-content: center; }
+
+/* Submit button: centered, outline by default; fills white on focus/hover */
+.btn-send{
+  display:inline-block;
+  font-size: clamp(14px, 1.6vw, 16px);
+  font-weight: 700;
+  letter-spacing:.2px;
+  padding:.75rem 1.25rem;
+  border-radius: 0;
+  transition: background .2s ease, color .2s ease, transform .06s;
+  will-change: transform;
+}
+.btn-send--outline{
+  border: 2px solid var(--cfw-text);
+  background: transparent;      /* unfilled by default */
+  color: var(--cfw-text);
+}
+.btn-send--outline:hover,
+.btn-send--outline:focus-visible{
+  background: var(--cfw-text); /* fills black */
+  color: #ffffff;              /* text turns white */
+  outline: none;
+}
+.btn-send:active{ transform: translateY(1px); }
+
+/* Status texts */
+.sending{ opacity:.9; font-size:.95rem; }
+.status{ min-height:1.2em; font-size:.95rem; }
+
+/* Success message (white variant) */
+.contact-success.contact-success--white{
+  background: #fff;
+  border: 1px dashed var(--cfw-border);
+  border-radius: 0;
+  padding: 16px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* Collapse animation (same behavior, subtler on white) */
+.contact-form.collapsing{
+  overflow:hidden;
+  transition: height .26s ease, opacity .16s ease;
+  opacity: 0;
+}
+
+/* Mobile: align horizontal edges with contact buttons (uses --mobile-edge from your CSS) */
+@media (max-width: 576px), (max-height: 500px){
+  .contact-form-block.contact-form--white{
+    margin-top: 20px;
+    padding: 16px;
+    /* match left/right padding to contact buttons grid */
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    padding-left: var(--mobile-edge);
+    padding-right: var(--mobile-edge);
+    box-sizing: border-box;
+    border-left: none;  /* visually align with card edges */
+    border-right: none; /* visually align with card edges */
+  }
+  .form-actions{ flex-wrap: wrap; gap:10px; }
+  .btn-send{ width: auto; text-align:center; }
 }
