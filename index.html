@@ -1,656 +1,727 @@
 <!DOCTYPE html>
 <html lang="en" class="overlay-root">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title data-i18n="meta.title">LAZURE Apartment Nikiti</title>
-  <link rel="icon" type="image/x-icon" href="images/general/lazure_favicon.ico">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="scrollbar.css">
-  <link rel="stylesheet" href="parallax.css">
-  <link rel="stylesheet" href="nav-header.css">
-  <link rel="stylesheet" href="apartment.css">
-  <link rel="stylesheet" href="amenities.css">
-  <link rel="stylesheet" href="location.css">
-  <link rel="stylesheet" href="contact.css">
-  <link rel="stylesheet" href="footer.css">
+  <link rel="icon" type="image/x-icon" href="images/general/lazure_favicon.ico" />
+
+  <!-- Vendor CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Project styles (order matters: base first, sections after) -->
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="scrollbar.css" />
+  <link rel="stylesheet" href="parallax.css" />
+  <link rel="stylesheet" href="nav-header.css" />
+  <link rel="stylesheet" href="apartment.css" />
+  <link rel="stylesheet" href="amenities.css" />
+  <link rel="stylesheet" href="location.css" />
+  <link rel="stylesheet" href="contact.css" />
+  <link rel="stylesheet" href="footer.css" />
+
+  <!-- Icons -->
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 
-<body class="no-window-scroll">
+<!-- Removed legacy class that could interfere with normal scrolling -->
+<body>
+  <!-- =========================================================
+       HERO (landing section) + top navigation overlay
+       - The header occupies the top viewport height visually.
+       - Navigation is accessible on both desktop and mobile.
+       ========================================================= -->
+  <header class="hero" id="top">
+    <!-- Top navigation (overlayed inside the hero) -->
+    <div class="header-nav" aria-label="Primary" data-i18n-attr="aria-label:nav.aria.primary">
+      <div class="nav-inner container">
+        <!-- Brand / Logo (optional link to top) -->
+        <a class="brand" href="#top" aria-label="Home" data-i18n-attr="aria-label:nav.brand.aria"></a>
 
-  <!-- <div id="page-scroll" class="overlay-scroll"> -->
+        <!-- Desktop navigation -->
+        <nav class="nav-desktop d-none d-lg-flex"
+             aria-label="Primary navigation"
+             data-i18n-attr="aria-label:nav.aria.primaryNav">
+          <a class="nav-link" href="#apartment" data-i18n="nav.menu.apartment">Apartment</a>
+          <a class="nav-link" href="#amenities" data-i18n="nav.menu.amenities">Amenities</a>
+          <a class="nav-link" href="#location" data-i18n="nav.menu.location">Location</a>
+          <a class="nav-link" href="#contact" data-i18n="nav.menu.contact">Contact</a>
 
-    <!-- ===== HERO (with embedded nav overlay) ===== -->
-    <header class="hero" id="top">
-      <!-- NAV overlay, positioned at top of the hero -->
-      <div class="header-nav" aria-label="Primary" data-i18n-attr="aria-label:nav.aria.primary">
-        <div class="nav-inner container">
-          <!-- Brand / Logo (optional) -->
-          <a class="brand" href="#top" aria-label="Home" data-i18n-attr="aria-label:nav.brand.aria"></a>
+          <!-- Desktop language switcher -->
+          <div class="lang-switcher" id="lang-switcher-desktop">
+            <button class="lang-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Change language">
+              <img class="flag" src="images/general/flags/en.webp" alt="English flag" />
+              <span class="lang-code">EN</span>
+              <span class="chevron" aria-hidden="true">▾</span>
+            </button>
+            <ul class="lang-list" role="listbox" aria-label="Languages">
+              <!-- Filled by i18n.js -->
+            </ul>
+          </div>
+        </nav>
 
-          <!-- Desktop menu -->
-          <nav class="nav-desktop d-none d-lg-flex" aria-label="Primary navigation" data-i18n-attr="aria-label:nav.aria.primaryNav">
-            <a class="nav-link" href="#apartment" data-i18n="nav.menu.apartment">Apartment</a>
-            <a class="nav-link" href="#amenities" data-i18n="nav.menu.amenities">Amenities</a>
-            <a class="nav-link" href="#location" data-i18n="nav.menu.location">Location</a>
-            <a class="nav-link" href="#contact" data-i18n="nav.menu.contact">Contact</a>
+        <!-- Mobile burger toggle -->
+        <button class="nav-burger" type="button"
+                aria-controls="mobileMenu"
+                aria-expanded="false"
+                aria-label="Toggle menu"
+                data-i18n-attr="aria-label:nav.burger.aria">
+          <span class="menu-label" data-i18n="nav.burger.label">Menu</span>
+          <span class="burger-square" aria-hidden="true"><span class="line"></span></span>
+        </button>
+      </div>
+    </div>
 
-            <!-- Desktop language switcher (added) -->
-            <div class="lang-switcher" id="lang-switcher-desktop">
-              <button class="lang-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Change language">
-                <img class="flag" src="images/general/flags/en.webp" alt="English flag">
-                <span class="lang-code">EN</span>
-                <span class="chevron" aria-hidden="true">▾</span>
-              </button>
-              <ul class="lang-list" role="listbox" aria-label="Languages">
-                <!-- filled by i18n.js -->
-              </ul>
-            </div>
-          </nav>
+    <!-- Hero visual layers -->
+    <div class="hero-background bg1"></div>
+    <div class="hero-background bg2"></div>
+    <div class="overlay"></div>
 
-          <!-- Mobile burger -->
-          <button class="nav-burger" type="button"
-                  aria-controls="mobileMenu"
-                  aria-expanded="false"
-                  aria-label="Toggle menu"
-                  data-i18n-attr="aria-label:nav.burger.aria">
-            <span class="menu-label" data-i18n="nav.burger.label">Menu</span>
-            <span class="burger-square" aria-hidden="true"><span class="line"></span></span>
-          </button>
-        </div>
+    <!-- Logo + CTA -->
+    <img src="images/general/LAZURE_white.webp"
+         class="logo"
+         alt="LAZURE Apartment Nikiti"
+         data-i18n-attr="alt:hero.logo.alt" />
+    <p id="hero-caption" class="hero-caption"></p>
+    <a href="#contact" class="contact-us-btn" data-i18n="hero.cta">CONTACT US</a>
+  </header>
+
+  <!-- =========================================================
+       MOBILE NAVIGATION PANEL (off-canvas)
+       - Backdrop + slide-in panel for small screens.
+       ========================================================= -->
+  <div class="menu-backdrop" hidden></div>
+  <nav id="mobileMenu" class="mobile-panel"
+       aria-label="Mobile navigation"
+       hidden
+       data-i18n-attr="aria-label:nav.mobile.aria">
+    <a class="nav-link" href="#apartment" data-i18n="nav.menu.apartment">Apartment</a>
+    <a class="nav-link" href="#amenities" data-i18n="nav.menu.amenities">Amenities</a>
+    <a class="nav-link" href="#location" data-i18n="nav.menu.location">Location</a>
+    <a class="nav-link" href="#contact" data-i18n="nav.menu.contact">Contact</a>
+
+    <hr class="lang-sep" />
+    <div class="lang-switcher-mobile" id="lang-switcher-mobile" aria-label="Language">
+      <p class="lang-label">Language</p>
+      <div class="lang-grid" role="listbox" aria-label="Languages">
+        <!-- Filled by i18n.js -->
+      </div>
+    </div>
+  </nav>
+
+  <!-- =========================================================
+       APARTMENT SECTION
+       - Gallery (desktop frame + mobile carousel)
+       - Text details (amenities overview)
+       ========================================================= -->
+  <section class="section bg-white position-relative overflow-hidden" id="apartment-section">
+    <!-- Parallax background layer -->
+    <div class="bg-layer" data-parallax="apartment-parallax"></div>
+
+    <div class="container position-relative" style="z-index:1;">
+      <div class="apartment-header text-center">
+        <a href="#apartment">
+          <!-- Title image (i18n-aware path; EN by default) -->
+          <img id="apartment"
+               src="images/general/titels/en/apartment.webp"
+               class="titel section-title"
+               alt="The Apartment"
+               data-i18n-attr="alt:titles.apartment.text" />
+        </a>
       </div>
 
-      <!-- hero visuals -->
-      <div class="hero-background bg1"></div>
-      <div class="hero-background bg2"></div>
-      <div class="overlay"></div>
-      <img src="images/general/LAZURE_white.webp" class="logo" alt="LAZURE Apartment Nikiti" data-i18n-attr="alt:hero.logo.alt">
-      <p id="hero-caption" class="hero-caption"></p>
-      <a href="#contact" class="contact-us-btn" data-i18n="hero.cta">CONTACT US</a>
-    </header>
+      <!-- Grid: arrows | photos | text -->
+      <div class="apartment-grid">
+        <!-- Left arrow -->
+        <button id="main-left" class="slideshow-btn main-nav-btn"
+                aria-label="Previous photo"
+                data-i18n-attr="aria-label:apartment.btn.prev.aria">
+          <div class="triangle triangle-left"></div>
+        </button>
 
-    <!-- Global backdrop + mobile panel (outside header, fixed to viewport) -->
-    <div class="menu-backdrop" hidden></div>
-    <nav id="mobileMenu" class="mobile-panel" aria-label="Mobile navigation" hidden data-i18n-attr="aria-label:nav.mobile.aria">
-      <a class="nav-link" href="#apartment" data-i18n="nav.menu.apartment">Apartment</a>
-      <a class="nav-link" href="#amenities" data-i18n="nav.menu.amenities">Amenities</a>
-      <a class="nav-link" href="#location" data-i18n="nav.menu.location">Location</a>
-      <a class="nav-link" href="#contact" data-i18n="nav.menu.contact">Contact</a>
+        <!-- Photo area -->
+        <div class="main-photo-cell">
+          <!-- Desktop image frame (script populates) -->
+          <div class="main-photo-frame" id="main-photo-frame" aria-live="polite"></div>
 
-      <hr class="lang-sep">
-      <div class="lang-switcher-mobile" id="lang-switcher-mobile" aria-label="Language">
-        <p class="lang-label">Language</p>
-        <div class="lang-grid" role="listbox" aria-label="Languages">
-          <!-- filled by i18n.js -->
+          <!-- Mobile carousel -->
+          <div class="mobile-carousel" id="mobile-carousel"
+               aria-label="Apartment photos"
+               tabindex="0"
+               data-i18n-attr="aria-label:apartment.carousel.aria">
+            <div class="carousel-track" id="carousel-track"></div>
+          </div>
+          <div class="carousel-dots" id="carousel-dots"
+               role="tablist"
+               aria-label="Slide selector"
+               data-i18n-attr="aria-label:apartment.carousel.dots.aria"></div>
         </div>
+
+        <!-- Right arrow -->
+        <button id="main-right" class="slideshow-btn main-nav-btn"
+                aria-label="Next photo"
+                data-i18n-attr="aria-label:apartment.btn.next.aria">
+          <div class="triangle triangle-right"></div>
+        </button>
+
+        <!-- Text description -->
+        <aside id="photo-info-cell" class="main-info-cell">
+          <div class="info-content">
+            <section>
+              <h4 style="text-align: center;" data-i18n="apartment.info.h4">
+                Welcome to LAZURE Apartment Nikiti
+              </h4>
+
+              <p style="text-align: justify;">
+                <strong data-i18n="apartment.info.p1">
+                  Your private, elegant retreat in the heart of Sithonia.
+                </strong>
+              </p>
+
+              <p style="text-align: justify;">
+                <span data-i18n="apartment.info.p2.part1">This cozy</span>
+                <strong data-i18n="apartment.info.p2.strong1">25 m² one-room apartment</strong>
+                <span data-i18n="apartment.info.p2.part2">is located on the ground floor of the</span>
+                <em data-i18n="apartment.info.p2.em">Bomo Nikiti complex</em>
+                <span data-i18n="apartment.info.p2.part3">, just</span>
+                <strong data-i18n="apartment.info.p2.strong2">700 m from the beach</strong>
+                <span data-i18n="apartment.info.p2.part4">and promenade. With a private entrance, modern amenities, and a quiet garden setting, it’s ideal for</span>
+                <strong data-i18n="apartment.info.p2.strong3">couples or small families</strong>
+                <span data-i18n="apartment.info.p2.part5">looking for comfort and convenience. It is ideal for discovering the natural beauty of the Sithonia peninsula, with its</span>
+                <strong data-i18n="apartment.info.p2.strong4">crystal-clear Blue Flag beaches</strong>
+                <span data-i18n="apartment.info.p2.part6">, as well as the breathtaking landscapes of Halkidiki, Macedonia.</span>
+              </p>
+            </section>
+          </div>
+        </aside>
       </div>
-    </nav>
 
-    <section class="section bg-white position-relative overflow-hidden" id="apartment-section">
-      <div class="bg-layer" data-parallax="apartment-parallax"></div>
+      <!-- Thumbnails (desktop) -->
+      <div class="thumbs-grid"></div>
 
-      <div class="container position-relative" style="z-index:1;">
-        <div class="apartment-header text-center">
-          <a href="#apartment">
-            <!-- title image (now language-aware path; default EN) -->
-            <img id="apartment"
-                 src="images/general/titels/en/apartment.webp"
+      <!-- Fullscreen viewer -->
+      <div id="fullscreen-overlay">
+        <button id="fs-close"></button>
+        <img id="fs-image" src="" alt="Fullscreen view" />
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       AMENITIES SECTION
+       - Key features, lists, and policies
+       ========================================================= -->
+  <section class="section text-center" id="amenities-section">
+    <div class="content">
+      <div class="container">
+        <!-- Section title -->
+        <div class="section-header">
+          <a href="#amenities">
+            <img id="amenities"
+                 src="images/general/titels/en/amenities.webp"
                  class="titel section-title"
-                 alt="The Apartment"
-                 data-i18n-attr="alt:titles.apartment.text">
+                 alt="About Amenities"
+                 data-i18n-attr="alt:titles.amenities.text" />
           </a>
         </div>
 
-        <!-- GRID: left arrow | photos | right arrow | text -->
-        <div class="apartment-grid">
-          <!-- Left arrow -->
-          <button id="main-left" class="slideshow-btn main-nav-btn" aria-label="Previous photo" data-i18n-attr="aria-label:apartment.btn.prev.aria">
-            <div class="triangle triangle-left"></div>
-          </button>
-
-          <!-- Photo area -->
-          <div class="main-photo-cell">
-            <!-- Desktop frame -->
-            <div class="main-photo-frame" id="main-photo-frame" aria-live="polite"></div>
-
-            <!-- Mobile carousel -->
-            <div class="mobile-carousel" id="mobile-carousel" aria-label="Apartment photos" tabindex="0" data-i18n-attr="aria-label:apartment.carousel.aria">
-              <div class="carousel-track" id="carousel-track"></div>
-            </div>
-            <div class="carousel-dots" id="carousel-dots" role="tablist" aria-label="Slide selector" data-i18n-attr="aria-label:apartment.carousel.dots.aria"></div>
-          </div>
-
-          <!-- Right arrow -->
-          <button id="main-right" class="slideshow-btn main-nav-btn" aria-label="Next photo" data-i18n-attr="aria-label:apartment.btn.next.aria">
-            <div class="triangle triangle-right"></div>
-          </button>
-
-          <!-- Text (RIGHT) -->
-          <aside id="photo-info-cell" class="main-info-cell">
-            <div class="info-content">
-              <section>
-                <h4 style="text-align: center;" data-i18n="apartment.info.h4">Welcome to LAZURE Apartment Nikiti</h4>
-
-                <p style="text-align: justify;">
-                  <strong data-i18n="apartment.info.p1">Your private, elegant retreat in the heart of Sithonia.</strong>
-                </p>
-
-                <p style="text-align: justify;">
-                  <span data-i18n="apartment.info.p2.part1">This cozy</span>
-                  <strong data-i18n="apartment.info.p2.strong1">25 m² one-room apartment</strong>
-                  <span data-i18n="apartment.info.p2.part2">is located on the ground floor of the</span>
-                  <em data-i18n="apartment.info.p2.em">Bomo Nikiti complex</em>
-                  <span data-i18n="apartment.info.p2.part3">, just</span>
-                  <strong data-i18n="apartment.info.p2.strong2">700 m from the beach</strong>
-                  <span data-i18n="apartment.info.p2.part4">and promenade. With a private entrance, modern amenities, and a quiet garden setting, it’s ideal for</span>
-                  <strong data-i18n="apartment.info.p2.strong3">couples or small families</strong>
-                  <span data-i18n="apartment.info.p2.part5">looking for comfort and convenience. It is ideal for discovering the natural beauty of the Sithonia peninsula, with its</span>
-                  <strong data-i18n="apartment.info.p2.strong4">crystal-clear Blue Flag beaches</strong>
-                  <span data-i18n="apartment.info.p2.part6">, as well as the breathtaking landscapes of Halkidiki, Macedonia.</span>
-                </p>
-              </section>
-            </div>
-          </aside>
+        <!-- Subheader: Essential -->
+        <div class="subheader">
+          <img id="essential"
+               src="images/general/titels/en/essential.webp"
+               class="titel section-title"
+               alt="Essential"
+               data-i18n-attr="alt:titles.essential.text" />
         </div>
 
-        <!-- Thumbnails (desktop) -->
-        <div class="thumbs-grid"></div>
-
-        <!-- Fullscreen viewer -->
-        <div id="fullscreen-overlay">
-          <button id="fs-close"></button>
-          <img id="fs-image" src="" alt="Fullscreen view">
+        <!-- Feature grid -->
+        <div class="feature-grid">
+          <div class="amenity-item">
+            <span class="amenity-icon"><img src="images/amenities/indoor.ico" alt="" /></span>
+            <span class="amenity-text" data-i18n="amenities.cards.indoor">25 sq.m. of indoor space</span>
+          </div>
+          <div class="amenity-item">
+            <span class="amenity-icon"><img src="images/amenities/outdoor.ico" alt="" /></span>
+            <span class="amenity-text" data-i18n="amenities.cards.outdoor">17 sq.m. of private outdoor area</span>
+          </div>
+          <div class="amenity-item">
+            <span class="amenity-icon"><img src="images/amenities/bed.ico" alt="" /></span>
+            <span class="amenity-text" data-i18n="amenities.cards.bed">160 cm bed</span>
+          </div>
+          <div class="amenity-item">
+            <span class="amenity-icon"><img src="images/amenities/pool.ico" alt="" /></span>
+            <span class="amenity-text" data-i18n="amenities.cards.pool">Shared pool</span>
+          </div>
+          <div class="amenity-item">
+            <span class="amenity-icon"><img src="images/amenities/kitchenette.ico" alt="" /></span>
+            <span class="amenity-text" data-i18n="amenities.cards.kitchenette">Kitchenette</span>
+          </div>
+          <div class="amenity-item">
+            <span class="amenity-icon"><img src="images/amenities/air_con.ico" alt="" /></span>
+            <span class="amenity-text" data-i18n="amenities.cards.aircon">Air conditioning</span>
+          </div>
+          <div class="amenity-item">
+            <span class="amenity-icon"><img src="images/amenities/wifi.ico" alt="" /></span>
+            <span class="amenity-text" data-i18n="amenities.cards.wifi">Wi-Fi</span>
+          </div>
+          <div class="amenity-item">
+            <span class="amenity-icon"><img src="images/amenities/safe.ico" alt="" /></span>
+            <span class="amenity-text" data-i18n="amenities.cards.safe">Safe</span>
+          </div>
         </div>
-      </div>
-    </section>
 
-    <section class="section text-center" id="amenities-section">
-      <div class="content">
-        <div class="container">
-
-          <!-- Section title -->
-          <div class="section-header">
-            <a href="#amenities">
-              <!-- title image (language-aware; default EN) -->
-              <img id="amenities"
-                   src="images/general/titels/en/amenities.webp"
-                   class="titel section-title"
-                   alt="About Amenities"
-                   data-i18n-attr="alt:titles.amenities.text">
-            </a>
+        <!-- Lists: in-room / kitchenette / bathroom -->
+        <div class="lists-grid lists-grid--three">
+          <div class="list-col">
+            <p class="amenities-heading" data-i18n="amenities.lists.inroom.title">In-room facilities:</p>
+            <ul class="amenity-list" data-i18n="amenities.lists.inroom.items">
+              <li>Smart TV</li>
+              <li>Washing machine</li>
+              <li>Clothes drying rack</li>
+              <li>Iron &amp; ironing board</li>
+              <li>Beach towels set for two</li>
+              <li>Ample closet space</li>
+            </ul>
           </div>
 
-          <!-- Subheader "Essential" -->
-          <div class="subheader">
-            <!-- title image (language-aware; default EN) -->
-            <img id="essential"
-                 src="images/general/titels/en/essential.webp"
-                 class="titel section-title"
-                 alt="Essential"
-                 data-i18n-attr="alt:titles.essential.text">
+          <div class="list-col">
+            <p class="amenities-heading" data-i18n="amenities.lists.kitchenette.title">Kitchenette facilities:</p>
+            <ul class="amenity-list" data-i18n="amenities.lists.kitchenette.items">
+              <li>Hob</li>
+              <li>Kettle</li>
+              <li>Refrigerator</li>
+              <li>Microwave oven</li>
+              <li>Waffle maker</li>
+              <li>Coffee maker</li>
+              <li>Complete set of dishes &amp; cutlery</li>
+            </ul>
           </div>
 
-          <!-- Features grid -->
-          <div class="feature-grid">
-            <div class="amenity-item">
-              <span class="amenity-icon"><img src="images/amenities/indoor.ico" alt=""></span>
-              <span class="amenity-text" data-i18n="amenities.cards.indoor">25 sq.m. of indoor space</span>
-            </div>
-            <div class="amenity-item">
-              <span class="amenity-icon"><img src="images/amenities/outdoor.ico" alt=""></span>
-              <span class="amenity-text" data-i18n="amenities.cards.outdoor">17 sq.m. of private outdoor area</span>
-            </div>
-            <div class="amenity-item">
-              <span class="amenity-icon"><img src="images/amenities/bed.ico" alt=""></span>
-              <span class="amenity-text" data-i18n="amenities.cards.bed">160 cm bed</span>
-            </div>
-            <div class="amenity-item">
-              <span class="amenity-icon"><img src="images/amenities/pool.ico" alt=""></span>
-              <span class="amenity-text" data-i18n="amenities.cards.pool">Shared pool</span>
-            </div>
+          <div class="list-col">
+            <p class="amenities-heading" data-i18n="amenities.lists.bathroom.title">Bathroom facilities:</p>
+            <ul class="amenity-list" data-i18n="amenities.lists.bathroom.items">
+              <li>Spacious shower</li>
+              <li>Toiletries</li>
+              <li>Bath towels</li>
+              <li>Hair dryer</li>
+            </ul>
+          </div>
+        </div>
 
-            <div class="amenity-item">
-              <span class="amenity-icon"><img src="images/amenities/kitchenette.ico" alt=""></span>
-              <span class="amenity-text" data-i18n="amenities.cards.kitchenette">Kitchenette</span>
-            </div>
-            <div class="amenity-item">
-              <span class="amenity-icon"><img src="images/amenities/air_con.ico" alt=""></span>
-              <span class="amenity-text" data-i18n="amenities.cards.aircon">Air conditioning</span>
-            </div>
-            <div class="amenity-item">
-              <span class="amenity-icon"><img src="images/amenities/wifi.ico" alt=""></span>
-              <span class="amenity-text" data-i18n="amenities.cards.wifi">Wi-Fi</span>
-            </div>
-            <div class="amenity-item">
-              <span class="amenity-icon"><img src="images/amenities/safe.ico" alt=""></span>
-              <span class="amenity-text" data-i18n="amenities.cards.safe">Safe</span>
-            </div>
+        <!-- Lists: outer / surroundings -->
+        <div class="lists-grid lists-grid--two">
+          <div class="list-col">
+            <p class="amenities-heading" data-i18n="amenities.lists.outer.title">Outer facilities:</p>
+            <ul class="amenity-list" data-i18n="amenities.lists.outer.items">
+              <li>Private lawn area</li>
+              <li>Table &amp; chairs for outdoor</li>
+              <li>Children’s playground</li>
+              <li>Loungers &amp; umbrellas for guests’ use</li>
+            </ul>
           </div>
 
-          <!-- Lists: In-room / Kitchenette / Bathroom -->
-          <div class="lists-grid lists-grid--three">
-            <div class="list-col">
-              <p class="amenities-heading" data-i18n="amenities.lists.inroom.title">In-room facilities:</p>
-              <ul class="amenity-list" data-i18n="amenities.lists.inroom.items">
-                <li>Smart TV</li>
-                <li>Washing machine</li>
-                <li>Clothes drying rack</li>
-                <li>Iron & ironing board</li>
-                <li>Beach towels set for two</li>
-                <li>Ample closet space</li>
-              </ul>
-            </div>
-
-            <div class="list-col">
-              <p class="amenities-heading" data-i18n="amenities.lists.kitchenette.title">Kitchenette facilities:</p>
-              <ul class="amenity-list" data-i18n="amenities.lists.kitchenette.items">
-                <li>Hob</li>
-                <li>Kettle</li>
-                <li>Refrigerator</li>
-                <li>Microwave oven</li>
-                <li>Waffle maker</li>
-                <li>Coffee maker</li>
-                <li>Complete set of dishes & cutlery</li>
-              </ul>
-            </div>
-
-            <div class="list-col">
-              <p class="amenities-heading" data-i18n="amenities.lists.bathroom.title">Bathroom facilities:</p>
-              <ul class="amenity-list" data-i18n="amenities.lists.bathroom.items">
-                <li>Spacious shower</li>
-                <li>Toiletries</li>
-                <li>Bath towels</li>
-                <li>Hair dryer</li>
-              </ul>
-            </div>
+          <div class="list-col">
+            <p class="amenities-heading" data-i18n="amenities.lists.surroundings.title">The surroundings:</p>
+            <ul class="amenity-list" data-i18n="amenities.lists.surroundings.items">
+              <li>Nikiti main promenade &amp; beach – 700 m</li>
+              <li>Nikiti historical center – 1000 m</li>
+              <li>Nikiti Historical &amp; Folklore Museum – 1400 m</li>
+              <li>Cafés – from 150 m</li>
+              <li>Restaurants – from 200 m</li>
+              <li>Major Greek supermarkets – from 450 m</li>
+              <li>Lidl – 1500 m</li>
+            </ul>
           </div>
+        </div>
 
-          <!-- Lists: Outer / Surroundings -->
-          <div class="lists-grid lists-grid--two">
-            <div class="list-col">
-              <p class="amenities-heading" data-i18n="amenities.lists.outer.title">Outer facilities:</p>
-              <ul class="amenity-list" data-i18n="amenities.lists.outer.items">
-                <li>Private lawn area</li>
-                <li>Table & chairs for outdoor</li>
-                <li>Children’s playground</li>
-                <li>Loungers & umbrellas for guests’ use</li>
-              </ul>
-            </div>
+        <!-- Policies -->
+        <div class="subheader">
+          <img id="policies"
+               src="images/general/titels/en/policies.webp"
+               class="titel section-title"
+               alt="Policies"
+               data-i18n-attr="alt:titles.policies.text" />
+        </div>
 
-            <div class="list-col">
-              <p class="amenities-heading" data-i18n="amenities.lists.surroundings.title">The surroundings:</p>
-              <ul class="amenity-list" data-i18n="amenities.lists.surroundings.items">
-                <li>Nikiti main promenade & beach – 700 m</li>
-                <li>Nikiti historical center – 1000 m</li>
-                <li>Nikiti Historical &  Folklore Museum – 1400 m</li>
-                <li>Cafés – from 150 m</li>
-                <li>Restaurants – from 200 m</li>
-                <li>Major Greek supermarkets – from 450 m</li>
-                <li>Lidl – 1500 m</li>
-              </ul>
-            </div>
+        <div class="feature-grid policies-grid">
+          <div class="amenity-item">
+            <span class="amenity-icon"><img src="images/amenities/no_pets.ico" alt="" /></span>
+            <span class="amenity-text" data-i18n="policies.noPets">No pets allowed</span>
           </div>
-
-          <!-- Policies -->
-          <div class="subheader">
-            <!-- title image (language-aware; default EN) -->
-            <img id="policies"
-                 src="images/general/titels/en/policies.webp"
-                 class="titel section-title"
-                 alt="Policies"
-                 data-i18n-attr="alt:titles.policies.text">
+          <div class="amenity-item">
+            <span class="amenity-icon"><img src="images/amenities/no_smoking.ico" alt="" /></span>
+            <span class="amenity-text" data-i18n="policies.noSmoking">No smoking indoors</span>
           </div>
-
-          <div class="feature-grid policies-grid">
-            <div class="amenity-item">
-              <span class="amenity-icon"><img src="images/amenities/no_pets.ico" alt=""></span>
-              <span class="amenity-text" data-i18n="policies.noPets">No pets allowed</span>
-            </div>
-            <div class="amenity-item">
-              <span class="amenity-icon"><img src="images/amenities/no_smoking.ico" alt=""></span>
-              <span class="amenity-text" data-i18n="policies.noSmoking">No smoking indoors</span>
-            </div>
-            <div class="amenity-item">
-              <span class="amenity-icon"><img src="images/amenities/no_parties.ico" alt=""></span>
-              <span class="amenity-text" data-i18n="policies.noParties">No parties allowed</span>
-            </div>
-            <div class="amenity-item">
-              <span class="amenity-icon"><img src="images/amenities/parking.ico" alt=""></span>
-              <span class="amenity-text" data-i18n="policies.parking">Free public parking nearby</span>
-            </div>
+          <div class="amenity-item">
+            <span class="amenity-icon"><img src="images/amenities/no_parties.ico" alt="" /></span>
+            <span class="amenity-text" data-i18n="policies.noParties">No parties allowed</span>
           </div>
-
+          <div class="amenity-item">
+            <span class="amenity-icon"><img src="images/amenities/parking.ico" alt="" /></span>
+            <span class="amenity-text" data-i18n="policies.parking">Free public parking nearby</span>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="section-with-parallax bg-white" id="location-section">
-      <div class="bg-layer small-shell" data-parallax="small-shell"></div>
-      <div class="bg-layer shell-right" data-parallax="location-parallax"></div>
+  <!-- =========================================================
+       LOCATION SECTION
+       - Map embed (desktop + mobile variants)
+       - QR code and external map links
+       ========================================================= -->
+  <section class="section-with-parallax bg-white" id="location-section">
+    <div class="bg-layer small-shell" data-parallax="small-shell"></div>
+    <div class="bg-layer shell-right" data-parallax="location-parallax"></div>
 
-      <div class="content text-center">
-        <div class="container">
-          <table class="section-table" role="presentation">
-            <colgroup>
-              <col style="width: 60%;">
-              <col style="width: 5%;">
-              <col style="width: 35%;">
-            </colgroup>
-            <tbody>
+    <div class="content text-center">
+      <div class="container">
+        <table class="section-table" role="presentation">
+          <colgroup>
+            <col style="width: 60%" />
+            <col style="width: 5%" />
+            <col style="width: 35%" />
+          </colgroup>
+          <tbody>
+            <!-- Title -->
+            <tr>
+              <td colspan="3">
+                <a href="#location">
+                  <img id="location"
+                       src="images/general/titels/en/location.webp"
+                       class="titel section-title"
+                       alt="Our Location"
+                       data-i18n-attr="alt:titles.location.text" />
+                </a>
+              </td>
+            </tr>
 
-              <!-- Title -->
-              <tr>
-                <td colspan="3">
-                  <a href="#location">
-                    <!-- title image (language-aware; default EN) -->
-                    <img id="location"
-                         src="images/general/titels/en/location.webp"
-                         class="titel section-title"
-                         alt="Our Location"
-                         data-i18n-attr="alt:titles.location.text">
+            <!-- Desktop-only labels -->
+            <tr class="desktop-row">
+              <td class="cell-subtitle" data-i18n="location.desktop.left.subtitle">Find us on map</td>
+              <td></td>
+              <td class="cell-subtitle" data-i18n="location.desktop.right.subtitle">Just Scan &amp; Save</td>
+            </tr>
+
+            <!-- Desktop content: map | or | QR -->
+            <tr class="desktop-row">
+              <td class="map-cell">
+                <div class="map-frame embed-responsive embed-responsive-16by9">
+                  <iframe class="embed-responsive-item"
+                          src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d86578.7266821985!2d23.60112671082862!3d40.21442999173056!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14a891ed895c39a3%3A0xe963b4f75cd26ecd!2sLAZURE%20Apartment%20Nikiti!5e1!3m2!1sru!2sgr!4v1755507436408!5m2!1sru!2sgr"
+                          allowfullscreen
+                          loading="lazy"
+                          referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+              </td>
+              <td class="or-cell">
+                <div class="or-divider">
+                  <div class="line top"></div>
+                  <span data-i18n="location.or">OR</span>
+                  <div class="line bottom"></div>
+                </div>
+              </td>
+              <td class="qr-cell">
+                <div class="qr-wrapper">
+                  <img src="images/location/qrcode.webp" class="qr-image" alt="Qrcode" data-i18n-attr="alt:location.qr.alt" />
+                </div>
+              </td>
+            </tr>
+
+            <!-- Mobile map (full-bleed) -->
+            <tr class="mobile-row">
+              <td colspan="3" class="map-cell">
+                <div class="map-frame mobile-map">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d86578.7266821985!2d23.60112671082862!3d40.21442999173056!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14a891ed895c39a3%3A0xe963b4f75cd26ecd!2sLAZURE%20Apartment%20Nikiti!5e1!3m2!1sru!2sgr!4v1755507436408!5m2!1sru!2sgr"
+                    allowfullscreen
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Mobile: label for quick links -->
+            <tr class="mobile-row">
+              <td colspan="3" class="cell-subtitle" data-i18n="location.mobile.links.subtitle">Direct links on</td>
+            </tr>
+
+            <!-- Mobile: quick links -->
+            <tr class="mobile-row">
+              <td colspan="3">
+                <div class="location-actions">
+                  <a href="https://maps.app.goo.gl/7jNZUGs3jN3QunUx8"
+                     target="_blank" rel="noopener"
+                     class="location-action"
+                     aria-label="Open in Google Maps"
+                     data-i18n-attr="aria-label:location.aria.openGmaps">
+                    <img src="images/location/google_maps.webp"
+                         alt="Google Maps"
+                         data-i18n-attr="alt:location.gmaps.img.alt" />
                   </a>
-                </td>
-              </tr>
 
-              <!-- ===== DESKTOP ONLY ===== -->
-              <!-- Subtitles -->
-              <tr class="desktop-row">
-                <td class="cell-subtitle" data-i18n="location.desktop.left.subtitle">Find us on map</td>
-                <td></td>
-                <td class="cell-subtitle" data-i18n="location.desktop.right.subtitle">Just Scan &amp; Save</td>
-              </tr>
-
-              <!-- Content -->
-              <tr class="desktop-row">
-                <!-- Map -->
-                <td class="map-cell">
-                  <div class="map-frame embed-responsive embed-responsive-16by9">
-                    <iframe class="embed-responsive-item"
-                      src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d86578.7266821985!2d23.60112671082862!3d40.21442999173056!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14a891ed895c39a3%3A0xe963b4f75cd26ecd!2sLAZURE%20Apartment%20Nikiti!5e1!3m2!1sru!2sgr!4v1755507436408!5m2!1sru!2sgr"
-                      allowfullscreen
-                      loading="lazy"
-                      referrerpolicy="no-referrer-when-downgrade"></iframe>
-                  </div>
-                </td>
-
-                <!-- OR divider -->
-                <td class="or-cell">
-                  <div class="or-divider">
-                    <div class="line top"></div>
-                    <span data-i18n="location.or">OR</span>
-                    <div class="line bottom"></div>
-                  </div>
-                </td>
-
-                <!-- QR -->
-                <td class="qr-cell">
-                  <div class="qr-wrapper">
-                    <img src="images/location/qrcode.webp" class="qr-image" alt="Qrcode" data-i18n-attr="alt:location.qr.alt">
-                  </div>
-                </td>
-              </tr>
-
-              <!-- ===== MOBILE ONLY ===== -->
-              <!-- Map full-bleed -->
-              <tr class="mobile-row">
-                <td colspan="3" class="map-cell">
-                  <div class="map-frame mobile-map">
-                    <iframe
-                      src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d86578.7266821985!2d23.60112671082862!3d40.21442999173056!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14a891ed895c39a3%3A0xe963b4f75cd26ecd!2sLAZURE%20Apartment%20Nikiti!5e1!3m2!1sru!2sgr!4v1755507436408!5m2!1sru!2sgr"
-                      allowfullscreen
-                      loading="lazy"
-                      referrerpolicy="no-referrer-when-downgrade"></iframe>
-                  </div>
-                </td>
-              </tr>
-
-              <!-- Mobile label -->
-              <tr class="mobile-row">
-                <td colspan="3" class="cell-subtitle" data-i18n="location.mobile.links.subtitle">Direct links on</td>
-              </tr>
-
-              <!-- Mobile buttons (stacked) -->
-              <tr class="mobile-row">
-                <td colspan="3">
-                  <div class="location-actions">
-                    <a href="https://maps.app.goo.gl/7jNZUGs3jN3QunUx8"
-                       target="_blank" rel="noopener" class="location-action"
-                       aria-label="Open in Google Maps"
-                       data-i18n-attr="aria-label:location.aria.openGmaps">
-                      <img src="images/location/google_maps.webp" alt="Google Maps" data-i18n-attr="alt:location.gmaps.img.alt">
-                    </a>
-
-                    <a href="https://waze.com/ul?ll=40.22282140754979%2C23.667385980137798&navigate=yes"
-                       target="_blank" rel="noopener" class="location-action"
-                       aria-label="Open in Waze"
-                       data-i18n-attr="aria-label:location.aria.openWaze">
-                      <img src="images/location/waze.webp" alt="Waze" data-i18n-attr="alt:location.waze.img.alt">
-                    </a>
-                  </div>
-                </td>
-              </tr>
-
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section class="section-with-parallax text-center" id="contact-section">
-      <!-- parallax background layer -->
-      <div class="bg-layer" data-parallax="contact-parallax"></div>
-
-      <div class="content text-center">
-        <div class="container">
-          <table class="section-table" role="presentation">
-            <tbody>
-              <!-- Row: title image -->
-              <tr>
-                <td>
-                  <a href="#contact">
-                    <!-- title image (language-aware; default EN) -->
-                    <img id="contact"
-                         src="images/general/titels/en/contact.webp"
-                         class="titel section-title"
-                         alt="Contact us via"
-                         data-i18n-attr="alt:titles.contact.text">
+                  <a href="https://waze.com/ul?ll=40.22282140754979%2C23.667385980137798&navigate=yes"
+                     target="_blank" rel="noopener"
+                     class="location-action"
+                     aria-label="Open in Waze"
+                     data-i18n-attr="aria-label:location.aria.openWaze">
+                    <img src="images/location/waze.webp"
+                         alt="Waze"
+                         data-i18n-attr="alt:location.waze.img.alt" />
                   </a>
-                </td>
-              </tr>
+                </div>
+              </td>
+            </tr>
 
-              <!-- ===== DESKTOP (original layout) ===== -->
-              <tr class="desktop-row">
-                <td>
-                  <table class="section-table contact-actions-table" role="presentation">
-                    <colgroup>
-                      <col style="width: 10%;">
-                      <col style="width: 20%;">
-                      <col style="width: 20%;">
-                      <col style="width: 20%;">
-                      <col style="width: 20%;">
-                      <col style="width: 10%;">
-                    </colgroup>
-                    <tr>
-                      <td></td>
-                      <td>
-                        <a class="contact-action" href="tel:+306997144061" aria-label="Call phone" data-i18n-attr="aria-label:contact.aria.call">
-                          <figure>
-                            <img src="images/contact/phone.webp" alt="Phone" data-i18n-attr="alt:contact.icons.phone.alt">
-                            <figcaption data-i18n="contact.actions.phone.fig">Call</figcaption>
-                          </figure>
-                        </a>
-                      </td>
-                      <td>
-                        <a class="contact-action" href="https://wa.me/306997144061" target="_blank" rel="noopener" aria-label="Open WhatsApp chat" data-i18n-attr="aria-label:contact.aria.whatsapp">
-                          <figure>
-                            <img src="images/contact/whatsapp.webp" alt="WhatsApp" data-i18n-attr="alt:contact.icons.whatsapp.alt">
-                            <figcaption data-i18n="contact.actions.whatsapp.fig">WhatsApp</figcaption>
-                          </figure>
-                        </a>
-                      </td>
-                      <td>
-                        <a class="contact-action" href="viber://chat?number=%2B306997144061" aria-label="Open Viber chat" data-i18n-attr="aria-label:contact.aria.viber">
-                          <figure>
-                            <img src="images/contact/viber.webp" alt="Viber" data-i18n-attr="alt:contact.icons.viber.alt">
-                            <figcaption data-i18n="contact.actions.viber.fig">Viber</figcaption>
-                          </figure>
-                        </a>
-                      </td>
-                      <td>
-                        <a class="contact-action" href="https://www.booking.com/Share-Ue5fAng" target="_blank" rel="noopener" aria-label="Open Booking.com page" data-i18n-attr="aria-label:contact.aria.booking">
-                          <figure>
-                            <img src="images/contact/booking.webp" alt="Booking.com" data-i18n-attr="alt:contact.icons.booking.alt">
-                            <figcaption data-i18n="contact.actions.booking.fig">Booking.com</figcaption>
-                          </figure>
-                        </a>
-                      </td>
-                      <td></td>
-                    </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
 
-                    <!-- structural row (invisible via CSS) -->
-                    <tr class="sr-only-row">
-                      <td></td>
-                      <td>Call</td>
-                      <td>WhatsApp</td>
-                      <td>Viber</td>
-                      <td>Booking.com</td>
-                      <td></td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
+  <!-- =========================================================
+       CONTACT SECTION
+       - Contact actions (desktop grid + mobile layout)
+       - Contact form (with validation messages)
+       ========================================================= -->
+  <section class="section-with-parallax text-center" id="contact-section">
+    <!-- Parallax background layer -->
+    <div class="bg-layer" data-parallax="contact-parallax"></div>
 
-              <!-- ===== MOBILE (new layout) ===== -->
-              <tr class="mobile-row">
-                <td>
-                  <div class="contact-mobile-grid">
+    <div class="content text-center">
+      <div class="container">
+        <table class="section-table" role="presentation">
+          <tbody>
+            <!-- Title -->
+            <tr>
+              <td>
+                <a href="#contact">
+                  <img id="contact"
+                       src="images/general/titels/en/contact.webp"
+                       class="titel section-title"
+                       alt="Contact us via"
+                       data-i18n-attr="alt:titles.contact.text" />
+                </a>
+              </td>
+            </tr>
 
-                    <!-- PHONE (full width) -->
-                    <a class="contact-action phone-action" href="tel:+306997144061" aria-label="Call phone" data-i18n-attr="aria-label:contact.aria.call">
-                      <figure>
-                        <div class="icon-stack">
-                          <img src="images/contact/phone.webp" alt="Phone" data-i18n-attr="alt:contact.icons.phone.alt">
-                          <figcaption data-i18n="contact.actions.phone.fig">Call</figcaption>
-                        </div>
-                        <div class="extra-text" data-i18n="contact.phone.extra">+30 699 7144061</div>
-                      </figure>
-                    </a>
-
-                    <!-- WHATSAPP + VIBER (50/50 row) -->
-                    <div class="contact-row-two">
-                      <a class="contact-action whatsapp-action" href="https://wa.me/306997144061" target="_blank" rel="noopener" aria-label="Open WhatsApp chat" data-i18n-attr="aria-label:contact.aria.whatsapp">
+            <!-- Desktop grid of actions -->
+            <tr class="desktop-row">
+              <td>
+                <table class="section-table contact-actions-table" role="presentation">
+                  <colgroup>
+                    <col style="width: 10%" />
+                    <col style="width: 20%" />
+                    <col style="width: 20%" />
+                    <col style="width: 20%" />
+                    <col style="width: 20%" />
+                    <col style="width: 10%" />
+                  </colgroup>
+                  <tr>
+                    <td></td>
+                    <td>
+                      <a class="contact-action" href="tel:+306997144061"
+                         aria-label="Call phone"
+                         data-i18n-attr="aria-label:contact.aria.call">
                         <figure>
-                          <img src="images/contact/whatsapp.webp" alt="WhatsApp" data-i18n-attr="alt:contact.icons.whatsapp.alt">
+                          <img src="images/contact/phone.webp" alt="Phone" data-i18n-attr="alt:contact.icons.phone.alt" />
+                          <figcaption data-i18n="contact.actions.phone.fig">Call</figcaption>
+                        </figure>
+                      </a>
+                    </td>
+                    <td>
+                      <a class="contact-action" href="https://wa.me/306997144061" target="_blank" rel="noopener"
+                         aria-label="Open WhatsApp chat"
+                         data-i18n-attr="aria-label:contact.aria.whatsapp">
+                        <figure>
+                          <img src="images/contact/whatsapp.webp" alt="WhatsApp" data-i18n-attr="alt:contact.icons.whatsapp.alt" />
                           <figcaption data-i18n="contact.actions.whatsapp.fig">WhatsApp</figcaption>
                         </figure>
                       </a>
-                      <a class="contact-action viber-action" href="viber://chat?number=%2B306997144061" aria-label="Open Viber chat" data-i18n-attr="aria-label:contact.aria.viber">
+                    </td>
+                    <td>
+                      <a class="contact-action" href="viber://chat?number=%2B306997144061"
+                         aria-label="Open Viber chat"
+                         data-i18n-attr="aria-label:contact.aria.viber">
                         <figure>
-                          <img src="images/contact/viber.webp" alt="Viber" data-i18n-attr="alt:contact.icons.viber.alt">
+                          <img src="images/contact/viber.webp" alt="Viber" data-i18n-attr="alt:contact.icons.viber.alt" />
                           <figcaption data-i18n="contact.actions.viber.fig">Viber</figcaption>
                         </figure>
                       </a>
-                    </div>
-
-                    <!-- BOOKING (left half like WhatsApp; right blank) -->
-                    <div class="booking-row">
-                      <a class="contact-action booking-action" href="https://www.booking.com/Share-Ue5fAng" target="_blank" rel="noopener" aria-label="Open Booking.com page" data-i18n-attr="aria-label:contact.aria.booking">
+                    </td>
+                    <td>
+                      <a class="contact-action" href="https://www.booking.com/Share-Ue5fAng" target="_blank" rel="noopener"
+                         aria-label="Open Booking.com page"
+                         data-i18n-attr="aria-label:contact.aria.booking">
                         <figure>
-                          <img src="images/contact/booking.webp" alt="Booking.com" data-i18n-attr="alt:contact.icons.booking.alt">
+                          <img src="images/contact/booking.webp" alt="Booking.com" data-i18n-attr="alt:contact.icons.booking.alt" />
                           <figcaption data-i18n="contact.actions.booking.fig">Booking.com</figcaption>
                         </figure>
                       </a>
-                      <span class="spacer" aria-hidden="true"></span>
-                    </div>
+                    </td>
+                    <td></td>
+                  </tr>
+
+                  <!-- SR-only header row for table semantics (kept for accessibility / consistency) -->
+                  <tr class="sr-only-row">
+                    <td></td>
+                    <td>Call</td>
+                    <td>WhatsApp</td>
+                    <td>Viber</td>
+                    <td>Booking.com</td>
+                    <td></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Mobile actions layout -->
+            <tr class="mobile-row">
+              <td>
+                <div class="contact-mobile-grid">
+                  <!-- Phone (full width) -->
+                  <a class="contact-action phone-action" href="tel:+306997144061"
+                     aria-label="Call phone"
+                     data-i18n-attr="aria-label:contact.aria.call">
+                    <figure>
+                      <div class="icon-stack">
+                        <img src="images/contact/phone.webp" alt="Phone" data-i18n-attr="alt:contact.icons.phone.alt" />
+                        <figcaption data-i18n="contact.actions.phone.fig">Call</figcaption>
+                      </div>
+                      <div class="extra-text" data-i18n="contact.phone.extra">+30 699 7144061</div>
+                    </figure>
+                  </a>
+
+                  <!-- WhatsApp + Viber (two columns) -->
+                  <div class="contact-row-two">
+                    <a class="contact-action whatsapp-action" href="https://wa.me/306997144061" target="_blank" rel="noopener"
+                       aria-label="Open WhatsApp chat"
+                       data-i18n-attr="aria-label:contact.aria.whatsapp">
+                      <figure>
+                        <img src="images/contact/whatsapp.webp" alt="WhatsApp" data-i18n-attr="alt:contact.icons.whatsapp.alt" />
+                        <figcaption data-i18n="contact.actions.whatsapp.fig">WhatsApp</figcaption>
+                      </figure>
+                    </a>
+                    <a class="contact-action viber-action" href="viber://chat?number=%2B306997144061"
+                       aria-label="Open Viber chat"
+                       data-i18n-attr="aria-label:contact.aria.viber">
+                      <figure>
+                        <img src="images/contact/viber.webp" alt="Viber" data-i18n-attr="alt:contact.icons.viber.alt" />
+                        <figcaption data-i18n="contact.actions.viber.fig">Viber</figcaption>
+                      </figure>
+                    </a>
                   </div>
-                </td>
-              </tr>
 
-              <!-- === CONTACT FORM (white minimal) === -->
-              <tr>
-                <td>
-                  <div class="contact-form-block contact-form--white" id="contact-form-block">
-                    <h3 class="contact-form-title" data-i18n="contact.form.title">
-                      Or leave us a request
-                    </h3>
-
-                    <form id="contact-form" class="contact-form" novalidate>
-                      <!-- Name -->
-                      <div class="form-row">
-                        <label for="cf-name" class="form-label" data-i18n="contact.form.name.label">Your name</label>
-                        <input id="cf-name"
-                               name="name"
-                               type="text"
-                               required
-                               class="form-input"
-                               data-i18n-attr="placeholder:contact.form.name.placeholder; aria-label:contact.form.name.label">
-                        <small id="err-name" class="error-msg" hidden data-i18n="contact.form.valid.name">
-                          Please enter your name
-                        </small>
-                      </div>
-
-                      <!-- Email -->
-                      <div class="form-row">
-                        <label for="cf-email" class="form-label" data-i18n="contact.form.email.label">Your email</label>
-                        <input id="cf-email"
-                               name="email"
-                               type="email"
-                               required
-                               autocomplete="email"
-                               class="form-input"
-                               data-i18n-attr="placeholder:contact.form.email.placeholder; aria-label:contact.form.email.label">
-                        <small id="err-email" class="error-msg" hidden data-i18n="contact.form.valid.email">
-                          Please enter a valid email
-                        </small>
-                      </div>
-
-                      <!-- Message -->
-                      <div class="form-row">
-                        <label for="cf-message" class="form-label" data-i18n="contact.form.message.label">Message</label>
-                        <textarea id="cf-message"
-                                  name="message"
-                                  rows="6"
-                                  required
-                                  class="form-textarea"
-                                  data-i18n-attr="placeholder:contact.form.message.placeholder; aria-label:contact.form.message.label"></textarea>
-                        <small id="err-message" class="error-msg" hidden data-i18n="contact.form.valid.message">
-                          Message is too short
-                        </small>
-                      </div>
-
-                      <!-- Actions -->
-                      <div class="form-actions form-actions--center">
-                        <button type="submit" class="btn-send btn-send--outline" data-i18n="contact.form.submit">Send</button>
-                        <span id="cf-sending" class="sending" hidden data-i18n="contact.form.sending">Sending…</span>
-                        <span id="cf-status" class="status" aria-live="polite"></span>
-                      </div>
-                    </form>
-
-                    <!-- Success state -->
-                    <div id="contact-success" class="contact-success contact-success--white" hidden data-i18n="contact.form.success">
-                      Thank you! We’ll get back to you shortly.
-                    </div>
+                  <!-- Booking (left half; right spacer) -->
+                  <div class="booking-row">
+                    <a class="contact-action booking-action" href="https://www.booking.com/Share-Ue5fAng" target="_blank" rel="noopener"
+                       aria-label="Open Booking.com page"
+                       data-i18n-attr="aria-label:contact.aria.booking">
+                      <figure>
+                        <img src="images/contact/booking.webp" alt="Booking.com" data-i18n-attr="alt:contact.icons.booking.alt" />
+                        <figcaption data-i18n="contact.actions.booking.fig">Booking.com</figcaption>
+                      </figure>
+                    </a>
+                    <span class="spacer" aria-hidden="true"></span>
                   </div>
-                </td>
-              </tr>
+                </div>
+              </td>
+            </tr>
 
-            </tbody>
-          </table>
-        </div>
+            <!-- Contact form -->
+            <tr>
+              <td>
+                <div class="contact-form-block contact-form--white" id="contact-form-block">
+                  <h3 class="contact-form-title" data-i18n="contact.form.title">
+                    Or leave us a request
+                  </h3>
+
+                  <form id="contact-form" class="contact-form" novalidate>
+                    <!-- Name -->
+                    <div class="form-row">
+                      <label for="cf-name" class="form-label" data-i18n="contact.form.name.label">Your name</label>
+                      <input id="cf-name"
+                             name="name"
+                             type="text"
+                             required
+                             class="form-input"
+                             data-i18n-attr="placeholder:contact.form.name.placeholder; aria-label:contact.form.name.label" />
+                      <small id="err-name" class="error-msg" hidden data-i18n="contact.form.valid.name">
+                        Please enter your name
+                      </small>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-row">
+                      <label for="cf-email" class="form-label" data-i18n="contact.form.email.label">Your email</label>
+                      <input id="cf-email"
+                             name="email"
+                             type="email"
+                             required
+                             autocomplete="email"
+                             class="form-input"
+                             data-i18n-attr="placeholder:contact.form.email.placeholder; aria-label:contact.form.email.label" />
+                      <small id="err-email" class="error-msg" hidden data-i18n="contact.form.valid.email">
+                        Please enter a valid email
+                      </small>
+                    </div>
+
+                    <!-- Message -->
+                    <div class="form-row">
+                      <label for="cf-message" class="form-label" data-i18n="contact.form.message.label">Message</label>
+                      <textarea id="cf-message"
+                                name="message"
+                                rows="6"
+                                required
+                                class="form-textarea"
+                                data-i18n-attr="placeholder:contact.form.message.placeholder; aria-label:contact.form.message.label"></textarea>
+                      <small id="err-message" class="error-msg" hidden data-i18n="contact.form.valid.message">
+                        Message is too short
+                      </small>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="form-actions form-actions--center">
+                      <button type="submit" class="btn-send btn-send--outline" data-i18n="contact.form.submit">Send</button>
+                      <span id="cf-sending" class="sending" hidden data-i18n="contact.form.sending">Sending…</span>
+                      <span id="cf-status" class="status" aria-live="polite"></span>
+                    </div>
+                  </form>
+
+                  <!-- Success state -->
+                  <div id="contact-success" class="contact-success contact-success--white" hidden
+                       data-i18n="contact.form.success">
+                    Thank you! We’ll get back to you shortly.
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <footer class="site-footer">
-      <div class="container text-center">
-        <img src="images/general/LAZURE_white.webp" class="footer-logo" alt="Lazure Logo" data-i18n-attr="alt:footer.logo.alt">
-        <p class="footer-text" data-i18n="footer.text">© 2025 LAZURE Apartment Nikiti. All rights reserved.</p>
-      </div>
-    </footer>
+  <!-- =========================================================
+       FOOTER
+       ========================================================= -->
+  <footer class="site-footer">
+    <div class="container text-center">
+      <img src="images/general/LAZURE_white.webp"
+           class="footer-logo"
+           alt="Lazure Logo"
+           data-i18n-attr="alt:footer.logo.alt" />
+      <p class="footer-text" data-i18n="footer.text">
+        © 2025 LAZURE Apartment Nikiti. All rights reserved.
+      </p>
+    </div>
+  </footer>
 
-  <!-- </div> -->
-
+  <!-- =========================================================
+       SCRIPTS (vendor first, then project)
+       ========================================================= -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
