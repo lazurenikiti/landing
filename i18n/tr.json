@@ -2,7 +2,6 @@
   "meta": {
     "title": "LAZURE Apartment Nikiti"
   },
-
   "nav": {
     "aria.primary": "Ana menü",
     "aria.primaryNav": "Ana gezinme",
@@ -15,7 +14,6 @@
     "burger.aria": "Menüyü aç/kapat",
     "mobile.aria": "Mobil gezinme"
   },
-
   "hero": {
     "logo.alt": "LAZURE Apartment Nikiti",
     "captions": [
@@ -27,7 +25,6 @@
     ],
     "cta": "BİZE ULAŞIN"
   },
-
   "apartment": {
     "title.img.alt": "Daire",
     "carousel.aria": "Daire fotoğrafları",
@@ -46,11 +43,9 @@
     "info.p2.strong4": "tertemiz Mavi Bayraklı plajlarını",
     "info.p2.part5": "ve Makedonya, Halkidiki'nin büyüleyici manzaralarını keşfetmek için mükemmeldir."
   },
-
   "amenities": {
     "title.img.alt": "Olanaklar",
     "subtitle.essential.img.alt": "Temel",
-
     "cards.indoor": "25 m² kapalı alan",
     "cards.outdoor": "17 m² özel açık alan",
     "cards.bed": "160 cm yatak",
@@ -59,7 +54,6 @@
     "cards.aircon": "Klima",
     "cards.wifi": "Wi-Fi",
     "cards.safe": "Kasa",
-
     "lists.inroom.title": "Oda içi olanaklar:",
     "lists.inroom.items": [
       "Akıllı TV",
@@ -69,7 +63,6 @@
       "İki kişilik plaj havlusu seti",
       "Geniş gardırop"
     ],
-
     "lists.kitchenette.title": "Mutfak olanakları:",
     "lists.kitchenette.items": [
       "Ocak",
@@ -80,7 +73,6 @@
       "Kahve makinesi",
       "Tam takım tabak & çatal-bıçak"
     ],
-
     "lists.bathroom.title": "Banyo olanakları:",
     "lists.bathroom.items": [
       "Geniş duş",
@@ -88,7 +80,6 @@
       "Banyo havluları",
       "Saç kurutma makinesi"
     ],
-
     "lists.outer.title": "Dış alan olanakları:",
     "lists.outer.items": [
       "Özel çim alanı",
@@ -96,7 +87,6 @@
       "Çocuk oyun alanı",
       "Şezlong ve şemsiyeler"
     ],
-
     "lists.surroundings.title": "Çevre:",
     "lists.surroundings.items": [
       "Nikiti sahil yolu & plaj – 700 m",
@@ -108,7 +98,6 @@
       "Lidl – 1500 m"
     ]
   },
-
   "policies": {
     "title.img.alt": "Kurallar",
     "noPets": "Evcil hayvan kabul edilmez",
@@ -116,49 +105,122 @@
     "noParties": "Partilere izin verilmez",
     "parking": "Yakında ücretsiz halka açık otopark"
   },
-
   "location": {
     "title.img.alt": "Konum",
     "desktop.left.subtitle": "Haritada bizi bulun",
     "desktop.right.subtitle": "Sadece tarayın & kaydedin",
     "or": "VEYA",
     "qr.alt": "QR kodu",
-
     "mobile.links.subtitle": "Doğrudan bağlantılar",
     "gmaps.img.alt": "Google Haritalar",
     "waze.img.alt": "Waze",
-
     "aria.openGmaps": "Google Haritalar'da aç",
-    "aria.openWaze": "Waze'de aç"
+    "aria.openWaze": "Waze'de aç",
+    "address": {
+      "title": "Adres:",
+      "line1": "Yunanistan",
+      "line2": "Makedonya, Halkidiki",
+      "line3": "Nikiti, 630 88"
+    },
+    "links": {
+      "title": "Detaylı konum için doğrudan bağlantılar:",
+      "gmaps": {
+        "label": "Google Haritalar",
+        "qr": {
+          "alt": "Google Haritalar QR"
+        },
+        "img": {
+          "alt": "Google Haritalar"
+        }
+      },
+      "waze": {
+        "label": "Waze",
+        "qr": {
+          "alt": "Waze QR"
+        },
+        "img": {
+          "alt": "Waze"
+        }
+      }
+    },
+    "aria": {
+      "openGmaps": "Google Haritalar'da aç",
+      "openWaze": "Waze'de aç"
+    },
+    "mobile": {
+      "links": {
+        "subtitle": "Doğrudan bağlantılar"
+      }
+    }
   },
-
   "contact": {
     "title.img.alt": "İletişim",
-
     "actions.phone.fig": "Ara",
     "actions.email.fig": "E-posta",
     "actions.whatsapp.fig": "WhatsApp",
     "actions.viber.fig": "Viber",
     "actions.booking.fig": "Booking.com",
-
     "phone.extra": "+30 699 7144061",
     "email.extra": "contact@lazurenikiti.gr",
-
     "aria.call": "Telefon et",
     "aria.email": "E-posta gönder",
     "aria.whatsapp": "WhatsApp sohbetini aç",
     "aria.viber": "Viber sohbetini aç",
     "aria.booking": "Booking.com sayfasını aç",
-
     "icons.phone.alt": "Telefon",
     "icons.email.alt": "E-posta",
     "icons.whatsapp.alt": "WhatsApp",
     "icons.viber.alt": "Viber",
-    "icons.booking.alt": "Booking.com"
+    "icons.booking.alt": "Booking.com",
+    "form": {
+      "title": "Ya da bize bir talep bırakın",
+      "name": {
+        "label": "Adınız",
+        "placeholder": "Adınızı girin"
+      },
+      "email": {
+        "label": "E‑postanız",
+        "placeholder": "name@example.com"
+      },
+      "message": {
+        "label": "Mesaj",
+        "placeholder": "Mesajınızı buraya yazın…"
+      },
+      "valid": {
+        "name": "Lütfen adınızı girin",
+        "email": "Lütfen geçerli bir e‑posta girin",
+        "message": "Mesaj çok kısa"
+      },
+      "submit": "Gönder",
+      "sending": "Gönderiliyor…",
+      "success": "Teşekkürler! En kısa sürede size döneceğiz."
+    }
   },
-
   "footer": {
     "logo.alt": "Lazure Logosu",
-    "text": "© 2025 LAZURE Apartment Nikiti. Tüm hakları saklıdır."
+    "text": "© 2025 LAZURE Apartment Nikiti. Tüm hakları saklıdır.",
+    "logo": {
+      "alt": "Lazure Logosu"
+    }
+  },
+  "titles": {
+    "apartment": {
+      "text": "Daire"
+    },
+    "amenities": {
+      "text": "Olanaklar Hakkında"
+    },
+    "essential": {
+      "text": "Temel"
+    },
+    "policies": {
+      "text": "Kurallar"
+    },
+    "location": {
+      "text": "Konumumuz"
+    },
+    "contact": {
+      "text": "Şu yolla iletişim"
+    }
   }
 }

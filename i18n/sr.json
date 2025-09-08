@@ -2,7 +2,6 @@
   "meta": {
     "title": "LAZURE Apartment Nikiti"
   },
-
   "nav": {
     "aria.primary": "Главни мени",
     "aria.primaryNav": "Главна навигација",
@@ -15,7 +14,6 @@
     "burger.aria": "Отвори/затвори мени",
     "mobile.aria": "Мобилна навигација"
   },
-
   "hero": {
     "logo.alt": "LAZURE Apartment Nikiti",
     "captions": [
@@ -27,7 +25,6 @@
     ],
     "cta": "ПОВЕЖИ СЕ"
   },
-
   "apartment": {
     "title.img.alt": "Апартман",
     "carousel.aria": "Фотографије апартмана",
@@ -48,11 +45,9 @@
     "info.p2.strong4": "кристално чистим плажама са Плавом заставом",
     "info.p2.part6": "и фасцинантним пределима Халкидикија и Македоније."
   },
-
   "amenities": {
     "title.img.alt": "Садржаји",
     "subtitle.essential.img.alt": "Основно",
-
     "cards.indoor": "25 м² унутрашњег простора",
     "cards.outdoor": "17 м² приватног дворишта",
     "cards.bed": "Кревет 160 cm",
@@ -61,7 +56,6 @@
     "cards.aircon": "Клима уређај",
     "cards.wifi": "Wi-Fi",
     "cards.safe": "Сеф",
-
     "lists.inroom.title": "У соби:",
     "lists.inroom.items": [
       "Смарт ТВ",
@@ -71,7 +65,6 @@
       "Комплет пешкира за плажу за двоје",
       "Простран ормар"
     ],
-
     "lists.kitchenette.title": "Кухињица:",
     "lists.kitchenette.items": [
       "Рингла",
@@ -82,7 +75,6 @@
       "Апаратић за кафу",
       "Комплет тањира и прибора"
     ],
-
     "lists.bathroom.title": "Купатило:",
     "lists.bathroom.items": [
       "Пространа туш кабина",
@@ -90,7 +82,6 @@
       "Пешкири за купатило",
       "Фен"
     ],
-
     "lists.outer.title": "Спољашње погодности:",
     "lists.outer.items": [
       "Приватна травната површина",
@@ -98,7 +89,6 @@
       "Дечије игралиште",
       "Лежаљке и сунцобрани за госте"
     ],
-
     "lists.surroundings.title": "Околина:",
     "lists.surroundings.items": [
       "Главно шеталиште и плажа у Никитију – 700 м",
@@ -110,7 +100,6 @@
       "Lidl – 1500 м"
     ]
   },
-
   "policies": {
     "title.img.alt": "Правила",
     "noPets": "Пси и мачке нису дозвољени",
@@ -118,49 +107,122 @@
     "noParties": "Журке нису дозвољене",
     "parking": "Бесплатан јавни паркинг у близини"
   },
-
   "location": {
     "title.img.alt": "Локација",
     "desktop.left.subtitle": "Пронађите нас на мапи",
     "desktop.right.subtitle": "Скенирајте и сачувајте",
     "or": "ИЛИ",
     "qr.alt": "QR код",
-
     "mobile.links.subtitle": "Директни линкови",
     "gmaps.img.alt": "Google Мапе",
     "waze.img.alt": "Waze",
-
     "aria.openGmaps": "Отвори у Google Мапама",
-    "aria.openWaze": "Отвори у Waze"
+    "aria.openWaze": "Отвори у Waze",
+    "address": {
+      "title": "Адреса:",
+      "line1": "Грчка",
+      "line2": "Македонија, Халкидики",
+      "line3": "Никити, 630 88"
+    },
+    "links": {
+      "title": "Директни линкови за тачну локацију:",
+      "gmaps": {
+        "label": "Google Мапе",
+        "qr": {
+          "alt": "QR за Google Мапе"
+        },
+        "img": {
+          "alt": "Google Мапе"
+        }
+      },
+      "waze": {
+        "label": "Waze",
+        "qr": {
+          "alt": "QR за Waze"
+        },
+        "img": {
+          "alt": "Waze"
+        }
+      }
+    },
+    "aria": {
+      "openGmaps": "Отвори у Google Мапама",
+      "openWaze": "Отвори у Waze"
+    },
+    "mobile": {
+      "links": {
+        "subtitle": "Директни линкови"
+      }
+    }
   },
-
   "contact": {
     "title.img.alt": "Контакт",
-
     "actions.phone.fig": "Позив",
     "actions.email.fig": "Е-пошта",
     "actions.whatsapp.fig": "WhatsApp",
     "actions.viber.fig": "Viber",
     "actions.booking.fig": "Booking.com",
-
     "phone.extra": "+30 699 7144061",
     "email.extra": "contact@lazurenikiti.gr",
-
     "aria.call": "Позови телефоном",
     "aria.email": "Пошаљи е-поруку",
     "aria.whatsapp": "Отвори WhatsApp чет",
     "aria.viber": "Отвори Viber чет",
     "aria.booking": "Отвори Booking.com страницу",
-
     "icons.phone.alt": "Телефон",
     "icons.email.alt": "Е-пошта",
     "icons.whatsapp.alt": "WhatsApp",
     "icons.viber.alt": "Viber",
-    "icons.booking.alt": "Booking.com"
+    "icons.booking.alt": "Booking.com",
+    "form": {
+      "title": "Или нам оставите поруку",
+      "name": {
+        "label": "Ваше име",
+        "placeholder": "Унесите своје име"
+      },
+      "email": {
+        "label": "Ваш мејл",
+        "placeholder": "name@example.com"
+      },
+      "message": {
+        "label": "Порука",
+        "placeholder": "Напишите своју поруку овде…"
+      },
+      "valid": {
+        "name": "Молимо унесите име",
+        "email": "Молимо унесите важећи мејл",
+        "message": "Порука је превише кратка"
+      },
+      "submit": "Пошаљи",
+      "sending": "Слање…",
+      "success": "Хвала! Ускоро ћемо вам се јавити."
+    }
   },
-
   "footer": {
     "logo.alt": "LAZURE Лого",
-    "text": "© 2025 LAZURE Apartment Nikiti. Сва права задржана."
+    "text": "© 2025 LAZURE Apartment Nikiti. Сва права задржана.",
+    "logo": {
+      "alt": "Логотип Lazure"
+    }
+  },
+  "titles": {
+    "apartment": {
+      "text": "Апартман"
+    },
+    "amenities": {
+      "text": "О садржајима"
+    },
+    "essential": {
+      "text": "Основно"
+    },
+    "policies": {
+      "text": "Правила"
+    },
+    "location": {
+      "text": "Наша локација"
+    },
+    "contact": {
+      "text": "Контактирајте нас путем"
+    }
   }
 }

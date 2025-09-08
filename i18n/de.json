@@ -2,7 +2,6 @@
   "meta": {
     "title": "LAZURE Apartment Nikiti"
   },
-
   "nav": {
     "aria.primary": "Hauptmenü",
     "aria.primaryNav": "Hauptnavigation",
@@ -15,7 +14,6 @@
     "burger.aria": "Menü umschalten",
     "mobile.aria": "Mobile Navigation"
   },
-
   "hero": {
     "logo.alt": "LAZURE Apartment Nikiti",
     "captions": [
@@ -27,7 +25,6 @@
     ],
     "cta": "KONTAKT "
   },
-
   "apartment": {
     "title.img.alt": "Apartment",
     "carousel.aria": "Apartment-Fotos",
@@ -48,11 +45,9 @@
     "info.p2.strong4": "kristallklaren Stränden mit Blauer Flagge",
     "info.p2.part6": "sowie die faszinierenden Landschaften von Chalkidiki, Makedonien, zu entdecken."
   },
-
   "amenities": {
     "title.img.alt": "Ausstattung",
     "subtitle.essential.img.alt": "Wichtig",
-
     "cards.indoor": "25 m² Innenbereich",
     "cards.outdoor": "17 m² private Außenfläche",
     "cards.bed": "160 cm Bett",
@@ -61,7 +56,6 @@
     "cards.aircon": "Klimaanlage",
     "cards.wifi": "WLAN",
     "cards.safe": "Safe",
-
     "lists.inroom.title": "Ausstattung im Zimmer:",
     "lists.inroom.items": [
       "Smart-TV",
@@ -71,7 +65,6 @@
       "Strandtuch-Set für zwei Personen",
       "Großer Kleiderschrank"
     ],
-
     "lists.kitchenette.title": "Kochnische:",
     "lists.kitchenette.items": [
       "Kochfeld",
@@ -82,7 +75,6 @@
       "Kaffeemaschine",
       "Komplettes Geschirr & Besteck"
     ],
-
     "lists.bathroom.title": "Badezimmer:",
     "lists.bathroom.items": [
       "Geräumige Dusche",
@@ -90,7 +82,6 @@
       "Badetücher",
       "Haartrockner"
     ],
-
     "lists.outer.title": "Außenbereich:",
     "lists.outer.items": [
       "Privater Rasenbereich",
@@ -98,7 +89,6 @@
       "Kinderspielplatz",
       "Liegen & Sonnenschirme für alle Gäste"
     ],
-
     "lists.surroundings.title": "Umgebung:",
     "lists.surroundings.items": [
       "Hauptpromenade & Strand von Nikiti – 700 m",
@@ -110,7 +100,6 @@
       "Lidl – 1500 m"
     ]
   },
-
   "policies": {
     "title.img.alt": "Richtlinien",
     "noPets": "Keine Haustiere erlaubt",
@@ -118,49 +107,122 @@
     "noParties": "Keine Partys erlaubt",
     "parking": "Kostenlose öffentliche Parkplätze in der Nähe"
   },
-
   "location": {
     "title.img.alt": "Lage",
     "desktop.left.subtitle": "Finden Sie uns auf der Karte",
     "desktop.right.subtitle": "Einfach scannen & speichern",
     "or": "ODER",
     "qr.alt": "QR-Code",
-
     "mobile.links.subtitle": "Direkte Links",
     "gmaps.img.alt": "Google Maps",
     "waze.img.alt": "Waze",
-
     "aria.openGmaps": "In Google Maps öffnen",
-    "aria.openWaze": "In Waze öffnen"
+    "aria.openWaze": "In Waze öffnen",
+    "address": {
+      "title": "Adresse:",
+      "line1": "Griechenland",
+      "line2": "Makedonien, Chalkidiki",
+      "line3": "Nikiti, 630 88"
+    },
+    "links": {
+      "title": "Direkte Links zur genauen Lage:",
+      "gmaps": {
+        "label": "Google Maps",
+        "qr": {
+          "alt": "Google-Maps-QR"
+        },
+        "img": {
+          "alt": "Google Maps"
+        }
+      },
+      "waze": {
+        "label": "Waze",
+        "qr": {
+          "alt": "Waze-QR"
+        },
+        "img": {
+          "alt": "Waze"
+        }
+      }
+    },
+    "aria": {
+      "openGmaps": "In Google Maps öffnen",
+      "openWaze": "In Waze öffnen"
+    },
+    "mobile": {
+      "links": {
+        "subtitle": "Direkte Links"
+      }
+    }
   },
-
   "contact": {
     "title.img.alt": "Kontakt",
-
     "actions.phone.fig": "Anrufen",
     "actions.email.fig": "E-Mail",
     "actions.whatsapp.fig": "WhatsApp",
     "actions.viber.fig": "Viber",
     "actions.booking.fig": "Booking.com",
-
     "phone.extra": "+30 699 7144061",
     "email.extra": "contact@lazurenikiti.gr",
-
     "aria.call": "Telefonanruf",
     "aria.email": "E-Mail senden",
     "aria.whatsapp": "WhatsApp-Chat öffnen",
     "aria.viber": "Viber-Chat öffnen",
     "aria.booking": "Booking.com-Seite öffnen",
-
     "icons.phone.alt": "Telefon",
     "icons.email.alt": "E-Mail",
     "icons.whatsapp.alt": "WhatsApp",
     "icons.viber.alt": "Viber",
-    "icons.booking.alt": "Booking.com"
+    "icons.booking.alt": "Booking.com",
+    "form": {
+      "title": "Oder hinterlassen Sie uns eine Nachricht",
+      "name": {
+        "label": "Ihr Name",
+        "placeholder": "Geben Sie Ihren Namen ein"
+      },
+      "email": {
+        "label": "Ihre E‑Mail",
+        "placeholder": "name@beispiel.de"
+      },
+      "message": {
+        "label": "Nachricht",
+        "placeholder": "Schreiben Sie hier Ihre Nachricht …"
+      },
+      "valid": {
+        "name": "Bitte geben Sie Ihren Namen ein",
+        "email": "Bitte geben Sie eine gültige E‑Mail ein",
+        "message": "Die Nachricht ist zu kurz"
+      },
+      "submit": "Senden",
+      "sending": "Senden …",
+      "success": "Danke! Wir melden uns in Kürze."
+    }
   },
-
   "footer": {
     "logo.alt": "Lazure Logo",
-    "text": "© 2025 LAZURE Apartment Nikiti. Alle Rechte vorbehalten."
+    "text": "© 2025 LAZURE Apartment Nikiti. Alle Rechte vorbehalten.",
+    "logo": {
+      "alt": "Lazure Logo"
+    }
+  },
+  "titles": {
+    "apartment": {
+      "text": "Das Apartment"
+    },
+    "amenities": {
+      "text": "Zur Ausstattung"
+    },
+    "essential": {
+      "text": "Wichtig"
+    },
+    "policies": {
+      "text": "Richtlinien"
+    },
+    "location": {
+      "text": "Unsere Lage"
+    },
+    "contact": {
+      "text": "Kontaktmöglichkeiten"
+    }
   }
 }

@@ -369,7 +369,7 @@
   <!-- =========================================================
        LOCATION SECTION
        - Map embed (desktop + mobile variants)
-       - QR code and external map links
+       - Address and external map links (i18n-ready)
        ========================================================= -->
   <section class="section-with-parallax bg-white" id="location-section">
     <div class="bg-layer small-shell" data-parallax="small-shell"></div>
@@ -380,8 +380,9 @@
         <table class="section-table" role="presentation">
           <colgroup>
             <col style="width: 60%" />
-            <col style="width: 5%" />
-            <col style="width: 35%" />
+            <col style="width: 8%" />
+            <col style="width: 28%" />
+            <col style="width: 4%" />
           </colgroup>
           <tbody>
             <!-- Title -->
@@ -397,14 +398,7 @@
               </td>
             </tr>
 
-            <!-- Desktop-only labels -->
-            <tr class="desktop-row">
-              <td class="cell-subtitle" data-i18n="location.desktop.left.subtitle">Find us on map</td>
-              <td></td>
-              <td class="cell-subtitle" data-i18n="location.desktop.right.subtitle">Just Scan &amp; Save</td>
-            </tr>
-
-            <!-- Desktop content: map | or | QR -->
+            <!-- Desktop content: map | address -->
             <tr class="desktop-row">
               <td class="map-cell">
                 <div class="map-frame embed-responsive embed-responsive-16by9">
@@ -415,18 +409,45 @@
                           referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
               </td>
-              <td class="or-cell">
-                <div class="or-divider">
-                  <div class="line top"></div>
-                  <span data-i18n="location.or">OR</span>
-                  <div class="line bottom"></div>
+              <td></td>
+              <td class="address-cell">
+                <div class="address-top">
+                  <p class="address-title" data-i18n="location.address.title">The Adress:</p>
                 </div>
-              </td>
-              <td class="qr-cell">
-                <div class="qr-wrapper">
-                  <img src="images/location/qrcode.webp" class="qr-image" alt="Qrcode" data-i18n-attr="alt:location.qr.alt" />
+
+                <div class="address-middle">
+                  <p><br></p>
+                  <p class="address-line" data-i18n="location.address.line1">Greece</p>
+                  <p class="address-line" data-i18n="location.address.line2">Macedonia, Halkidiki</p>
+                  <p class="address-line" data-i18n="location.address.line3">Nikiti, 630 88</p>
                 </div>
+
+                <div class="address-bottom">
+                  <p class="links-title" data-i18n="location.links.title">
+                    Direct links for detailed location:
+                  </p>
+                  <div class="qr-links">
+                    <div class="qr-item">
+                      <a href="https://maps.app.goo.gl/1YwRidEbsdrpuApg7" target="_blank" rel="noopener noreferrer">
+                        <img src="images/location/google_maps_qr.webp"
+                             alt="Google Maps QR"
+                             data-i18n-attr="alt:location.links.gmaps.qr.alt" />
+                      </a>
+                      <span data-i18n="location.links.gmaps.label">Google Maps</span>
+                    </div>
+                    <div class="qr-item">
+                      <a href="https://waze.com/ul?ll=40.22282140754979%2C23.667385980137798&navigate=yes" target="_blank" rel="noopener noreferrer">
+                        <img src="images/location/waze_qr.webp"
+                             alt="Waze QR"
+                             data-i18n-attr="alt:location.links.waze.qr.alt" />
+                      </a>
+                      <span data-i18n="location.links.waze.label">Waze</span>
+                    </div>
+                  </div>
+                </div>
+
               </td>
+              <td></td>
             </tr>
 
             <!-- Mobile map (full-bleed) -->
@@ -458,7 +479,7 @@
                      data-i18n-attr="aria-label:location.aria.openGmaps">
                     <img src="images/location/google_maps.webp"
                          alt="Google Maps"
-                         data-i18n-attr="alt:location.gmaps.img.alt" />
+                         data-i18n-attr="alt:location.links.gmaps.img.alt" />
                   </a>
 
                   <a href="https://waze.com/ul?ll=40.22282140754979%2C23.667385980137798&navigate=yes"
@@ -468,7 +489,7 @@
                      data-i18n-attr="aria-label:location.aria.openWaze">
                     <img src="images/location/waze.webp"
                          alt="Waze"
-                         data-i18n-attr="alt:location.waze.img.alt" />
+                         data-i18n-attr="alt:location.links.waze.img.alt" />
                   </a>
                 </div>
               </td>

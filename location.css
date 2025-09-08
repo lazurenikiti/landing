@@ -6,7 +6,7 @@
 #location-section .section-title {
   display: block;
   max-height: 64px;
-  margin: 0 auto;             /* как в amenities */
+  margin: 0 auto; /* same as amenities */
 }
 #location-section .section-header { margin-block: 8px; }
 
@@ -17,7 +17,7 @@
   margin: 10px 0;
 }
 
-/* Первая строка с картинкой-заголовком — компактнее */
+/* First row with title image — compact spacing */
 #location-section .section-table tr:first-child td {
   padding-top: 8px;
   padding-bottom: 8px;
@@ -32,30 +32,70 @@
   padding: 20px;
   background: #fff;
   box-sizing: border-box;
+  border-radius: 12px;
 }
 #location-section .map-frame iframe {
   display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
   border: none;
+  border-radius: 8px;
 }
 
-/* --- QR (desktop) --- */
-#location-section .qr-wrapper {
-  display: flex; align-items: center; justify-content: center; height: 100%;
-}
-#location-section .qr-image {
-  max-width: 80%; height: auto; display: block;
+/* --- Address cell (desktop) --- */
+#location-section .address-cell {
+  position: relative;          /* anchor for the bottom block */
+  vertical-align: top;
+  padding: 20px;               /* keep same padding as map frame */
 }
 
-/* --- OR divider (desktop) --- */
-#location-section .or-cell { padding: 0; text-align: center; vertical-align: middle; }
-#location-section .or-divider { display: flex; flex-direction: column; align-items: center; }
-#location-section .or-divider .line { width: 2px; background: #000; }
-#location-section .or-divider .line.top { height: 100px; }
-#location-section .or-divider .line.bottom { height: 100px; }
-#location-section .or-divider span {
-  font-size: 1rem; font-weight: 700; margin: 8px 0; background: transparent;
+/* wrapper just holds two sub-blocks */
+#location-section .address-wrapper { height: 100%; }
+
+/* TOP: address text */
+#location-section .address-top {
+  text-align: right;   /* align everything inside to the right */
+  width: 100%;
+}
+#location-section .address-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+  text-align: center;  /* keep title centered */
+}
+#location-section .address-line {
+  font-size: 1rem;
+  margin: 0;
+  text-align: right;   /* force each line to the right edge */
+}
+
+/* BOTTOM: QR and caption pinned to the bottom of the cell */
+#location-section .address-bottom {
+  position: absolute;
+  left: 20px;                  /* match cell padding */
+  right: 20px;
+  bottom: 20px;                /* aligns labels with map bottom edge */
+  text-align: center;
+}
+#location-section .links-title {
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+#location-section .qr-links {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+#location-section .qr-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+#location-section .qr-item img {
+  max-width: 120px;
+  height: auto;
+  display: block;
 }
 
 /* --- Table visibility (desktop default) --- */
@@ -63,10 +103,10 @@
 #location-section .desktop-row { display: table-row; }
 
 /* =========================================
-   MOBILE (≤ 768px) — как в Amenities, без «воздуха»
+   MOBILE (≤ 768px) — compact layout
    ========================================= */
 @media (max-width: 768px), (max-height: 500px) {
-  /* В мобильной вёрстке показываем мобильные ряды и прячем десктопные */
+  /* In mobile layout: show mobile rows, hide desktop rows */
   #location-section .desktop-row { display: none; }
   #location-section .mobile-row  { display: table-row; }
 
@@ -79,10 +119,10 @@
     border-spacing: 0;
   }
   #location-section .section-table td {
-    padding: 6px 0;            /* компактные вертикальные отступы вместо 20px */
+    padding: 6px 0;  /* compact vertical spacing instead of 20px */
   }
 
-  /* Сбрасываем bootstrap-обёртку, чтобы карта не «прыгала» при повороте */
+  /* Reset Bootstrap wrapper to prevent map from "jumping" on orientation change */
   #location-section .map-frame.embed-responsive {
     position: static !important;
     padding: 0 !important;
@@ -98,19 +138,20 @@
     display: block !important;
   }
 
-  /* Карта: сохраняем прежнюю «высокую» геометрию на телефоне */
+  /* Mobile map: keep tall geometry for portrait orientation */
   #location-section .map-frame.mobile-map {
     box-shadow: none; padding: 0; background: transparent; border-radius: 0;
   }
   #location-section .map-frame.mobile-map iframe {
     width: 100vw;
-    height: 125vw;             /* как было: портрет — вытянутая карта */
+    height: 125vw;   /* tall map for portrait screens */
     border: 0; border-radius: 0; display: block;
   }
 
   #location-section .section-title { margin: 6px auto; }
   #location-section .cell-subtitle { margin: 4px 0; padding: 0; font-size: 1.05rem; }
 
+  /* Mobile quick links */
   #location-section .location-actions {
     display: flex; flex-direction: column; align-items: center;
     gap: 12px; margin: 10px 0; padding: 0 16px;
@@ -128,14 +169,11 @@
   #location-section .location-action img {
     max-height: 40px; width: auto; display: block; margin: 0 auto;
   }
-
-  #location-section .or-cell,
-  #location-section .qr-wrapper { display: none; }
 }
 
 /* =========================================
-   PHONE LOCK — не переключаться на десктоп при перевороте
-   (скрипт уже ставит html.force-mobile на телефонах)
+   PHONE LOCK — force mobile view on phones
+   even in landscape orientation
    ========================================= */
 html.force-mobile #location-section .desktop-row { display: none !important; }
 html.force-mobile #location-section .mobile-row  { display: table-row !important; }

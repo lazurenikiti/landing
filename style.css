@@ -23,6 +23,20 @@
   /* viewport helpers */
   --vh: 1vh;
 }
+/* Extra bottom spacing for some sections on desctop*/
+@media (min-width: 992px) {
+  #apartment-section,
+  #amenities-section,
+  #location-section {
+    padding-bottom: calc(var(--section-padding-block) * 2);
+  }
+}
+/* Extra bottom spacing for some amenities section on mobile*/
+@media (max-width: 992px) {
+  #amenities-section{
+    padding-bottom: calc(var(--section-padding-block) * 2);
+  }
+}
 
 /* --- Base reset --- */
 *,

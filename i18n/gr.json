@@ -2,7 +2,6 @@
   "meta": {
     "title": "LAZURE Apartment Nikiti"
   },
-
   "nav": {
     "aria.primary": "Κύριο μενού",
     "aria.primaryNav": "Κύρια πλοήγηση",
@@ -15,7 +14,6 @@
     "burger.aria": "Εναλλαγή μενού",
     "mobile.aria": "Πλοήγηση κινητού"
   },
-
   "hero": {
     "logo.alt": "LAZURE Apartment Nikiti",
     "captions": [
@@ -27,7 +25,6 @@
     ],
     "cta": "ΕΠΙΚΟΙΝΩΝΗΣΤΕ ΜΑΖΙ ΜΑΣ"
   },
-
   "apartment": {
     "title.img.alt": "Διαμέρισμα",
     "carousel.aria": "Φωτογραφίες διαμερίσματος",
@@ -48,11 +45,9 @@
     "info.p2.strong4": "πεντακάθαρες παραλίες με Γαλάζια Σημαία",
     "info.p2.part6": "καθώς και τα συναρπαστικά τοπία της Χαλκιδικής και της Μακεδονίας."
   },
-
   "amenities": {
     "title.img.alt": "Παροχές",
     "subtitle.essential.img.alt": "Βασικές",
-
     "cards.indoor": "25 τ.μ. εσωτερικού χώρου",
     "cards.outdoor": "17 τ.μ. ιδιωτικός εξωτερικός χώρος",
     "cards.bed": "Κρεβάτι 160 εκ.",
@@ -61,7 +56,6 @@
     "cards.aircon": "Κλιματισμός",
     "cards.wifi": "Wi-Fi",
     "cards.safe": "Χρηματοκιβώτιο",
-
     "lists.inroom.title": "Παροχές δωματίου:",
     "lists.inroom.items": [
       "Smart TV",
@@ -71,7 +65,6 @@
       "Σετ πετσέτες θαλάσσης για δύο άτομα",
       "Άφθονος αποθηκευτικός χώρος"
     ],
-
     "lists.kitchenette.title": "Παροχές κουζινιού:",
     "lists.kitchenette.items": [
       "Μάτι κουζίνας",
@@ -82,7 +75,6 @@
       "Καφετιέρα",
       "Πλήρες σετ πιάτων & μαχαιροπήρουνων"
     ],
-
     "lists.bathroom.title": "Παροχές μπάνιου:",
     "lists.bathroom.items": [
       "Άνετο ντους",
@@ -90,7 +82,6 @@
       "Πετσέτες μπάνιου",
       "Σεσουάρ"
     ],
-
     "lists.outer.title": "Εξωτερικές παροχές:",
     "lists.outer.items": [
       "Ιδιωτικός κήπος",
@@ -98,7 +89,6 @@
       "Παιδική χαρά",
       "Ξαπλώστρες & ομπρέλες για τους επισκέπτες"
     ],
-
     "lists.surroundings.title": "Περιοχή:",
     "lists.surroundings.items": [
       "Κεντρική παραλία & παραλιακός δρόμος Νικήτης – 700 μ.",
@@ -110,7 +100,6 @@
       "Lidl – 1500 μ."
     ]
   },
-
   "policies": {
     "title.img.alt": "Πολιτικές",
     "noPets": "Δεν επιτρέπονται κατοικίδια",
@@ -118,49 +107,122 @@
     "noParties": "Δεν επιτρέπονται πάρτι",
     "parking": "Δωρεάν δημόσιος χώρος στάθμευσης κοντά"
   },
-
   "location": {
     "title.img.alt": "Τοποθεσία",
     "desktop.left.subtitle": "Βρείτε μας στο χάρτη",
     "desktop.right.subtitle": "Απλώς σαρώστε & αποθηκεύστε",
     "or": "Ή",
     "qr.alt": "QR κωδικός",
-
     "mobile.links.subtitle": "Απευθείας σύνδεσμοι",
     "gmaps.img.alt": "Google Maps",
     "waze.img.alt": "Waze",
-
     "aria.openGmaps": "Άνοιγμα στο Google Maps",
-    "aria.openWaze": "Άνοιγμα στο Waze"
+    "aria.openWaze": "Άνοιγμα στο Waze",
+    "address": {
+      "title": "Διεύθυνση:",
+      "line1": "Ελλάδα",
+      "line2": "Μακεδονία, Χαλκιδική",
+      "line3": "Νικήτη, 630 88"
+    },
+    "links": {
+      "title": "Απευθείας σύνδεσμοι για ακριβή τοποθεσία:",
+      "gmaps": {
+        "label": "Google Maps",
+        "qr": {
+          "alt": "QR για Google Maps"
+        },
+        "img": {
+          "alt": "Google Maps"
+        }
+      },
+      "waze": {
+        "label": "Waze",
+        "qr": {
+          "alt": "QR για Waze"
+        },
+        "img": {
+          "alt": "Waze"
+        }
+      }
+    },
+    "aria": {
+      "openGmaps": "Άνοιγμα στο Google Maps",
+      "openWaze": "Άνοιγμα στο Waze"
+    },
+    "mobile": {
+      "links": {
+        "subtitle": "Απευθείας σύνδεσμοι"
+      }
+    }
   },
-
   "contact": {
     "title.img.alt": "Επικοινωνία",
-
     "actions.phone.fig": "Κλήση",
     "actions.email.fig": "Email",
     "actions.whatsapp.fig": "WhatsApp",
     "actions.viber.fig": "Viber",
     "actions.booking.fig": "Booking.com",
-
     "phone.extra": "+30 699 7144061",
     "email.extra": "contact@lazurenikiti.gr",
-
     "aria.call": "Τηλεφωνική κλήση",
     "aria.email": "Αποστολή email",
     "aria.whatsapp": "Άνοιγμα συνομιλίας WhatsApp",
     "aria.viber": "Άνοιγμα συνομιλίας Viber",
     "aria.booking": "Άνοιγμα σελίδας Booking.com",
-
     "icons.phone.alt": "Τηλέφωνο",
     "icons.email.alt": "Email",
     "icons.whatsapp.alt": "WhatsApp",
     "icons.viber.alt": "Viber",
-    "icons.booking.alt": "Booking.com"
+    "icons.booking.alt": "Booking.com",
+    "form": {
+      "title": "Ή αφήστε μας ένα αίτημα",
+      "name": {
+        "label": "Το όνομά σας",
+        "placeholder": "Πληκτρολογήστε το όνομά σας"
+      },
+      "email": {
+        "label": "Το email σας",
+        "placeholder": "name@example.com"
+      },
+      "message": {
+        "label": "Μήνυμα",
+        "placeholder": "Γράψτε εδώ το μήνυμά σας…"
+      },
+      "valid": {
+        "name": "Παρακαλώ εισαγάγετε όνομα",
+        "email": "Παρακαλώ εισαγάγετε έγκυρο email",
+        "message": "Το μήνυμα είναι πολύ σύντομο"
+      },
+      "submit": "Αποστολή",
+      "sending": "Αποστολή…",
+      "success": "Ευχαριστούμε! Θα σας απαντήσουμε σύντομα."
+    }
   },
-
   "footer": {
     "logo.alt": "Λογότυπο Lazure",
-    "text": "© 2025 LAZURE Apartment Nikiti. Όλα τα δικαιώματα διατηρούνται."
+    "text": "© 2025 LAZURE Apartment Nikiti. Όλα τα δικαιώματα διατηρούνται.",
+    "logo": {
+      "alt": "Λογότυπο Lazure"
+    }
+  },
+  "titles": {
+    "apartment": {
+      "text": "Το Διαμέρισμα"
+    },
+    "amenities": {
+      "text": "Σχετικά με τις παροχές"
+    },
+    "essential": {
+      "text": "Βασικές"
+    },
+    "policies": {
+      "text": "Πολιτικές"
+    },
+    "location": {
+      "text": "Η τοποθεσία μας"
+    },
+    "contact": {
+      "text": "Επικοινωνία μέσω"
+    }
   }
 }

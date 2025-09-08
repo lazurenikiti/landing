@@ -2,7 +2,6 @@
   "meta": {
     "title": "LAZURE Apartment Nikiti"
   },
-
   "nav": {
     "aria.primary": "Головне меню",
     "aria.primaryNav": "Основна навігація",
@@ -15,7 +14,6 @@
     "burger.aria": "Перемкнути меню",
     "mobile.aria": "Мобільна навігація"
   },
-
   "hero": {
     "logo.alt": "LAZURE Apartment Nikiti",
     "captions": [
@@ -27,7 +25,6 @@
     ],
     "cta": "ЗВ’ЯЗАТИСЯ"
   },
-
   "apartment": {
     "title.img.alt": "Апартаменти",
     "carousel.aria": "Фото апартаментів",
@@ -48,11 +45,9 @@
     "info.p2.strong4": "лазуровими пляжами, що позначені Блакитними прапорами ",
     "info.p2.part6": "та захопливими краєвидами Халкідікі, Македонія."
   },
-
   "amenities": {
     "title.img.alt": "Зручності",
     "subtitle.essential.img.alt": "Головне",
-
     "cards.indoor": "25 м² внутрішнього простору",
     "cards.outdoor": "17 м² приватної тераси",
     "cards.bed": "Ліжко 160 см",
@@ -61,7 +56,6 @@
     "cards.aircon": "Кондиціонер",
     "cards.wifi": "Wi-Fi",
     "cards.safe": "Сейф",
-
     "lists.inroom.title": "Номер:",
     "lists.inroom.items": [
       "Смарт-ТВ",
@@ -71,7 +65,6 @@
       "Комплект пляжних рушників для двох",
       "Простора шафа"
     ],
-
     "lists.kitchenette.title": "Міні-кухня:",
     "lists.kitchenette.items": [
       "Плита",
@@ -82,7 +75,6 @@
       "Кавова машина",
       "Повний набір посуду та столових приборів"
     ],
-
     "lists.bathroom.title": "Ванна кімната:",
     "lists.bathroom.items": [
       "Просторий душ",
@@ -90,7 +82,6 @@
       "Рушники для ванни",
       "Фен"
     ],
-
     "lists.outer.title": "На подвір'ї:",
     "lists.outer.items": [
       "Приватний міні-сад",
@@ -98,7 +89,6 @@
       "Дитячий майданчик",
       "Лежаки та парасольки для гостей"
     ],
-
     "lists.surroundings.title": "Що навкруги:",
     "lists.surroundings.items": [
       "Головна набережна та пляж Нікіті – 700 м",
@@ -110,7 +100,6 @@
       "Супермаркет Lidl – 1500 м"
     ]
   },
-
   "policies": {
     "title.img.alt": "Правила",
     "noPets": "Домашні тварини заборонені",
@@ -118,49 +107,122 @@
     "noParties": "Вечірки заборонені",
     "parking": "Безкоштовна громадська парковка поруч"
   },
-
   "location": {
     "title.img.alt": "Локація",
     "desktop.left.subtitle": "Знайдіть нас на мапі",
     "desktop.right.subtitle": "Просто відскануйте й збережіть",
     "or": "АБО",
     "qr.alt": "QR-код",
-
     "mobile.links.subtitle": "Прямі посилання",
     "gmaps.img.alt": "Google Maps",
     "waze.img.alt": "Waze",
-
     "aria.openGmaps": "Відкрити в Google Maps",
-    "aria.openWaze": "Відкрити в Waze"
+    "aria.openWaze": "Відкрити в Waze",
+    "address": {
+      "title": "Адреса:",
+      "line1": "Греція",
+      "line2": "Македонія, Халкідікі",
+      "line3": "Нікіті, 630 88"
+    },
+    "links": {
+      "title": "Прямі посилання для точної локації:",
+      "gmaps": {
+        "label": "Google Maps",
+        "qr": {
+          "alt": "QR-код Google Maps"
+        },
+        "img": {
+          "alt": "Google Maps"
+        }
+      },
+      "waze": {
+        "label": "Waze",
+        "qr": {
+          "alt": "QR-код Waze"
+        },
+        "img": {
+          "alt": "Waze"
+        }
+      }
+    },
+    "aria": {
+      "openGmaps": "Відкрити в Google Maps",
+      "openWaze": "Відкрити в Waze"
+    },
+    "mobile": {
+      "links": {
+        "subtitle": "Прямі посилання"
+      }
+    }
   },
-
   "contact": {
     "title.img.alt": "Контакти",
-
     "actions.phone.fig": "Зателефонувати",
     "actions.email.fig": "Email",
     "actions.whatsapp.fig": "WhatsApp",
     "actions.viber.fig": "Viber",
     "actions.booking.fig": "Booking.com",
-
     "phone.extra": "+30 699 7144061",
     "email.extra": "contact@lazurenikiti.gr",
-
     "aria.call": "Зателефонувати",
     "aria.email": "Надіслати email",
     "aria.whatsapp": "Відкрити чат WhatsApp",
     "aria.viber": "Відкрити чат Viber",
     "aria.booking": "Відкрити сторінку Booking.com",
-
     "icons.phone.alt": "Телефон",
     "icons.email.alt": "Email",
     "icons.whatsapp.alt": "WhatsApp",
     "icons.viber.alt": "Viber",
-    "icons.booking.alt": "Booking.com"
+    "icons.booking.alt": "Booking.com",
+    "form": {
+      "title": "Або залиште нам запит",
+      "name": {
+        "label": "Ваше ім’я",
+        "placeholder": "Введіть ім’я"
+      },
+      "email": {
+        "label": "Ваш email",
+        "placeholder": "name@example.com"
+      },
+      "message": {
+        "label": "Повідомлення",
+        "placeholder": "Напишіть своє повідомлення тут…"
+      },
+      "valid": {
+        "name": "Будь ласка, введіть ім’я",
+        "email": "Будь ласка, введіть дійсний email",
+        "message": "Повідомлення надто коротке"
+      },
+      "submit": "Надіслати",
+      "sending": "Надсилання…",
+      "success": "Дякуємо! Ми відповімо найближчим часом."
+    }
   },
-
   "footer": {
     "logo.alt": "Логотип Lazure",
-    "text": "© 2025 LAZURE Apartment Nikiti. Усі права захищено."
+    "text": "© 2025 LAZURE Apartment Nikiti. Усі права захищені.",
+    "logo": {
+      "alt": "Логотип Lazure"
+    }
+  },
+  "titles": {
+    "apartment": {
+      "text": "Апартаменти"
+    },
+    "amenities": {
+      "text": "Про зручності"
+    },
+    "essential": {
+      "text": "Головне"
+    },
+    "policies": {
+      "text": "Правила"
+    },
+    "location": {
+      "text": "Наша локація"
+    },
+    "contact": {
+      "text": "Зв’язок через"
+    }
   }
 }
