@@ -44,7 +44,7 @@
     statusEl.textContent = '';
 
     try {
-      const res = await fetch('https://lazure-nikiti.gr/request', {
+      const res = await fetch('https://www.lazure-nikiti.gr/request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, message, company })
