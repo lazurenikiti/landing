@@ -1,69 +1,74 @@
-(function(){
-  const form    = document.getElementById('contact-form');
-  const success = document.getElementById('contact-success');
-  const email   = document.getElementById('cf-email');
-  const nameEl  = document.getElementById('cf-name');
-  const message = document.getElementById('cf-message');
-  const errName = document.getElementById('err-name');
-  const errEmail= document.getElementById('err-email');
-  const errMsg  = document.getElementById('err-message');
+// assets/js/contact.js
+(function () {
+  const form = document.getElementById('contact-form');
+  if (!form) return;
+
   const sending = document.getElementById('cf-sending');
+  const statusEl = document.getElementById('cf-status');
+  const successBox = document.getElementById('contact-success');
 
-  // TODO: replace with your real Worker endpoint
-  const ENDPOINT = "https://YOUR-WORKER.username.workers.dev";
+  // API endpoint (change here if needed)
+  const API_URL = "https://api.lazure-nikiti.gr/request";
 
-  const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-
-  function validate(){
-    let ok = true;
-    if (!nameEl.value.trim()){
-      errName.hidden = false; nameEl.setAttribute('aria-invalid','true'); ok = false;
-    } else { errName.hidden = true; nameEl.removeAttribute('aria-invalid'); }
-    if (!isEmail(email.value.trim())){
-      errEmail.hidden = false; email.setAttribute('aria-invalid','true'); ok = false;
-    } else { errEmail.hidden = true; email.removeAttribute('aria-invalid'); }
-    if (message.value.trim().length < 5){
-      errMsg.hidden = false; message.setAttribute('aria-invalid','true'); ok = false;
-    } else { errMsg.hidden = true; message.removeAttribute('aria-invalid'); }
-    return ok;
+  // Honeypot field (hidden, anti-bot)
+  let honeypot = document.getElementById('cf-company');
+  if (!honeypot) {
+    honeypot = document.createElement('input');
+    honeypot.type = 'text';
+    honeypot.id = 'cf-company';
+    honeypot.name = 'company';  // bots will fill this, humans will not
+    honeypot.autocomplete = 'off';
+    honeypot.tabIndex = -1;
+    honeypot.style.position = 'absolute';
+    honeypot.style.left = '-5000px';
+    form.appendChild(honeypot);
   }
 
-  async function onSubmit(e){
-    e.preventDefault();
-    if (!validate()) return;
-    sending.hidden = false;
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
 
-    try{
-      const res = await fetch(ENDPOINT, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
-          name: nameEl.value.trim(),
-          email: email.value.trim(),
-          message: message.value.trim()
-        })
+  async function handleSubmit(e) {
+    e.preventDefault();
+
+    const name = document.getElementById('cf-name').value.trim();
+    const email = document.getElementById('cf-email').value.trim();
+    const message = document.getElementById('cf-message').value.trim();
+    const company = honeypot.value.trim();
+
+    // Client-side validation
+    if (!name || !isValidEmail(email) || message.length < 5) {
+      statusEl.textContent = 'Please fill in all fields correctly.';
+      return;
+    }
+
+    sending.hidden = false;
+    statusEl.textContent = '';
+
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message, company })
       });
-      if (!res.ok) throw new Error(await res.text().catch(()=> ''));
-      // collapse the form and show success
-      const h = form.getBoundingClientRect().height;
-      form.style.height = h + 'px';
-      requestAnimationFrame(()=>{
-        form.classList.add('collapsing');
-        form.style.height = '0px';
-        setTimeout(()=>{
-          form.hidden = true;
-          success.hidden = true; // ensure hidden -> then show to retrigger a11y live region if needed
-          success.hidden = false;
-        }, 260);
-      });
-      form.reset();
-    } catch(err){
-      console.error(err);
-      alert(document.querySelector('[data-i18n="contact.form.error"]')?.textContent || 'Something went wrong. Please try again later.');
-    } finally{
+
+      const data = await res.json().catch(() => ({}));
       sending.hidden = true;
+
+      if (res.ok) {
+        form.reset();
+        form.hidden = true;
+        successBox.hidden = false;
+      } else {
+        console.error('[contact][error]', res.status, data);
+        statusEl.textContent = data.error || 'Failed to send. Please try again.';
+      }
+    } catch (err) {
+      sending.hidden = true;
+      console.error('[contact][network]', err);
+      statusEl.textContent = 'Network error. Please try again.';
     }
   }
 
-  form?.addEventListener('submit', onSubmit);
+  form.addEventListener('submit', handleSubmit);
 })();
