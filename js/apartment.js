@@ -145,363 +145,161 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  /* =================== Mobile carousel — 5-car train (robust, orientation-safe) =================== */
-  function buildMobileCarouselOnce() {
+  /* ============== MOBILE (native scroll-snap + infinite via 2 clones) ============== */
+
+  /* Safe placeholder so early calls won't crash */
+  function realignMobileCarousel(){}
+
+  function buildMobileCarousel() {
     if (!carouselTrack || !carouselDots) return;
 
-    // Always rebuild mobile carousel content (clean state for slides)
-    if (typeof slides !== 'undefined') slides = [];
+    // Reset DOM
+    carouselTrack.innerHTML = '';
+    carouselDots.innerHTML  = '';
 
     var n = imageList.length;
-    if (n === 0) return;
+    if (!n) return;
 
-    // ----- Local state -----
-    var current = 0;            // logical index [0..n-1], kept in sync with currentIndex
-    var w = 1;                  // slide width in px (measured from container)
-    var dragging = false;
-    var startX = 0, dx = 0, startT = 0;
-    var pointerId = null;
-    var animating = false;
+    var viewport = document.getElementById('mobile-carousel') || carouselTrack.parentNode;
 
-    // ----- Stable measurement target (container, not the track) -----
-    var mobileCarouselEl = document.getElementById('mobile-carousel');
-
-    // ----- Prebuild/cache ALL images off-DOM (once per init) -----
-    var cache = new Array(n);
-    for (var i = 0; i < n; i++) {
-      var im = new Image();
-      im.decoding = 'async';
-      if ('fetchPriority' in im) im.fetchPriority = 'low';
-      im.src = ORIG_DIR + imageList[i];
-      cache[i] = im;
-    }
-
-    // ----- Build exactly five cars in the DOM: [prev2 | prev1 | current | next1 | next2] -----
-    carouselTrack.innerHTML = '';
-    var indices = [0,1,2,3,4]; // logical indices for the 5-car window (computed below)
-
-    function makeCar() {
-      var el = document.createElement('div');
-      el.className = 'slide';
+    // Build real slides
+    var realSlides = imageList.map(function(name, i){
+      var s = document.createElement('div');
+      s.className = 'slide';
       var img = document.createElement('img');
-      img.decoding = 'async';
-      el.appendChild(img);
-      return { el: el, img: img };
-    }
-
-    var carPrev2 = makeCar();
-    var carPrev1 = makeCar();
-    var carCurr  = makeCar();
-    var carNext1 = makeCar();
-    var carNext2 = makeCar();
-
-    // Open fullscreen on tap (current car only; ignore when dragging/animating)
-    carCurr.img.addEventListener('click', function(){
-      if (!animating && !dragging) openFullscreen(current);
+      img.alt = 'Apartment photo ' + (i+1);
+      img.src = ORIG_DIR + name;
+      s.appendChild(img);
+      return s;
     });
 
-    [carPrev2, carPrev1, carCurr, carNext1, carNext2].forEach(function(c){
-      carouselTrack.appendChild(c.el);
-    });
+    // Two clones for seamless edges
+    var cloneFirst = realSlides[0].cloneNode(true);
+    var cloneLast  = realSlides[realSlides.length-1].cloneNode(true);
 
-    // ----- Dots (rebuild) -----
-    carouselDots.innerHTML = '';
-    for (var d = 0; d < n; d++) {
-      var dot = document.createElement('button');
-      dot.type = 'button';
-      dot.setAttribute('role', 'tab');
-      dot.setAttribute('aria-label', 'Slide ' + (d + 1));
-      (function(idx){
-        dot.addEventListener('click', function(){
-          if (animating) return;
-          var delta = shortestDelta(current, idx, n);
-          if (delta === 0) return;
-          // If |delta| <= 2: animate via sequence of single steps; else teleport
-          if (Math.abs(delta) <= 2) stepSequence(delta);
-          else teleportTo(idx);
-        });
-      })(d);
-      carouselDots.appendChild(dot);
+    // Track order: [left clone] + real(0..n-1) + [right clone]
+    carouselTrack.appendChild(cloneLast);
+    for (var k=0;k<realSlides.length;k++) carouselTrack.appendChild(realSlides[k]);
+    carouselTrack.appendChild(cloneFirst);
+
+    // 0 = left clone, 1..n = real, n+1 = right clone
+    var internalIndex = 1;
+
+    function slideW() { return (viewport && viewport.clientWidth) || window.innerWidth || 1; }
+
+    // Force-instant scroll helper (bypasses CSS scroll-behavior)
+    function instantScrollLeft(x) {
+      var prev = viewport.style.scrollBehavior;   // remember
+      viewport.style.scrollBehavior = 'auto';     // disable smooth
+      viewport.scrollLeft = x;                    // instant
+      viewport.style.scrollBehavior = prev || ''; // restore
     }
 
-    // ===== Helpers =====
-    function mod(i, m){ return (i % m + m) % m; }
-    function shortestDelta(a, b, m){
-      a = mod(a, m); b = mod(b, m);
+    // Scroll to internal index
+    function scrollToIndex(idx, smooth) {
+      var x = idx * slideW();
+      if (smooth) {
+        // short, local move with momentum
+        viewport.scrollTo({ left: x, behavior: 'smooth' });
+      } else {
+        // absolute, instant move (teleport / far jump)
+        instantScrollLeft(x);
+      }
+      internalIndex = idx;
+      paintDots();
+      currentIndex = realIndex();
+    }
+
+    function realIndex() {
+      if (internalIndex === 0)   return n - 1;
+      if (internalIndex === n+1) return 0;
+      return internalIndex - 1;
+    }
+
+    // Minimal-move navigation between real indices
+    function mod(a,b){ return (a%b + b)%b; }
+    function shortestDelta(a,b,m){
+      a = mod(a,m); b = mod(b,m);
       var raw = b - a, alt = raw > 0 ? raw - m : raw + m;
       return Math.abs(raw) <= Math.abs(alt) ? raw : alt;
     }
+    function goToReal(r){
+      var cur = realIndex();
+      var d = shortestDelta(cur, r, n);
 
-    function callSetActiveDot(i){
-      if (typeof setActiveDot === 'function') setActiveDot(i);
-      else {
-        // fallback: update aria-current if helper is not present
-        var dots = carouselDots.children;
-        for (var k = 0; k < dots.length; k++) {
-          dots[k].setAttribute('aria-current', k === i ? 'true' : 'false');
-        }
+      if (d === 1)  return scrollToIndex(internalIndex + 1, true);  // next (smooth)
+      if (d === -1) return scrollToIndex(internalIndex - 1, true);  // prev (smooth)
+
+      // far target: instant jump (prevents long scroll across all slides)
+      return scrollToIndex(r + 1, false);
+    }
+
+    // Dots
+    for (var i=0;i<n;i++){
+      (function(di){
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('aria-label','Slide '+(di+1));
+        b.addEventListener('click', function(){ goToReal(di); });
+        carouselDots.appendChild(b);
+      })(i);
+    }
+    function paintDots(){
+      var r = realIndex();
+      var ds = carouselDots.children;
+      for (var j=0;j<ds.length;j++){
+        if (j===r) ds[j].setAttribute('aria-current','true');
+        else ds[j].removeAttribute('aria-current');
       }
     }
 
-    // Measure the visible container width (more stable than 100vw/track width)
-    function measure() {
-      var base = (mobileCarouselEl && mobileCarouselEl.clientWidth) ||
-                 (carouselTrack && carouselTrack.clientWidth) ||
-                 window.innerWidth || 1;
-      w = base;
+    // Tap on centered real slide -> fullscreen
+    for (var s=0;s<realSlides.length;s++){
+      (function(si){
+        var img = realSlides[si].querySelector('img');
+        img.addEventListener('click', function(){
+          if (realIndex() === si) openFullscreen(si);
+        }, false);
+      })(s);
     }
 
-    function setTransition(on){
-      carouselTrack.style.transition = on ? 'transform 320ms cubic-bezier(.22,.61,.36,1)' : 'none';
+    // Debounced settle: on clones -> instant teleport to real
+    var settleTimer = 0;
+    function onScroll() {
+      if (settleTimer) clearTimeout(settleTimer);
+      settleTimer = setTimeout(onScrollSettle, 80);
     }
+    function onScrollSettle() {
+      var w = Math.max(1, slideW());
+      var idx = Math.round(viewport.scrollLeft / w);
+      internalIndex = idx;
 
-    // Do not round — subpixel precision avoids drift on some DPRs
-    function commitTransform(px){
-      carouselTrack.style.transform = 'translate3d(' + px + 'px,0,0)';
-    }
-
-    // Compute logical indices for the 5-car window around center
-    function computeWindow(center) {
-      return [
-        mod(center - 2, n),
-        mod(center - 1, n),
-        mod(center,     n),
-        mod(center + 1, n),
-        mod(center + 2, n)
-      ];
-    }
-
-    // Mount cached images into cars per indices[]
-    function renderCars() {
-      var w5 = indices;
-
-      var i0 = w5[0]; carPrev2.img.src = cache[i0].src; carPrev2.img.alt = 'Apartment photo ' + (i0 + 1);
-      var i1 = w5[1]; carPrev1.img.src = cache[i1].src; carPrev1.img.alt = 'Apartment photo ' + (i1 + 1);
-
-      var i2 = w5[2];
-      carCurr.img.loading = 'eager'; // visible image loads immediately
-      carCurr.img.src = cache[i2].src; carCurr.img.alt = 'Apartment photo ' + (i2 + 1);
-
-      var i3 = w5[3]; carNext1.img.src = cache[i3].src; carNext1.img.alt = 'Apartment photo ' + (i3 + 1);
-      var i4 = w5[4]; carNext2.img.src = cache[i4].src; carNext2.img.alt = 'Apartment photo ' + (i4 + 1);
-
-      currentIndex = current;      // keep global in sync for fullscreen
-      callSetActiveDot(current);
-    }
-
-    // Center (3rd car) WITHOUT animation, with reflow to lock-in
-    function centerInstant() {
-      setTransition(false);
-      commitTransform(-2 * w);
-      void carouselTrack.offsetHeight;      // force reflow
-      requestAnimationFrame(function(){ setTransition(true); });
-    }
-
-    // Single animated step: dir = +1 (next) or -1 (prev)
-    function step(dir){
-      if (animating) return;
-      animating = true;
-      setTransition(true);
-      commitTransform(-2 * w - dir * w);
-
-      var onEnd = function(ev){
-        if (ev && ev.propertyName && ev.propertyName !== 'transform') return;
-        carouselTrack.removeEventListener('transitionend', onEnd);
-
-        // Rearrange around new center silently
-        setTransition(false);
-        current = mod(current + dir, n);
-        indices = computeWindow(current);
-        renderCars();
-        commitTransform(-2 * w);
-        void carouselTrack.offsetHeight;
-        requestAnimationFrame(function(){
-          setTransition(true);
-          animating = false;
-        });
-      };
-      carouselTrack.addEventListener('transitionend', onEnd);
-    }
-
-    // Sequence of ±1 steps (for |delta|==2 we do two chained steps)
-    function stepSequence(delta){
-      if (delta === 0) return;
-      var dir = delta > 0 ? +1 : -1;
-      var count = Math.abs(delta);
-
-      // Run first step; chain the rest on transitionend from step()
-      function runNext(){
-        if (count === 0) return;
-        count--;
-        var once = function(ev){
-          if (ev && ev.propertyName && ev.propertyName !== 'transform') return;
-          carouselTrack.removeEventListener('transitionend', once);
-          if (count > 0) runNext();
-        };
-        carouselTrack.addEventListener('transitionend', once);
-        step(dir);
-      }
-      if (!animating) runNext();
-    }
-
-    // Instant jump to arbitrary slide (no long multi-slide animation)
-    function teleportTo(targetIdx){
-      setTransition(false);
-      current = mod(targetIdx, n);
-      indices = computeWindow(current);
-      renderCars();
-      commitTransform(-2 * w);
-      void carouselTrack.offsetHeight;
-      requestAnimationFrame(function(){ setTransition(true); });
-    }
-
-    // ----- Pointer/Touch gestures (with duplicate-binding protection) -----
-    // Remove old handlers if present (avoid duplicates on rebuilds)
-    if (buildMobileCarouselOnce._handlers) {
-      var H = buildMobileCarouselOnce._handlers;
-      if (H.pointer && 'PointerEvent' in window) {
-        carouselTrack.removeEventListener('pointerdown', H.pointer.down);
-        carouselTrack.removeEventListener('pointermove', H.pointer.move);
-        carouselTrack.removeEventListener('pointerup', H.pointer.up);
-        carouselTrack.removeEventListener('pointercancel', H.pointer.up);
-        carouselTrack.removeEventListener('lostpointercapture', H.pointer.up);
-      }
-      if (H.touch && !('PointerEvent' in window)) {
-        carouselTrack.removeEventListener('touchstart', H.touch.start);
-        carouselTrack.removeEventListener('touchmove',  H.touch.move);
-        carouselTrack.removeEventListener('touchend',   H.touch.end);
-        carouselTrack.removeEventListener('touchcancel',H.touch.end);
+      if (idx === 0) {
+        // from left clone to last real — instant
+        scrollToIndex(n, false);
+      } else if (idx === n+1) {
+        // from right clone to first real — instant
+        scrollToIndex(1, false);
+      } else {
+        paintDots();
+        currentIndex = realIndex();
       }
     }
-    buildMobileCarouselOnce._handlers = buildMobileCarouselOnce._handlers || {};
+    viewport.addEventListener('scroll', onScroll, { passive: true });
 
-    // Pointer version
-    if ('PointerEvent' in window) {
-      var pd = function(e){
-        if (animating || pointerId !== null) return;
-        pointerId = e.pointerId || 'touch';
-        dragging = true; setTransition(false); window.__carouselDragging = true;
-        startX = e.clientX; dx = 0; startT = performance.now();
-        if (carouselTrack.setPointerCapture && e.pointerId) {
-          carouselTrack.setPointerCapture(e.pointerId);
-        }
-      };
-      var pm = function(e){
-        if (!dragging || (e.pointerId && e.pointerId !== pointerId)) return;
-        dx = e.clientX - startX;
-        commitTransform(-2 * w + dx);
-      };
-      var pu = function(e){
-        if (!dragging || (e.pointerId && e.pointerId !== pointerId)) return;
-        dragging = false; pointerId = null; window.__carouselDragging = false;
+    // Public next/prev (1 step, smooth)
+    buildMobileCarousel._next = function(){ scrollToIndex(internalIndex + 1, true); };
+    buildMobileCarousel._prev = function(){ scrollToIndex(internalIndex - 1, true); };
 
-        var dt = Math.max(1, performance.now() - startT);
-        var v = dx / dt;                 // px/ms
-        var TH = Math.max(40, w * 0.15); // distance threshold
-        var VEL = 0.5;                   // velocity threshold
-
-        if (dx > TH || v >  VEL) step(-1);      // swipe right -> previous
-        else if (dx < -TH || v < -VEL) step(+1);// swipe left  -> next
-        else {
-          setTransition(true);
-          commitTransform(-2 * w);
-          var once = function(ev){
-            if (ev && ev.propertyName && ev.propertyName !== 'transform') return;
-            carouselTrack.removeEventListener('transitionend', once);
-            setTransition(false);
-          };
-          carouselTrack.addEventListener('transitionend', once);
-        }
-      };
-
-      carouselTrack.addEventListener('pointerdown', pd);
-      carouselTrack.addEventListener('pointermove', pm);
-      carouselTrack.addEventListener('pointerup', pu);
-      carouselTrack.addEventListener('pointercancel', function(e){ pu(e); window.__carouselDragging = false; });
-      carouselTrack.addEventListener('lostpointercapture', function(e){ pu(e); window.__carouselDragging = false; });
-
-      buildMobileCarouselOnce._handlers.pointer = { down: pd, move: pm, up: pu };
-    } else {
-      // Touch fallback
-      var ts = function(e){
-        if (!e.touches || !e.touches.length || animating) return;
-        dragging = true; setTransition(false); window.__carouselDragging = true;
-        startX = e.touches[0].clientX; dx = 0; startT = performance.now();
-      };
-      var tm = function(e){
-        if (!dragging || !e.touches || !e.touches.length) return;
-        dx = e.touches[0].clientX - startX;
-        commitTransform(-2 * w + dx);
-      };
-      var te = function(){
-        if (!dragging) return;
-        dragging = false; window.__carouselDragging = false;
-        var dt = Math.max(1, performance.now() - startT), v = dx/dt, TH = Math.max(40, w*0.15), VEL = 0.5;
-        if (dx > TH || v >  0.5) step(-1);
-        else if (dx < -TH || v < -0.5) step(+1);
-        else { setTransition(true); commitTransform(-2 * w);
-          var once=function(ev){ if(ev && ev.propertyName && ev.propertyName!=='transform')return;
-            carouselTrack.removeEventListener('transitionend', once); setTransition(false); };
-          carouselTrack.addEventListener('transitionend', once);
-        }
-      };
-
-      carouselTrack.addEventListener('touchstart', ts, { passive: true });
-      carouselTrack.addEventListener('touchmove',  tm, { passive: true });
-      carouselTrack.addEventListener('touchend',   te, { passive: true });
-      carouselTrack.addEventListener('touchcancel',te, { passive: true });
-
-      buildMobileCarouselOnce._handlers.touch = { start: ts, move: tm, end: te };
+    // Keep same logical slide after resize/orientation
+    function realign(){
+      var r = realIndex();
+      scrollToIndex(r + 1, false);
     }
+    realignMobileCarousel = realign;
 
-    // ----- Orientation/resize realign (bind once globally) -----
-    function realignNow() {
-      setTransition(false);
-      measure();
-      commitTransform(-2 * w);
-      void carouselTrack.offsetHeight;
-      requestAnimationFrame(function(){ setTransition(true); });
-    }
-
-    var _rlRAF = 0, _rlT1 = 0, _rlT2 = 0;
-    function scheduleStableRealign(){
-      if (_rlRAF) cancelAnimationFrame(_rlRAF);
-      if (_rlT1)  clearTimeout(_rlT1);
-      if (_rlT2)  clearTimeout(_rlT2);
-      _rlRAF = requestAnimationFrame(realignNow); // immediate frame
-      _rlT1  = setTimeout(realignNow, 120);       // after UI chrome adjusts
-      _rlT2  = setTimeout(realignNow, 360);       // final settle (iOS toolbars)
-    }
-
-    if (!buildMobileCarouselOnce._viewportListenersBound) {
-      window.addEventListener('resize',           scheduleStableRealign, { passive: true });
-      window.addEventListener('orientationchange',scheduleStableRealign, { passive: true });
-      if (window.visualViewport) {
-        visualViewport.addEventListener('resize', scheduleStableRealign, { passive: true });
-        visualViewport.addEventListener('scroll', scheduleStableRealign, { passive: true });
-      }
-      buildMobileCarouselOnce._viewportListenersBound = true;
-    }
-
-    // Expose realign hook for external callers
-    buildMobileCarouselOnce._realign = scheduleStableRealign;
-
-    // ----- Init window and center -----
-    indices = computeWindow(current);
-    renderCars();
-    requestAnimationFrame(function(){
-      measure();
-      // ensure current visible image is eager for first paint
-      carCurr.img.loading = 'eager';
-      centerInstant();
-    });
-  }
-
-  /* Back-compat: keep external realign hook */
-  function realignMobileCarousel() {
-    if (typeof buildMobileCarouselOnce._realign === 'function') {
-      buildMobileCarouselOnce._realign();
-    }
+    // Initial position and dots
+    requestAnimationFrame(function(){ scrollToIndex(1, false); });
   }
 
   /* =================== Scroll locking helpers (fullscreen) =================== */
@@ -904,7 +702,7 @@ document.addEventListener('DOMContentLoaded', function () {
     currentIndex = 0;
   }
 
-  buildMobileCarouselOnce();
+  buildMobileCarousel();
   realignMobileCarousel();
 
   buildDesktopThumbsIfNeeded();
