@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var DEAD_PX      = 4;     // pixels to ignore before deciding gesture intent
     var INTENT_RATIO = 1.1;   // horizontal if |dx| > |dy| * ratio
     var SWIPE_FRAC   = 0.08;  // fraction of width for a "slow swipe"
-    var SWIPE_MIN    = 12;    // minimum px for a swipe
+    var SWIPE_MIN    = 4;    // minimum px for a swipe
     var FLICK_VEL    = 0.25;  // velocity threshold (px/ms) for a "flick"
     var PREDICT_MS   = 140;   // lookahead window for velocity projection
     var EARLY_FRAC   = 0.25;  // early trigger if dragged this fraction of width
