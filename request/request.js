@@ -8,6 +8,9 @@
   const successBox = document.getElementById('contact-success');
   const block = document.getElementById('contact-form-block');
 
+  // API endpoint
+  const API_URL = "https://api.lazure-nikiti.gr/request";
+
   // Honeypot field (hidden, anti-bot)
   let honeypot = document.getElementById('cf-company');
   if (!honeypot) {
@@ -44,7 +47,7 @@
     statusEl.textContent = '';
 
     try {
-      const res = await fetch('https://www.lazure-nikiti.gr/request', {
+      const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, message, company })
