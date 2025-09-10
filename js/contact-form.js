@@ -1,4 +1,3 @@
-// assets/js/contact.js
 (function () {
   const form = document.getElementById('contact-form');
   if (!form) return;
