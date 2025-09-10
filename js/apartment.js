@@ -162,6 +162,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var viewport = document.getElementById('mobile-carousel') || carouselTrack.parentNode;
 
+    // --- Sensitivity (tunable) ---
+    var DEAD_PX = 6;         // меньше задержки до определения направления
+    var INTENT_RATIO = 1.15; // горизонтальное, если |dx| > |dy|*INTENT_RATIO
+    var SWIPE_FRAC = 0.12;   // доля ширины для «медленного» свайпа (раньше было ~0.15)
+    var SWIPE_MIN  = 24;     // минимум пикселей для «медленного» свайпа
+    var FLICK_VEL  = 0.35;   // px/ms — быстрый флик (раньше 0.5)
+    var MAX_DRAG_FRAC = 1.05;// ограничение перетяга за 1 экран
+
     // --- Build 3 reusable slides: [prev | curr | next] ---
     function makeSlide() {
       var s = document.createElement('div');
@@ -187,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function idx(i){ return (i % n + n) % n; }
     function srcAt(i){ return ORIG_DIR + imageList[idx(i)]; }
 
-    function setTransition(on){ carouselTrack.style.transition = on ? 'transform 320ms cubic-bezier(.22,.61,.36,1)' : 'none'; }
+    function setTransition(on){ carouselTrack.style.transition = on ? 'transform 280ms cubic-bezier(.22,.61,.36,1)' : 'none'; }
     function setX(px){ carouselTrack.style.transform = 'translate3d(' + px + 'px,0,0)'; }
 
     function paintDots(){
@@ -198,16 +206,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function renderTriplet() {
-      // prev | curr | next
       Sprev.img.src = srcAt(cur - 1);
       Scurr.img.src = srcAt(cur);
       Snext.img.src = srcAt(cur + 1);
-      // center
+
       setTransition(false);
-      setX(-w());
+      setX(-w()); // center slide
+
       // warm up neighbors
       var pre1 = new Image(); pre1.src = srcAt(cur + 2);
       var pre2 = new Image(); pre2.src = srcAt(cur - 2);
+
       paintDots();
       currentIndex = cur;
     }
@@ -220,7 +229,6 @@ document.addEventListener('DOMContentLoaded', function () {
         b.setAttribute('aria-label','Slide '+(di+1));
         b.addEventListener('click', function(){
           if (anim || di===cur) return;
-          // Adjacent => animate; far => instant swap
           if (di === idx(cur+1)) step(+1);
           else if (di === idx(cur-1)) step(-1);
           else { cur = di; renderTriplet(); }
@@ -238,8 +246,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (e && e.propertyName && e.propertyName!=='transform') return;
         carouselTrack.removeEventListener('transitionend', onEnd);
         cur = idx(cur + (dir>0 ? +1 : -1));
-        renderTriplet(); // resets without transition
-        // re-enable transition next tick
+        renderTriplet(); // reset without transition
         requestAnimationFrame(function(){ setTransition(true); anim = false; });
       };
       carouselTrack.addEventListener('transitionend', onEnd);
@@ -248,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Tap current image -> fullscreen
     Scurr.img.addEventListener('click', function(){ openFullscreen(cur); }, false);
 
-    // --- Gestures: vertical scroll passes through ---
+    // --- Gestures: allow vertical page scroll by default ---
     var dragging=false, decided=false, horizontal=false;
     var sx=0, sy=0, dx=0, startX=0, t0=0;
 
@@ -263,37 +270,40 @@ document.addEventListener('DOMContentLoaded', function () {
       var adx = x - sx, ady = y - sy;
 
       if (!decided) {
-        // Decide intent: horizontal only if значительно больше по X
-        if (Math.abs(adx) > Math.max(8, Math.abs(ady)*1.3)) { decided=true; horizontal=true; }
-        else if (Math.abs(ady) > Math.max(8, Math.abs(adx))) { decided=true; horizontal=false; }
+        var absx = Math.abs(adx), absy = Math.abs(ady);
+        if (absx > DEAD_PX || absy > DEAD_PX) {
+          if (absx > absy * INTENT_RATIO) { decided=true; horizontal=true; }
+          else if (absy > absx) { decided=true; horizontal=false; }
+        }
       }
 
       if (decided && horizontal) {
-        // prevent vertical scroll only when truly horizontal
-        if (rawEvent && rawEvent.cancelable) rawEvent.preventDefault();
+        if (rawEvent && rawEvent.cancelable) rawEvent.preventDefault(); // только при горизонтали
         dx = adx;
-        // resist beyond one slide (slightly)
-        var cap = w()*1.15;
+
+        // clamp drag to ~1 экран с лёгким «резин» на выходе
+        var cap = w()*MAX_DRAG_FRAC;
         if (dx >  cap) dx =  cap - (dx-cap)*0.2;
         if (dx < -cap) dx = -cap - (dx+cap)*0.2;
+
         setX(startX + dx);
-      } else {
-        // vertical or undecided: let page scroll
       }
     }
     function onUp(){
       if (!dragging) return;
       dragging=false;
+
       if (!horizontal) { setTransition(true); setX(-w()); return; }
 
       var dt = Math.max(1, ((performance && performance.now()) || Date.now()) - t0);
       var v = dx / dt; // px/ms
-      var TH = Math.max(40, w()*0.15);
-      var VEL = 0.5;
 
-      if (dx > TH || v >  VEL) step(-1);      // swipe right -> prev
-      else if (dx < -TH || v < -VEL) step(+1);// swipe left  -> next
-      else { setTransition(true); setX(-w()); } // snap back
+      var distThreshold = Math.max(SWIPE_MIN, w()*SWIPE_FRAC);
+
+      // триггеры: быстрый флик ИЛИ достаточная дистанция
+      if (dx > distThreshold || v >  FLICK_VEL) step(-1);      // свайп вправо -> prev
+      else if (dx < -distThreshold || v < -FLICK_VEL) step(+1);// свайп влево  -> next
+      else { setTransition(true); setX(-w()); } // возврат
     }
 
     // Pointer (modern) + Touch (fallback)
@@ -319,15 +329,14 @@ document.addEventListener('DOMContentLoaded', function () {
       carouselTrack.addEventListener('touchcancel', onUp, { passive: true });
     }
 
-    // Public external hooks (если используешь стрелки на мобильном)
+    // External controls
     buildMobileCarousel._next = function(){ if (!anim) step(+1); };
     buildMobileCarousel._prev = function(){ if (!anim) step(-1); };
 
-    // Realign on resize/orientation: keep centered
+    // Realign on resize/orientation
     function realign(){
       setTransition(false);
       setX(-w());
-      // next tick enable transition back
       requestAnimationFrame(function(){ setTransition(true); });
     }
     realignMobileCarousel = realign;
