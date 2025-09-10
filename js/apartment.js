@@ -147,12 +147,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ============== MOBILE (native scroll-snap + infinite via 2 clones) ============== */
 
+  /* Safe placeholder */
   function realignMobileCarousel(){}
 
   function buildMobileCarousel() {
     if (!carouselTrack || !carouselDots) return;
 
-    // Reset DOM
+    // Reset
     carouselTrack.innerHTML = '';
     carouselDots.innerHTML  = '';
 
@@ -161,71 +162,54 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var viewport = document.getElementById('mobile-carousel') || carouselTrack.parentNode;
 
-    // Build real slides
-    var realSlides = imageList.map(function(name, i){
+    // --- Build 3 reusable slides: [prev | curr | next] ---
+    function makeSlide() {
       var s = document.createElement('div');
       s.className = 'slide';
       var img = document.createElement('img');
-      img.alt = 'Apartment photo ' + (i+1);
-      img.src = ORIG_DIR + name;
+      img.decoding = 'async';
+      img.loading = 'lazy';
       s.appendChild(img);
-      return s;
-    });
+      return { el: s, img: img };
+    }
+    var Sprev = makeSlide(), Scurr = makeSlide(), Snext = makeSlide();
+    Scurr.img.loading = 'eager';
+    carouselTrack.appendChild(Sprev.el);
+    carouselTrack.appendChild(Scurr.el);
+    carouselTrack.appendChild(Snext.el);
 
-    // Two clones for seamless edges
-    var cloneFirst = realSlides[0].cloneNode(true);
-    var cloneLast  = realSlides[realSlides.length-1].cloneNode(true);
+    // State
+    var cur = (typeof currentIndex === 'number' ? currentIndex : 0) % n; // 0..n-1
+    var w = () => (viewport && viewport.clientWidth) || window.innerWidth || 1;
+    var anim = false;
 
-    // Track order: [left clone] + real(0..n-1) + [right clone]
-    carouselTrack.appendChild(cloneLast);
-    for (var k=0;k<realSlides.length;k++) carouselTrack.appendChild(realSlides[k]);
-    carouselTrack.appendChild(cloneFirst);
+    // Helpers
+    function idx(i){ return (i % n + n) % n; }
+    function srcAt(i){ return ORIG_DIR + imageList[idx(i)]; }
 
-    // 0 = left clone, 1..n = real, n+1 = right clone
-    var internalIndex = 1;
+    function setTransition(on){ carouselTrack.style.transition = on ? 'transform 320ms cubic-bezier(.22,.61,.36,1)' : 'none'; }
+    function setX(px){ carouselTrack.style.transform = 'translate3d(' + px + 'px,0,0)'; }
 
-    function slideW() { return (viewport && viewport.clientWidth) || window.innerWidth || 1; }
-
-    // Force-instant scroll (bypasses CSS scroll-behavior)
-    function instantScrollLeft(x) {
-      var prev = viewport.style.scrollBehavior;
-      viewport.style.scrollBehavior = 'auto';
-      viewport.scrollLeft = x;
-      viewport.style.scrollBehavior = prev || '';
+    function paintDots(){
+      var ds = carouselDots.children;
+      for (var j=0;j<ds.length;j++){
+        if (j===cur) ds[j].setAttribute('aria-current','true'); else ds[j].removeAttribute('aria-current');
+      }
     }
 
-    // Scroll to internal index
-    function scrollToIndex(idx, smooth) {
-      var x = Math.max(0, idx * slideW());
-      if (smooth) viewport.scrollTo({ left: x, behavior: 'smooth' });
-      else        instantScrollLeft(x);
-      internalIndex = idx;
+    function renderTriplet() {
+      // prev | curr | next
+      Sprev.img.src = srcAt(cur - 1);
+      Scurr.img.src = srcAt(cur);
+      Snext.img.src = srcAt(cur + 1);
+      // center
+      setTransition(false);
+      setX(-w());
+      // warm up neighbors
+      var pre1 = new Image(); pre1.src = srcAt(cur + 2);
+      var pre2 = new Image(); pre2.src = srcAt(cur - 2);
       paintDots();
-      currentIndex = realIndex();
-    }
-
-    function realIndex() {
-      if (internalIndex === 0)   return n - 1;
-      if (internalIndex === n+1) return 0;
-      return internalIndex - 1;
-    }
-
-    // Minimal-move navigation between real indices
-    function mod(a,b){ return (a%b + b)%b; }
-    function shortestDelta(a,b,m){
-      a = mod(a,m); b = mod(b,m);
-      var raw = b - a, alt = raw > 0 ? raw - m : raw + m;
-      return Math.abs(raw) <= Math.abs(alt) ? raw : alt;
-    }
-    function goToReal(r){
-      var cur = realIndex();
-      var d = shortestDelta(cur, r, n);
-
-      if (d === 1)  return scrollToIndex(internalIndex + 1, true);   // next (smooth)
-      if (d === -1) return scrollToIndex(internalIndex - 1, true);   // prev (smooth)
-
-      // far target: instant jump (prevents long cross-list scrolling)
-      return scrollToIndex(r + 1, false);
+      currentIndex = cur;
     }
 
     // Dots
@@ -234,89 +218,122 @@ document.addEventListener('DOMContentLoaded', function () {
         var b = document.createElement('button');
         b.type = 'button';
         b.setAttribute('aria-label','Slide '+(di+1));
-        b.addEventListener('click', function(){ goToReal(di); });
+        b.addEventListener('click', function(){
+          if (anim || di===cur) return;
+          // Adjacent => animate; far => instant swap
+          if (di === idx(cur+1)) step(+1);
+          else if (di === idx(cur-1)) step(-1);
+          else { cur = di; renderTriplet(); }
+        });
         carouselDots.appendChild(b);
       })(i);
     }
-    function paintDots(){
-      var r = realIndex();
-      var ds = carouselDots.children;
-      for (var j=0;j<ds.length;j++){
-        if (j===r) ds[j].setAttribute('aria-current','true');
-        else ds[j].removeAttribute('aria-current');
+
+    // Step animation: dir = +1 (next) | -1 (prev)
+    function step(dir){
+      if (anim) return; anim = true;
+      setTransition(true);
+      setX(dir > 0 ? -2*w() : 0);
+      var onEnd = function(e){
+        if (e && e.propertyName && e.propertyName!=='transform') return;
+        carouselTrack.removeEventListener('transitionend', onEnd);
+        cur = idx(cur + (dir>0 ? +1 : -1));
+        renderTriplet(); // resets without transition
+        // re-enable transition next tick
+        requestAnimationFrame(function(){ setTransition(true); anim = false; });
+      };
+      carouselTrack.addEventListener('transitionend', onEnd);
+    }
+
+    // Tap current image -> fullscreen
+    Scurr.img.addEventListener('click', function(){ openFullscreen(cur); }, false);
+
+    // --- Gestures: vertical scroll passes through ---
+    var dragging=false, decided=false, horizontal=false;
+    var sx=0, sy=0, dx=0, startX=0, t0=0;
+
+    function onDown(x,y){
+      if (anim) return;
+      dragging=true; decided=false; horizontal=false;
+      sx=x; sy=y; dx=0; startX=-w(); t0 = (performance && performance.now()) || Date.now();
+      setTransition(false);
+    }
+    function onMove(x,y,rawEvent){
+      if (!dragging) return;
+      var adx = x - sx, ady = y - sy;
+
+      if (!decided) {
+        // Decide intent: horizontal only if значительно больше по X
+        if (Math.abs(adx) > Math.max(8, Math.abs(ady)*1.3)) { decided=true; horizontal=true; }
+        else if (Math.abs(ady) > Math.max(8, Math.abs(adx))) { decided=true; horizontal=false; }
+      }
+
+      if (decided && horizontal) {
+        // prevent vertical scroll only when truly horizontal
+        if (rawEvent && rawEvent.cancelable) rawEvent.preventDefault();
+        dx = adx;
+        // resist beyond one slide (slightly)
+        var cap = w()*1.15;
+        if (dx >  cap) dx =  cap - (dx-cap)*0.2;
+        if (dx < -cap) dx = -cap - (dx+cap)*0.2;
+        setX(startX + dx);
+      } else {
+        // vertical or undecided: let page scroll
       }
     }
+    function onUp(){
+      if (!dragging) return;
+      dragging=false;
+      if (!horizontal) { setTransition(true); setX(-w()); return; }
 
-    // Tap centered real slide -> fullscreen
-    for (var s=0;s<realSlides.length;s++){
-      (function(si){
-        var img = realSlides[si].querySelector('img');
-        img.addEventListener('click', function(){
-          if (realIndex() === si) openFullscreen(si);
-        }, false);
-      })(s);
+      var dt = Math.max(1, ((performance && performance.now()) || Date.now()) - t0);
+      var v = dx / dt; // px/ms
+      var TH = Math.max(40, w()*0.15);
+      var VEL = 0.5;
+
+      if (dx > TH || v >  VEL) step(-1);      // swipe right -> prev
+      else if (dx < -TH || v < -VEL) step(+1);// swipe left  -> next
+      else { setTransition(true); setX(-w()); } // snap back
     }
 
-    // Debounced settle: on clones -> instant teleport to real
-    var settleTimer = 0;
-    function onScroll() {
-      if (settleTimer) clearTimeout(settleTimer);
-      settleTimer = setTimeout(onScrollSettle, 80);
-    }
-    function onScrollSettle() {
-      var w = Math.max(1, slideW());
-      var idx = Math.round(viewport.scrollLeft / w);
-      internalIndex = idx;
-
-      if (idx === 0)       scrollToIndex(n, false);  // left clone -> last real
-      else if (idx===n+1)  scrollToIndex(1, false);  // right clone -> first real
-      else { paintDots(); currentIndex = realIndex(); }
-    }
-    viewport.addEventListener('scroll', onScroll, { passive: true });
-
-    /* -------- Manual pan fallback (iOS / stubborn browsers) --------
-       If native horizontal scroll doesn't start, we handle touchmove and move scrollLeft ourselves.
-    */
-    (function enableManualPan(){
-      var sx=0, sy=0, startLeft=0, active=false;
-
-      viewport.addEventListener('touchstart', function(e){
-        if (!e.touches || !e.touches.length) return;
-        sx = e.touches[0].clientX;
-        sy = e.touches[0].clientY;
-        startLeft = viewport.scrollLeft;
-        active = false;
+    // Pointer (modern) + Touch (fallback)
+    if (window.PointerEvent) {
+      carouselTrack.addEventListener('pointerdown', function(e){
+        onDown(e.clientX, e.clientY);
+        if (carouselTrack.setPointerCapture && e.pointerId!=null) carouselTrack.setPointerCapture(e.pointerId);
       }, { passive: true });
-
-      viewport.addEventListener('touchmove', function(e){
+      carouselTrack.addEventListener('pointermove', function(e){ onMove(e.clientX, e.clientY, e); }, { passive: false });
+      ['pointerup','pointercancel','lostpointercapture'].forEach(function(t){
+        carouselTrack.addEventListener(t, onUp, { passive: true });
+      });
+    } else {
+      carouselTrack.addEventListener('touchstart', function(e){
         if (!e.touches || !e.touches.length) return;
-        var dx = e.touches[0].clientX - sx;
-        var dy = e.touches[0].clientY - sy;
+        var t=e.touches[0]; onDown(t.clientX, t.clientY);
+      }, { passive: true });
+      carouselTrack.addEventListener('touchmove', function(e){
+        if (!e.touches || !e.touches.length) return;
+        var t=e.touches[0]; onMove(t.clientX, t.clientY, e);
+      }, { passive: false });
+      carouselTrack.addEventListener('touchend', onUp, { passive: true });
+      carouselTrack.addEventListener('touchcancel', onUp, { passive: true });
+    }
 
-        // horizontal intent: grab control and pan manually
-        if (Math.abs(dx) > Math.abs(dy) * 1.2) {
-          if (!active) { active = true; e.preventDefault(); }
-          viewport.scrollLeft = startLeft - dx;
-        }
-      }, { passive: false }); // must be non-passive to preventDefault
+    // Public external hooks (если используешь стрелки на мобильном)
+    buildMobileCarousel._next = function(){ if (!anim) step(+1); };
+    buildMobileCarousel._prev = function(){ if (!anim) step(-1); };
 
-      viewport.addEventListener('touchend', function(){ active = false; }, { passive: true });
-      viewport.addEventListener('touchcancel', function(){ active = false; }, { passive: true });
-    })();
-
-    // Public next/prev (1 step, smooth)
-    buildMobileCarousel._next = function(){ scrollToIndex(internalIndex + 1, true); };
-    buildMobileCarousel._prev = function(){ scrollToIndex(internalIndex - 1, true); };
-
-    // Keep same logical slide after resize/orientation
+    // Realign on resize/orientation: keep centered
     function realign(){
-      var r = realIndex();
-      scrollToIndex(r + 1, false);
+      setTransition(false);
+      setX(-w());
+      // next tick enable transition back
+      requestAnimationFrame(function(){ setTransition(true); });
     }
     realignMobileCarousel = realign;
 
-    // Initial position and dots
-    requestAnimationFrame(function(){ scrollToIndex(1, false); });
+    // Initial render
+    renderTriplet();
   }
 
   /* =================== Scroll locking helpers (fullscreen) =================== */
