@@ -163,12 +163,12 @@ document.addEventListener('DOMContentLoaded', function () {
     var viewport = document.getElementById('mobile-carousel') || carouselTrack.parentNode;
 
     /* ---- SWIPE TUNING ---- */
-    var DEAD_PX      = 4;     // pixels to ignore before deciding gesture intent
+    var DEAD_PX      = 1;     // pixels to ignore before deciding gesture intent
     var INTENT_RATIO = 1.1;   // horizontal if |dx| > |dy| * ratio
-    var SWIPE_FRAC   = 0.08;  // fraction of width for a "slow swipe"
+    var SWIPE_FRAC   = 0.04;  // fraction of width for a "slow swipe"
     var SWIPE_MIN    = 4;    // minimum px for a swipe
-    var FLICK_VEL    = 0.25;  // velocity threshold (px/ms) for a "flick"
-    var PREDICT_MS   = 140;   // lookahead window for velocity projection
+    var FLICK_VEL    = 0.10;  // velocity threshold (px/ms) for a "flick"
+    var PREDICT_MS   = 70;   // lookahead window for velocity projection
     var EARLY_FRAC   = 0.25;  // early trigger if dragged this fraction of width
     var MAX_DRAG_FR  = 0.95;  // max drag distance before resistance
 
