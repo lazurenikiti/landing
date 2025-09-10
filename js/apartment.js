@@ -147,7 +147,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ============== MOBILE (native scroll-snap + infinite via 2 clones) ============== */
 
-  /* Safe placeholder so early calls won't crash */
   function realignMobileCarousel(){}
 
   function buildMobileCarousel() {
@@ -187,24 +186,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function slideW() { return (viewport && viewport.clientWidth) || window.innerWidth || 1; }
 
-    // Force-instant scroll helper (bypasses CSS scroll-behavior)
+    // Force-instant scroll (bypasses CSS scroll-behavior)
     function instantScrollLeft(x) {
-      var prev = viewport.style.scrollBehavior;   // remember
-      viewport.style.scrollBehavior = 'auto';     // disable smooth
-      viewport.scrollLeft = x;                    // instant
-      viewport.style.scrollBehavior = prev || ''; // restore
+      var prev = viewport.style.scrollBehavior;
+      viewport.style.scrollBehavior = 'auto';
+      viewport.scrollLeft = x;
+      viewport.style.scrollBehavior = prev || '';
     }
 
     // Scroll to internal index
     function scrollToIndex(idx, smooth) {
-      var x = idx * slideW();
-      if (smooth) {
-        // short, local move with momentum
-        viewport.scrollTo({ left: x, behavior: 'smooth' });
-      } else {
-        // absolute, instant move (teleport / far jump)
-        instantScrollLeft(x);
-      }
+      var x = Math.max(0, idx * slideW());
+      if (smooth) viewport.scrollTo({ left: x, behavior: 'smooth' });
+      else        instantScrollLeft(x);
       internalIndex = idx;
       paintDots();
       currentIndex = realIndex();
@@ -227,10 +221,10 @@ document.addEventListener('DOMContentLoaded', function () {
       var cur = realIndex();
       var d = shortestDelta(cur, r, n);
 
-      if (d === 1)  return scrollToIndex(internalIndex + 1, true);  // next (smooth)
-      if (d === -1) return scrollToIndex(internalIndex - 1, true);  // prev (smooth)
+      if (d === 1)  return scrollToIndex(internalIndex + 1, true);   // next (smooth)
+      if (d === -1) return scrollToIndex(internalIndex - 1, true);   // prev (smooth)
 
-      // far target: instant jump (prevents long scroll across all slides)
+      // far target: instant jump (prevents long cross-list scrolling)
       return scrollToIndex(r + 1, false);
     }
 
@@ -253,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    // Tap on centered real slide -> fullscreen
+    // Tap centered real slide -> fullscreen
     for (var s=0;s<realSlides.length;s++){
       (function(si){
         var img = realSlides[si].querySelector('img');
@@ -274,18 +268,41 @@ document.addEventListener('DOMContentLoaded', function () {
       var idx = Math.round(viewport.scrollLeft / w);
       internalIndex = idx;
 
-      if (idx === 0) {
-        // from left clone to last real — instant
-        scrollToIndex(n, false);
-      } else if (idx === n+1) {
-        // from right clone to first real — instant
-        scrollToIndex(1, false);
-      } else {
-        paintDots();
-        currentIndex = realIndex();
-      }
+      if (idx === 0)       scrollToIndex(n, false);  // left clone -> last real
+      else if (idx===n+1)  scrollToIndex(1, false);  // right clone -> first real
+      else { paintDots(); currentIndex = realIndex(); }
     }
     viewport.addEventListener('scroll', onScroll, { passive: true });
+
+    /* -------- Manual pan fallback (iOS / stubborn browsers) --------
+       If native horizontal scroll doesn't start, we handle touchmove and move scrollLeft ourselves.
+    */
+    (function enableManualPan(){
+      var sx=0, sy=0, startLeft=0, active=false;
+
+      viewport.addEventListener('touchstart', function(e){
+        if (!e.touches || !e.touches.length) return;
+        sx = e.touches[0].clientX;
+        sy = e.touches[0].clientY;
+        startLeft = viewport.scrollLeft;
+        active = false;
+      }, { passive: true });
+
+      viewport.addEventListener('touchmove', function(e){
+        if (!e.touches || !e.touches.length) return;
+        var dx = e.touches[0].clientX - sx;
+        var dy = e.touches[0].clientY - sy;
+
+        // horizontal intent: grab control and pan manually
+        if (Math.abs(dx) > Math.abs(dy) * 1.2) {
+          if (!active) { active = true; e.preventDefault(); }
+          viewport.scrollLeft = startLeft - dx;
+        }
+      }, { passive: false }); // must be non-passive to preventDefault
+
+      viewport.addEventListener('touchend', function(){ active = false; }, { passive: true });
+      viewport.addEventListener('touchcancel', function(){ active = false; }, { passive: true });
+    })();
 
     // Public next/prev (1 step, smooth)
     buildMobileCarousel._next = function(){ scrollToIndex(internalIndex + 1, true); };
