@@ -1,4 +1,3 @@
-// assets/js/contact.js
 (function () {
   const form = document.getElementById('contact-form');
   if (!form) return;
@@ -7,7 +6,7 @@
   const statusEl = document.getElementById('cf-status');
   const successBox = document.getElementById('contact-success');
 
-  // 👉 API endpoint (change here if needed)
+  // API endpoint (change here if needed)
   const API_URL = "https://api.lazure-nikiti.gr/request";
   // For debugging you can use your workers.dev instead:
   // const API_URL = "https://contact-form.ihnatovska-r.workers.dev/request";
@@ -74,3 +73,4 @@
 
   form.addEventListener('submit', handleSubmit);
 })();
+
