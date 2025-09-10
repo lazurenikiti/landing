@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var SWIPE_FRAC   = 0.04;  // fraction of width for a "slow swipe"
     var SWIPE_MIN    = 3;    // minimum px for a swipe
     var FLICK_VEL    = 0.10;  // velocity threshold (px/ms) for a "flick"
-    var PREDICT_MS   = 70;   // lookahead window for velocity projection
+    var PREDICT_MS   = 25;   // lookahead window for velocity projection
     var EARLY_FRAC   = 0.10;  // early trigger if dragged this fraction of width
     var MAX_DRAG_FR  = 0.90;  // max drag distance before resistance
 
