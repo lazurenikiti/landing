@@ -6,108 +6,69 @@
   const sending = document.getElementById('cf-sending');
   const statusEl = document.getElementById('cf-status');
   const successBox = document.getElementById('contact-success');
-  const honeypot = document.getElementById('cf-company') || (() => {
-    const hp = document.createElement('input');
-    hp.type = 'text'; hp.id = 'cf-company'; hp.name = 'company';
-    hp.autocomplete = 'off'; hp.tabIndex = -1;
-    hp.style.position = 'absolute'; hp.style.left = '-5000px';
-    form.appendChild(hp);
-    return hp;
-  })();
 
-  // Primary API and fallback (workers.dev)
-  const PRIMARY_API = "https://api.lazure-nikiti.gr/request";
-  const FALLBACK_API = "https://contact-form.ihnatovska-r.workers.dev/request";
+  // 👉 API endpoint (change here if needed)
+  const API_URL = "https://api.lazure-nikiti.gr/request";
+  // For debugging you can use your workers.dev instead:
+  // const API_URL = "https://contact-form.ihnatovska-r.workers.dev/request";
 
-  function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
-  function setSending(on){ sending.hidden = !on; const btn=form.querySelector('button[type="submit"]'); if(btn) btn.disabled = on; }
-  function abortAfter(ms){ const c=new AbortController(); const t=setTimeout(()=>c.abort(), ms); return {signal:c.signal, clear(){clearTimeout(t);} }; }
+  // Honeypot field (hidden, anti-bot)
+  let honeypot = document.getElementById('cf-company');
+  if (!honeypot) {
+    honeypot = document.createElement('input');
+    honeypot.type = 'text';
+    honeypot.id = 'cf-company';
+    honeypot.name = 'company';  // bots will fill this, humans will not
+    honeypot.autocomplete = 'off';
+    honeypot.tabIndex = -1;
+    honeypot.style.position = 'absolute';
+    honeypot.style.left = '-5000px';
+    form.appendChild(honeypot);
+  }
 
-  async function sendOnce(url, payload){
-    const ctrl = abortAfter(15000);
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(payload),
-        signal: ctrl.signal
-      });
-      ctrl.clear();
-      let data = {};
-      try { data = await res.json(); } catch {}
-      return { res, data };
-    } catch (err) {
-      ctrl.clear();
-      throw err; // rethrow for fallback logic
-    }
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
-    statusEl.textContent = '';
 
     const name = document.getElementById('cf-name').value.trim();
     const email = document.getElementById('cf-email').value.trim();
     const message = document.getElementById('cf-message').value.trim();
     const company = honeypot.value.trim();
 
+    // Client-side validation
     if (!name || !isValidEmail(email) || message.length < 5) {
       statusEl.textContent = 'Please fill in all fields correctly.';
       return;
     }
 
-    setSending(true);
-
-    const payload = { name, email, message, company };
+    sending.hidden = false;
+    statusEl.textContent = '';
 
     try {
-      // 1) Try primary API
-      let { res, data } = await sendOnce(PRIMARY_API, payload);
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message, company })
+      });
 
-      // 2) If primary failed for network reasons, try fallback
-      if (!res || !('ok' in res) || res.status === 0) {
-        throw new TypeError('Network failure on primary');
-      }
+      const data = await res.json().catch(() => ({}));
+      sending.hidden = true;
 
-      if (!res.ok) {
-        // server answered with error — show details; fallback не нужен
-        console.error('[request][primary][http-error]', res.status, data);
-        statusEl.textContent = data.error || data.details || 'Failed to send. Please try again.';
-      } else {
-        // success
+      if (res.ok) {
         form.reset();
         form.hidden = true;
         successBox.hidden = false;
-        statusEl.textContent = '';
-      }
-
-    } catch (err) {
-      console.warn('[request][primary][error]', err?.name, err?.message);
-
-      // Only fallback on network-type errors (TypeError/Abort)
-      if (err && (err.name === 'TypeError' || err.name === 'AbortError')) {
-        try {
-          const { res: r2, data: d2 } = await sendOnce(FALLBACK_API, payload);
-          if (!r2.ok) {
-            console.error('[request][fallback][http-error]', r2.status, d2);
-            statusEl.textContent = d2.error || d2.details || 'Failed to send (fallback). Please try again.';
-          } else {
-            form.reset();
-            form.hidden = true;
-            successBox.hidden = false;
-            statusEl.textContent = '';
-          }
-        } catch (err2) {
-          console.error('[request][fallback][error]', err2?.name, err2?.message);
-          statusEl.textContent = (err2 && err2.name === 'AbortError')
-            ? 'Request timed out. Please try again.'
-            : 'Network error. Please try again.';
-        }
       } else {
-        statusEl.textContent = 'Unexpected error. Please try again.';
+        console.error('[contact][error]', res.status, data);
+        statusEl.textContent = data.error || 'Failed to send. Please try again.';
       }
-    } finally {
-      setSending(false);
+    } catch (err) {
+      sending.hidden = true;
+      console.error('[contact][network]', err);
+      statusEl.textContent = 'Network error. Please try again.';
     }
   }
 
