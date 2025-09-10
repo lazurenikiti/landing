@@ -162,15 +162,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var viewport = document.getElementById('mobile-carousel') || carouselTrack.parentNode;
 
-    // --- Sensitivity (tunable) ---
-    var DEAD_PX = 6;         // меньше задержки до определения направления
-    var INTENT_RATIO = 1.15; // горизонтальное, если |dx| > |dy|*INTENT_RATIO
-    var SWIPE_FRAC = 0.12;   // доля ширины для «медленного» свайпа (раньше было ~0.15)
-    var SWIPE_MIN  = 24;     // минимум пикселей для «медленного» свайпа
-    var FLICK_VEL  = 0.35;   // px/ms — быстрый флик (раньше 0.5)
-    var MAX_DRAG_FRAC = 1.05;// ограничение перетяга за 1 экран
+    /* ---- ТЮНИНГ ЖЕСТА ---- */
+    var DEAD_PX      = 4;     // раньше 6 — быстрее определяем намерение
+    var INTENT_RATIO = 1.1;   // раньше 1.15 — легче «считать» горизонталь
+    var SWIPE_FRAC   = 0.08;  // было 0.12 — достаточно 8% ширины экрана
+    var SWIPE_MIN    = 12;    // было 24
+    var FLICK_VEL    = 0.25;  // было 0.35 px/ms — флик срабатывает легче
+    var PREDICT_MS   = 140;   // предсказание по скорости, мс
+    var EARLY_FRAC   = 0.25;  // ранний триггер при перетаскивании (25% ширины)
+    var MAX_DRAG_FR  = 0.95;  // ограничение перетяга (чуть меньше 1 экрана)
 
-    // --- Build 3 reusable slides: [prev | curr | next] ---
+    // 3 слайда: prev | curr | next
     function makeSlide() {
       var s = document.createElement('div');
       s.className = 'slide';
@@ -187,15 +189,15 @@ document.addEventListener('DOMContentLoaded', function () {
     carouselTrack.appendChild(Snext.el);
 
     // State
-    var cur = (typeof currentIndex === 'number' ? currentIndex : 0) % n; // 0..n-1
-    var w = () => (viewport && viewport.clientWidth) || window.innerWidth || 1;
+    var cur = (typeof currentIndex === 'number' ? currentIndex : 0) % n;
+    var w   = () => (viewport && viewport.clientWidth) || window.innerWidth || 1;
     var anim = false;
 
     // Helpers
     function idx(i){ return (i % n + n) % n; }
     function srcAt(i){ return ORIG_DIR + imageList[idx(i)]; }
 
-    function setTransition(on){ carouselTrack.style.transition = on ? 'transform 280ms cubic-bezier(.22,.61,.36,1)' : 'none'; }
+    function setTransition(on){ carouselTrack.style.transition = on ? 'transform 240ms cubic-bezier(.22,.61,.36,1)' : 'none'; }
     function setX(px){ carouselTrack.style.transform = 'translate3d(' + px + 'px,0,0)'; }
 
     function paintDots(){
@@ -211,9 +213,9 @@ document.addEventListener('DOMContentLoaded', function () {
       Snext.img.src = srcAt(cur + 1);
 
       setTransition(false);
-      setX(-w()); // center slide
+      setX(-w()); // центр
 
-      // warm up neighbors
+      // подогрев соседних
       var pre1 = new Image(); pre1.src = srcAt(cur + 2);
       var pre2 = new Image(); pre2.src = srcAt(cur - 2);
 
@@ -221,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function () {
       currentIndex = cur;
     }
 
-    // Dots
+    // Точки
     for (var i=0;i<n;i++){
       (function(di){
         var b = document.createElement('button');
@@ -231,13 +233,13 @@ document.addEventListener('DOMContentLoaded', function () {
           if (anim || di===cur) return;
           if (di === idx(cur+1)) step(+1);
           else if (di === idx(cur-1)) step(-1);
-          else { cur = di; renderTriplet(); }
+          else { cur = di; renderTriplet(); } // дальний — мгновенно
         });
         carouselDots.appendChild(b);
       })(i);
     }
 
-    // Step animation: dir = +1 (next) | -1 (prev)
+    // Анимация шага
     function step(dir){
       if (anim) return; anim = true;
       setTransition(true);
@@ -246,16 +248,16 @@ document.addEventListener('DOMContentLoaded', function () {
         if (e && e.propertyName && e.propertyName!=='transform') return;
         carouselTrack.removeEventListener('transitionend', onEnd);
         cur = idx(cur + (dir>0 ? +1 : -1));
-        renderTriplet(); // reset without transition
+        renderTriplet(); // без анимации вернуть в центр
         requestAnimationFrame(function(){ setTransition(true); anim = false; });
       };
       carouselTrack.addEventListener('transitionend', onEnd);
     }
 
-    // Tap current image -> fullscreen
+    // Тап по текущему -> fullscreen
     Scurr.img.addEventListener('click', function(){ openFullscreen(cur); }, false);
 
-    // --- Gestures: allow vertical page scroll by default ---
+    /* ---- ЖЕСТЫ: вертикальный скролл страницы не блокируем ---- */
     var dragging=false, decided=false, horizontal=false;
     var sx=0, sy=0, dx=0, startX=0, t0=0;
 
@@ -265,7 +267,7 @@ document.addEventListener('DOMContentLoaded', function () {
       sx=x; sy=y; dx=0; startX=-w(); t0 = (performance && performance.now()) || Date.now();
       setTransition(false);
     }
-    function onMove(x,y,rawEvent){
+    function onMove(x,y,ev){
       if (!dragging) return;
       var adx = x - sx, ady = y - sy;
 
@@ -278,15 +280,20 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       if (decided && horizontal) {
-        if (rawEvent && rawEvent.cancelable) rawEvent.preventDefault(); // только при горизонтали
+        if (ev && ev.cancelable) ev.preventDefault(); // блокируем только при горизонтали
         dx = adx;
 
-        // clamp drag to ~1 экран с лёгким «резин» на выходе
-        var cap = w()*MAX_DRAG_FRAC;
-        if (dx >  cap) dx =  cap - (dx-cap)*0.2;
-        if (dx < -cap) dx = -cap - (dx+cap)*0.2;
+        // «резинка» за пределами ~1 экрана
+        var cap = w()*MAX_DRAG_FR;
+        if (dx >  cap) dx =  cap - (dx-cap)*0.25;
+        if (dx < -cap) dx = -cap - (dx+cap)*0.25;
 
         setX(startX + dx);
+
+        // РАННИЙ ТРИГГЕР: если утащили ~на четверть ширины — сразу шаг
+        var early = w()*EARLY_FRAC;
+        if (dx <= -early) { dragging=false; step(+1); }
+        else if (dx >=  early) { dragging=false; step(-1); }
       }
     }
     function onUp(){
@@ -297,16 +304,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       var dt = Math.max(1, ((performance && performance.now()) || Date.now()) - t0);
       var v = dx / dt; // px/ms
+      var threshold = Math.max(SWIPE_MIN, w()*SWIPE_FRAC);
 
-      var distThreshold = Math.max(SWIPE_MIN, w()*SWIPE_FRAC);
+      // ПРОЕКЦИЯ: учитываем скорость, будто палец прошёл ещё PREDICT_MS
+      var projected = dx + v * PREDICT_MS;
 
-      // триггеры: быстрый флик ИЛИ достаточная дистанция
-      if (dx > distThreshold || v >  FLICK_VEL) step(-1);      // свайп вправо -> prev
-      else if (dx < -distThreshold || v < -FLICK_VEL) step(+1);// свайп влево  -> next
-      else { setTransition(true); setX(-w()); } // возврат
+      if (projected <= -threshold || v < -FLICK_VEL) step(+1);
+      else if (projected >=  threshold || v >  FLICK_VEL) step(-1);
+      else { setTransition(true); setX(-w()); }
     }
 
-    // Pointer (modern) + Touch (fallback)
+    // Pointer + Touch
     if (window.PointerEvent) {
       carouselTrack.addEventListener('pointerdown', function(e){
         onDown(e.clientX, e.clientY);
@@ -329,11 +337,11 @@ document.addEventListener('DOMContentLoaded', function () {
       carouselTrack.addEventListener('touchcancel', onUp, { passive: true });
     }
 
-    // External controls
+    // Внешние кнопки (если нужны)
     buildMobileCarousel._next = function(){ if (!anim) step(+1); };
     buildMobileCarousel._prev = function(){ if (!anim) step(-1); };
 
-    // Realign on resize/orientation
+    // Реалайн после ресайза/ориентации
     function realign(){
       setTransition(false);
       setX(-w());
@@ -341,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     realignMobileCarousel = realign;
 
-    // Initial render
+    // Старт
     renderTriplet();
   }
 
