@@ -1,6 +1,5 @@
 /* =========================================
-   APARTMENT — CLEAN (updated as discussed)
-   All comments are in English.
+   APARTMENT — CLEAN
    ========================================= */
 
 /* ---------- Header ---------- */
@@ -66,7 +65,7 @@
 }
 .thumb.active-thumb { border: 3px solid #000; }
 
-/* Focus styles */
+/* Focus */
 .slideshow-btn:focus,
 .thumb:focus,
 .carousel-dots button:focus {
@@ -75,7 +74,6 @@
 }
 
 /* ---------- Fullscreen overlay ---------- */
-/* Overlay above everything, prevent jumps */
 #fullscreen-overlay {
   position: fixed;
   inset: 0;
@@ -83,7 +81,7 @@
   height: 100dvh;
   z-index: 2147483647;
   background: rgba(0,0,0,0.95);
-  display: none; /* toggled by .active */
+  display: none;
   align-items: center;
   justify-content: center;
   isolation: isolate;
@@ -93,34 +91,26 @@
 
 html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
 
-/* Fullscreen image sizing (edge-to-edge with safe headroom) */
 #fs-image {
   max-width: 100%;
-  max-height: 100dvh;  /* occupy full viewport height */
+  max-height: 100dvh;
   width: auto;
   height: auto;
   object-fit: contain;
   display: block;
-  will-change: opacity, transform; /* for fade */
+  will-change: opacity, transform;
   touch-action: pinch-zoom;
 }
 
-/* When the thumb strip is visible, still keep image edge-to-edge.
-   Strip overlays the photo instead of shrinking it. */
-#fullscreen-overlay.strip-visible #fs-image {
-  max-height: 100dvh;
-}
+#fullscreen-overlay.strip-visible #fs-image { max-height: 100dvh; }
 
-/* Fade animation utilities */
 .fs-fade-out { opacity: 0; transition: opacity 220ms ease; }
 .fs-fade-in  { opacity: 1; transition: opacity 220ms ease; }
 
-/* Close button (top-right) */
 #fs-close {
   position: absolute;
   top: 20px;
   right: 20px;
-  bottom: auto;
   background: #fff;
   border: 2px solid #000;
   width: 60px;
@@ -130,7 +120,7 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   justify-content: center;
   cursor: pointer;
   box-sizing: border-box;
-  z-index: 1000; /* above thumbs bar */
+  z-index: 1000;
 }
 #fs-close::before,
 #fs-close::after {
@@ -147,57 +137,65 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
 #fs-close:hover::after { background: #fff; }
 
 /* =========================================
-   MOBILE CAROUSEL — transform-based train-of-three (no scroll-snap)
+   MOBILE CAROUSEL — native scroll-snap
    ========================================= */
 
-/* Show/structure */
 .mobile-carousel {
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  overflow: hidden;
-  overscroll-behavior: contain;
-}
-
-/* Track: flex row we translate with transform */
-.carousel-track {
-  display: flex;
-  will-change: transform;
-  transition: transform 320ms cubic-bezier(.22,.61,.36,1);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
   touch-action: pan-x pinch-zoom;
+}
+
+.mobile-carousel {
+  scrollbar-width: none;          /* Firefox */
+}
+.mobile-carousel::-webkit-scrollbar {
+  display: none;                  /* Chrome/Safari/Edge */
+}
+
+.carousel-track {
+  display: inline-flex;
+  transition: none !important;
+  will-change: scroll-position;
   backface-visibility: hidden;
-  transform: translate3d(0,0,0);
 }
 
-/* Slides occupy full viewport width */
 .slide {
-  flex: 0 0 100%;
+  flex: 0 0 100vw;
   position: relative;
+  scroll-snap-align: center;
 }
 
-/* Images keep proportions, no cropping */
 .slide img {
   width: 100%;
   height: auto;
   display: block;
   object-fit: contain;
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
-/* Dots — keep your existing styling */
 .carousel-dots { margin-top: 12px; text-align: center; }
 .carousel-dots button {
   all: unset;
   display: inline-block;
   width: 12px; height: 12px; box-sizing: border-box;
-  border-radius: 50%; margin: 0 5px; background: transparent;
-  border: 2px solid #000; opacity: .6; cursor: pointer;
+  border-radius: 50%;
+  margin: 0 5px;
+  background: transparent;
+  border: 2px solid #000;
+  opacity: .6;
+  cursor: pointer;
   transition: background .2s ease, border .2s ease, opacity .2s ease;
 }
-.carousel-dots button[aria-current="true"] { background: #000; border-color: #000; opacity: 1; }
-
-/* Desktop/tablet keep the old behavior (hide mobile carousel) */
-@media (min-width: 992px) {
-  .mobile-carousel, .carousel-dots { display: none !important; }
+.carousel-dots button[aria-current="true"] {
+  background: #000; border-color: #000; opacity: 1;
 }
 
 /* =========================================
@@ -238,11 +236,7 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   #main-left, #main-right, #thumb-left, #thumb-right,
   .thumbs-row, #main-photo-frame { display: none !important; }
 
-  /* Ensure full-bleed carousel on small screens */
-  .mobile-carousel,
-  .carousel-dots {
-    display: block !important;
-  }
+  .mobile-carousel, .carousel-dots { display: block !important; }
   .mobile-carousel {
     width: 100vw !important;
     margin-left: calc(50% - 50vw) !important;
@@ -254,7 +248,7 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
 }
 
 /* =========================================
-   HOT FIX - FORCE MOBILE RULES
+   HOT FIX — FORCE MOBILE
    ========================================= */
 .force-mobile .apartment-grid{ display:block !important; }
 .force-mobile #main-left,
@@ -265,9 +259,7 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
 .force-mobile #main-photo-frame { display:none !important; }
 
 .force-mobile .mobile-carousel,
-.force-mobile .carousel-dots {
-  display:block !important;
-}
+.force-mobile .carousel-dots { display:block !important; }
 .force-mobile .mobile-carousel {
   width:100vw !important;
   margin-left: calc(50% - 50vw) !important;
@@ -276,7 +268,9 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
 .force-mobile .slide { height:auto !important; }
 .force-mobile .slide img { height:auto !important; object-fit:contain !important; }
 
-/* Mobile: section container is the single source of side padding */
+/* =========================================
+   SECTION PADDING (mobile)
+   ========================================= */
 @media (max-width: 768px), (max-height: 500px) {
   #apartment-section .container {
     padding-left: 0 !important;
@@ -290,7 +284,9 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   }
 }
 
-/* Kill accidental horizontal scrollbar globally */
+/* =========================================
+   GLOBAL
+   ========================================= */
 html, body { overflow-x: clip; }
 
 /* =========================
@@ -301,26 +297,24 @@ html, body { overflow-x: clip; }
   left: 0; right: 0; bottom: 0;
   background: rgba(0,0,0,0.7);
   padding: 8px;
-  transform: translateY(100%);           /* hidden by default */
+  transform: translateY(100%);
   transition: transform .25s ease;
   will-change: transform;
 }
 #fs-thumbs.visible { transform: translateY(0%); }
 #fs-thumbs.hidden  { transform: translateY(100%); }
 
-/* Grid "revolver": exactly 7 columns in view (gaps included) */
 #fs-thumbs-track {
   display: grid;
   grid-auto-flow: column;
   gap: 8px;
-  grid-auto-columns: calc((100% - 6 * 8px) / 7); /* 7 slots */
+  grid-auto-columns: calc((100% - 6 * 8px) / 7);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
 #fs-thumbs-track::-webkit-scrollbar { display: none; }
 
-/* Each slot has fixed height; image keeps natural aspect */
 .fs-thumb {
   border: 0;
   margin: 0;
@@ -330,14 +324,14 @@ html, body { overflow-x: clip; }
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 64px;      /* 56–72px also fine */
-  opacity: .5;       /* dim by default */
+  height: 64px;
+  opacity: .5;
 }
-.fs-thumb.is-active { opacity: 1; } /* active = undimmed, no border */
+.fs-thumb.is-active { opacity: 1; }
 
 .fs-thumb img {
-  height: 100%;      /* fixed height */
-  width: auto;       /* keep aspect ratio */
-  max-width: 100%;   /* prevent horizontal overflow */
+  height: 100%;
+  width: auto;
+  max-width: 100%;
   display: block;
 }
