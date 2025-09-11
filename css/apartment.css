@@ -149,11 +149,7 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
-<<<<<<< HEAD
-  touch-action: pan-x pinch-zoom;
-=======
   touch-action: pan-y pinch-zoom;
->>>>>>> f88b1d1 (Files update)
 }
 
 .mobile-carousel {
@@ -165,13 +161,8 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
 
 .carousel-track {
   display: inline-flex;
-<<<<<<< HEAD
-  transition: none !important;
-  will-change: scroll-position;
-=======
   transition: none;
   will-change: transform;
->>>>>>> f88b1d1 (Files update)
   backface-visibility: hidden;
 }
 
