@@ -64,11 +64,11 @@
 
     // Backgrounds (unchanged)
     const backgrounds = [
-      'images/hero/karidi.webp',
-      'images/hero/halkidiki.webp',
-      'images/hero/sunset.webp',
-      'images/hero/platanitsi.webp',
-      'images/hero/daisymeadow.webp'
+      'images/hero/karidi.jpg',
+      'images/hero/halkidiki.jpg',
+      'images/hero/sunset.jpg',
+      'images/hero/platanitsi.jpg',
+      'images/hero/daisymeadow.jpg'
     ];
 
     // Timer helpers, so we can restart cycle when language changes
