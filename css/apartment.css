@@ -139,7 +139,7 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
 #fs-close:hover::after { background: #fff; }
 
 /* =========================================
-   MOBILE CAROUSEL — swipe illusion (no native scroll)
+   MOBILE CAROUSEL — swipe illusion (full-bleed cover)
    Uses IDs to match JS: #mobile-carousel, #carousel-track
    ========================================= */
 
@@ -148,12 +148,12 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  overflow: hidden;                 /* prevent native horizontal scroll */
-  -webkit-overflow-scrolling: auto; /* disable momentum scrolling */
-  scroll-snap-type: none;           /* we don't use snap in this mode */
+  overflow: hidden;                 
+  -webkit-overflow-scrolling: auto; 
+  scroll-snap-type: none;           
   scroll-behavior: auto;
-  touch-action: pan-y pinch-zoom;   /* vertical scroll + pinch, horizontal handled by JS */
-  overscroll-behavior-x: contain;   /* no horizontal chaining */
+  touch-action: pan-y pinch-zoom;   
+  overscroll-behavior-x: contain;   
 }
 
 /* Track becomes a stacking context for two animated layers */
@@ -161,9 +161,7 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   position: relative;
   overflow: hidden;
   width: 100%;
-  /* Stable height even with absolutely positioned layers.
-     JS updates --mc-ratio from the current image's natural size. */
-  aspect-ratio: var(--mc-ratio, 16/9);
+  height: 100vh;                    /* full viewport height */
 }
 
 /* Animated layers (current + neighbor) */
@@ -171,32 +169,30 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   position: absolute;
   inset: 0;
   will-change: transform;
-  background: transparent;
+  background: #000;                 /* black background behind cover */
   display: flex;
   align-items: center;
   justify-content: center;
-  transform: translateX(0);         /* JS updates */
-  transition: none;                 /* JS toggles transition on commit */
+  transform: translateX(0);         
+  transition: none;                 
   line-height: 0;
 }
 
-/* Media inside a layer */
+/* Media inside a layer: stretch to cover full screen */
 #carousel-track .mc-layer img {
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
-  object-fit: contain;              /* keep original aspect ratio */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;                /* cover entire viewport, no gaps */
   -webkit-user-drag: none;
   user-select: none;
-  visibility: visible;              /* hidden while loading via .loading */
+  visibility: visible;              
   border-radius: 0;
 }
 
 /* Transparent neighbor until image is ready */
 #carousel-track .mc-layer.loading img { visibility: hidden; }
 
-/* Dots (kept for completeness; works with aria-current) */
+/* Dots */
 .carousel-dots { margin-top: 12px; text-align: center; }
 .carousel-dots button {
   all: unset;
@@ -213,10 +209,11 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
 .carousel-dots button[aria-current="true"] { background: #000; border-color: #000; opacity: 1; }
 .carousel-dots button:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
 
-/* Phone tweaks (ensure full-bleed width; keep no-scroll behavior) */
+/* Phone tweaks (force full-bleed) */
 @media (max-width: 768px), (max-height: 500px) {
   #mobile-carousel {
     width: 100vw !important;
+    height: 100vh !important;
     margin-left: calc(50% - 50vw) !important;
     margin-right: calc(50% - 50vw) !important;
   }
