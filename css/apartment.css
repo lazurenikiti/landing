@@ -137,7 +137,7 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
 #fs-close:hover::after { background: #fff; }
 
 /* =========================================
-   MOBILE CAROUSEL — native scroll-snap (infinite)
+   MOBILE CAROUSEL — native scroll-snap (paged, with gaps)
    ========================================= */
 
 .mobile-carousel {
@@ -146,43 +146,51 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   margin-right: calc(50% - 50vw);
   overflow-x: auto;
   overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;              /* only for programmatic scroll */
-  touch-action: pan-y pinch-zoom;       /* allow vertical page scroll */
+  -webkit-overflow-scrolling: touch;   /* iOS momentum */
+  scroll-snap-type: x mandatory;       /* snap slides on settle */
+  scroll-behavior: smooth;             /* smooth programmatic scrollBy */
+  touch-action: pan-y pinch-zoom;      /* allow vertical page scroll */
+  overscroll-behavior-x: contain;      /* stop horizontal scroll chaining */
 }
 
-/* hide scrollbars (cosmetic) */
+/* hide native scrollbars (cosmetic) */
 .mobile-carousel { scrollbar-width: none; }
 .mobile-carousel::-webkit-scrollbar { display: none; }
 
+/* horizontal track */
 .carousel-track {
   display: inline-flex;
-  gap: 12px;
+  gap: 12px;                           /* visual spacing between slides */
   backface-visibility: hidden;
   will-change: scroll-position;
-  transition: none;
+  transition: none;                    /* no transform animations */
+  padding: 0 4vw;                      /* outer breathing room so first/last can center nicely */
 }
 
+/* single slide (slightly narrower than viewport) */
 .slide {
-  flex: 0 0 100vw;                      /* one slide per viewport */
+  flex: 0 0 92vw;                      /* peek neighbors: try 90–94vw */
   position: relative;
-  scroll-snap-align: center;
-  scroll-snap-stop: always;
-  contain: content;
+  scroll-snap-align: center;           /* center on settle */
+  scroll-snap-stop: always;            /* avoid overshoot on fast flicks */
+  contain: content;                    /* isolate layout/paint */
 }
 
-.slide img, .slide video, .slide picture, .slide canvas {
+/* media inside slides */
+.slide img,
+.slide video,
+.slide picture,
+.slide canvas {
   display: block;
   width: 100%;
   height: auto;
-  object-fit: contain;
-  -webkit-user-drag: none;
+  object-fit: cover;                   /* crop to fill card nicely */
+  -webkit-user-drag: none;             /* avoid image drag on iOS */
   user-select: none;
-  pointer-events: none;
+  border-radius: 12px;                 /* card look */
 }
 
-/* dots */
+/* dots indicator */
 .carousel-dots { margin-top: 12px; text-align: center; }
 .carousel-dots button {
   all: unset;
@@ -196,8 +204,11 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   cursor: pointer;
   transition: background .2s ease, border .2s ease, opacity .2s ease;
 }
-.carousel-dots button[aria-current="true"] { background:#000; border-color:#000; opacity:1; }
+.carousel-dots button[aria-current="true"] {
+  background: #000; border-color: #000; opacity: 1;
+}
 
+/* accessibility: reduce motion */
 @media (prefers-reduced-motion: reduce) {
   .mobile-carousel { scroll-behavior: auto; }
 }
