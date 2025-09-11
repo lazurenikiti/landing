@@ -28,9 +28,9 @@ document.addEventListener('DOMContentLoaded', function () {
   var FS_ANIM_MS = 220;           // fade duration
 
   var imageList = [
-    'Pool_map.webp','Inner_1_map.webp','Inner_2_map.webp','Inner_3_map.webp',
-    'Inner_4_map.webp','Inner_5_map.webp','Kitchen_1_map.webp','Kitchen_2_map.webp',
-    'Bath_map.webp','Garden_map.webp','Outer_map.webp','Playground_map.webp'
+    'Pool_map.jpg','Inner_1_map.jpg','Inner_2_map.jpg','Inner_3_map.jpg',
+    'Inner_4_map.jpg','Inner_5_map.jpg','Kitchen_1_map.jpg','Kitchen_2_map.jpg',
+    'Bath_map.jpg','Garden_map.jpg','Outer_map.jpg','Playground_map.jpg'
   ];
 
   /* =================== DOM refs =================== */
