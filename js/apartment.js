@@ -160,26 +160,8 @@ document.addEventListener('DOMContentLoaded', function () {
     var n = imageList.length;
     if (!n) return;
 
-    // Wipe any existing children in track and build 3 reusable slots
-    carouselTrack.innerHTML = '';
-
-    var SLOT_COUNT = 3;                 // [0]=left, [1]=center, [2]=right
-    var slots = new Array(SLOT_COUNT);
-    var isAdjusting = false;            // guard when we tweak scrollLeft programmatically
-    var threshold = 4;                  // px hysteresis to detect page crossing
-    var slideW = 0;
-
-    // Dots
-    carouselDots.innerHTML = '';
-    for (var i = 0; i < n; i++) {
-      (function (idx) {
-        var b = document.createElement('button');
-        b.type = 'button';
-        b.setAttribute('aria-label', 'Slide ' + (idx + 1));
-        b.addEventListener('click', function () { goTo(idx); });
-        carouselDots.appendChild(b);
-      })(i);
-    }
+    // ---------- Utilities ----------
+    function norm(i) { return ((i % n) + n) % n; }
 
     function paintDots(active) {
       var ds = carouselDots.children;
@@ -189,11 +171,9 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    function norm(i) { return ((i % n) + n) % n; }
-
     function makeSlot() {
       var s = document.createElement('div');
-      s.className = 'slide vslot';
+      s.className = 'slide'; // CSS should make it 100% width (flex-basis:100%)
       var img = document.createElement('img');
       img.decoding = 'async';
       img.loading = 'lazy';
@@ -213,128 +193,304 @@ document.addEventListener('DOMContentLoaded', function () {
       if (img && img.src !== src) img.src = src;
     }
 
-    // Build 3 slots
-    for (var k = 0; k < SLOT_COUNT; k++) {
-      var el = makeSlot();
-      carouselTrack.appendChild(el);
-      slots[k] = el;
+    function preloadIndex(idx) {
+      return new Promise(function (resolve) {
+        idx = norm(idx);
+        var src = ORIG_DIR + imageList[idx];
+        var im = new Image();
+        im.src = src;
+        var done = function () { resolve({ idx: idx, src: src }); };
+        if (im.decode) im.decode().then(done).catch(done);
+        else im.onload = done;
+      });
     }
 
-    // Initialize window: [currentIndex-1, currentIndex, currentIndex+1]
-    function mountWindow(centerIdx) {
-      currentIndex = norm(centerIdx);
-      setSlotContent(slots[0], currentIndex - 1);
-      setSlotContent(slots[1], currentIndex);
-      setSlotContent(slots[2], currentIndex + 1);
-      paintDots(currentIndex);
-
-      // center on middle slot
-      isAdjusting = true;
-      viewport.scrollLeft = slideW; // 0..slideW..2*slideW
-      // Defer release of guard to next frame
-      requestAnimationFrame(function(){ isAdjusting = false; });
+    // ---------- Dots ----------
+    carouselDots.innerHTML = '';
+    for (var i = 0; i < n; i++) {
+      (function (idx) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('aria-label', 'Slide ' + (idx + 1));
+        b.addEventListener('click', function () {
+          // Direct jump (no transparent phase)
+          setCurrent(idx);
+        });
+        carouselDots.appendChild(b);
+      })(i);
     }
+
+    // ---------- State ----------
+    carouselTrack.innerHTML = '';
+
+    var slotA = makeSlot(); // permanent current slide
+    var slotB = null;       // temporary neighbor during swipe
+    carouselTrack.appendChild(slotA);
+
+    var slideW = 1;         // updated on resize
+    var isSwiping = false;
+    var activeDir = 0;      // -1 prev, +1 next, 0 none
+    var startX = 0;
+    var THRESHOLD = 0.28;   // commit when moving beyond 28% of width
+    var neighborReady = false;
+    var neighborIdx = null;
+    var loadTicket = 0;     // invalidates outdated preloads
 
     function recalc() {
-      // Slot width = viewport width (we rely on CSS to make .slide 100vw)
       slideW = viewport.clientWidth || window.innerWidth || 1;
-      // Ensure track has correct intrinsic width via flex, so nothing else to do
     }
 
-    function advanceRight() {
-      // User paged to next (→). New center is old right slot’s index.
-      currentIndex = norm(currentIndex + 1);
+    function setCurrent(idx) {
+      currentIndex = norm(idx);
       paintDots(currentIndex);
 
-      // Recycle leftmost: move slots[0] to end, update its content to new "next+1"
-      var left = slots.shift();
-      slots.push(left);
-      carouselTrack.appendChild(left); // move DOM node to end
-
-      // Update contents of recycled (now rightmost) slot
-      setSlotContent(slots[2], currentIndex + 1);
-
-      // Correct scroll so visually we stay centered (we moved DOM)
-      isAdjusting = true;
-      viewport.scrollLeft -= slideW; // we were at 2*W; after recycle, bring back to W
-      requestAnimationFrame(function(){ isAdjusting = false; });
-    }
-
-    function advanceLeft() {
-      // User paged to prev (←)
-      currentIndex = norm(currentIndex - 1);
-      paintDots(currentIndex);
-
-      // Recycle rightmost: move slots[2] to front, update its content to new "prev-1"
-      var right = slots.pop();
-      slots.unshift(right);
-      carouselTrack.insertBefore(right, carouselTrack.firstChild);
-
-      setSlotContent(slots[0], currentIndex - 1);
-
-      // Correct scroll (we were at 0; after recycle, send to W)
-      isAdjusting = true;
-      viewport.scrollLeft += slideW;
-      requestAnimationFrame(function(){ isAdjusting = false; });
-    }
-
-    // Scroll watcher: detect when user crosses page boundaries
-    function onScroll() {
-      if (isAdjusting) return;
-      var x = viewport.scrollLeft;
-
-      if (x >= (2 * slideW - threshold)) {
-        advanceRight();
-        return;
-      }
-      if (x <= (0 + threshold)) {
-        advanceLeft();
-        return;
+      // Remove temporary neighbor if present
+      if (slotB && slotB.parentNode === carouselTrack) {
+        carouselTrack.removeChild(slotB);
+        slotB = null;
       }
 
-      // Otherwise, in middle page — keep currentIndex as is.
+      // Ensure slotA has the right image
+      setSlotContent(slotA, currentIndex);
+
+      // Align viewport to single-slide state
+      viewport.scrollLeft = 0;
+
+      // Reset swipe-related flags
+      activeDir = 0;
+      neighborReady = false;
+      neighborIdx = null;
+      loadTicket++; // cancel any pending preloads
     }
 
-    // Public API
+    // ---------- Init ----------
+    recalc();
+    setCurrent(typeof window.currentIndex === 'number' ? window.currentIndex : currentIndex);
+
+    // Keep width in sync with viewport changes
+    var ro = new ResizeObserver(function () {
+      recalc();
+      // Keep current slide aligned
+      if (!slotB) viewport.scrollLeft = 0;
+      else {
+        // If swiping prev, current A is on the right page
+        viewport.scrollLeft = Number(slotB.dataset.dir) < 0 ? slideW : 0;
+      }
+    });
+    ro.observe(viewport);
+
+    // ---------- Touch swipe (inlined neighbor preparation) ----------
+    viewport.addEventListener('touchstart', function (e) {
+      if (!e.changedTouches || !e.changedTouches.length) return;
+      isSwiping = true;
+      startX = e.changedTouches[0].clientX;
+      activeDir = 0;
+    }, { passive: true });
+
+    viewport.addEventListener('touchmove', function (e) {
+      if (!isSwiping || !e.changedTouches || !e.changedTouches.length) return;
+      var dx = e.changedTouches[0].clientX - startX;
+
+      // Decide direction once movement is clear
+      if (activeDir === 0 && Math.abs(dx) > 6) {
+        activeDir = dx < 0 ? +1 : -1; // left swipe => next; right swipe => prev
+
+        // ---- Inlined "prepare neighbor" ----
+        // Remove wrong-direction neighbor if any
+        if (slotB && Number(slotB.dataset.dir) !== activeDir && slotB.parentNode === carouselTrack) {
+          carouselTrack.removeChild(slotB);
+          slotB = null;
+        }
+
+        neighborIdx = norm(currentIndex + (activeDir > 0 ? +1 : -1));
+        neighborReady = false;
+
+        // Create transparent neighbor slot if missing
+        if (!slotB) {
+          slotB = makeSlot();
+          slotB.dataset.dir = String(activeDir);
+          slotB.classList.add('loading'); // CSS hides its <img>
+          var imgB = slotB.querySelector('img');
+          if (imgB) imgB.style.visibility = 'hidden';
+
+          // Place it on the correct side and position viewport so slotA is fully visible
+          if (activeDir > 0) {
+            // Next → order [A, B]; show A (left=0)
+            carouselTrack.appendChild(slotB);
+            viewport.scrollLeft = 0;
+          } else {
+            // Prev ← order [B, A]; show A on the right page
+            carouselTrack.insertBefore(slotB, slotA);
+            viewport.scrollLeft = slideW;
+          }
+        }
+
+        // Start (fresh) preload for neighbor
+        var myTicket = ++loadTicket;
+        preloadIndex(neighborIdx).then(function (res) {
+          if (myTicket !== loadTicket || !slotB) return; // ignore if superseded
+          var img = slotB.querySelector('img');
+          if (img) {
+            img.src = res.src;            // set when ready
+            img.style.visibility = 'visible';
+          }
+          slotB.classList.remove('loading');
+          neighborReady = true;
+
+          // If user already committed and is on the neighbor page, finalize now
+          maybeFinalizeAfterReady();
+        });
+        // ---- end inline ----
+      }
+    }, { passive: true });
+
+    function maybeFinalizeAfterReady() {
+      if (!slotB) return;
+      var dir = Number(slotB.dataset.dir) || 0;
+      var committed =
+        (dir > 0 && Math.abs(viewport.scrollLeft - slideW) < 2) ||
+        (dir < 0 && Math.abs(viewport.scrollLeft - 0) < 2);
+
+      if (!neighborReady || !committed) return;
+
+      // Make neighbor the new current, collapse to single-slide state
+      setSlotContent(slotA, neighborIdx);
+      setCurrent(neighborIdx);
+    }
+
+    viewport.addEventListener('touchend', function () {
+      if (!isSwiping) return;
+      isSwiping = false;
+
+      if (activeDir === 0) {
+        // No direction chosen: tidy up to the current slide
+        viewport.scrollTo({ left: 0, behavior: 'smooth' });
+        if (slotB && slotB.parentNode === carouselTrack) {
+          setTimeout(function () {
+            if (slotB && slotB.parentNode === carouselTrack) {
+              carouselTrack.removeChild(slotB);
+              slotB = null;
+            }
+          }, 220);
+        }
+        return;
+      }
+
+      // Decide if the swipe crossed the commit threshold
+      var left = viewport.scrollLeft;
+      var commit = false;
+
+      if (activeDir > 0) {
+        // Next: move from 0 toward slideW
+        commit = left > slideW * THRESHOLD;
+      } else {
+        // Prev: start at slideW, move back toward 0
+        commit = (slideW - left) > slideW * THRESHOLD;
+      }
+
+      if (commit) {
+        // Snap to neighbor page; if image not ready, it remains transparent until ready
+        var targetLeft = activeDir > 0 ? slideW : 0;
+        viewport.scrollTo({ left: targetLeft, behavior: 'smooth' });
+        setTimeout(maybeFinalizeAfterReady, 220);
+      } else {
+        // Revert to current slide
+        var backLeft = activeDir > 0 ? 0 : slideW;
+        viewport.scrollTo({ left: backLeft, behavior: 'smooth' });
+        setTimeout(function () {
+          if (slotB && slotB.parentNode === carouselTrack) {
+            carouselTrack.removeChild(slotB);
+            slotB = null;
+          }
+          viewport.scrollLeft = 0;
+          activeDir = 0;
+        }, 220);
+      }
+    }, { passive: true });
+
+    // ---------- Public API ----------
     function next() {
-      // Programmatic page right: smoothly scroll to 2*W, onScroll will recycle
-      viewport.scrollTo({ left: 2 * slideW, behavior: 'smooth' });
+      // Programmatic: behave like a committed right swipe
+      activeDir = +1;
+
+      // Inline neighbor creation if missing
+      if (!slotB || Number(slotB.dataset.dir) !== +1) {
+        if (slotB && slotB.parentNode === carouselTrack) carouselTrack.removeChild(slotB);
+        slotB = makeSlot();
+        slotB.dataset.dir = '1';
+        slotB.classList.add('loading');
+        var imgB = slotB.querySelector('img');
+        if (imgB) imgB.style.visibility = 'hidden';
+        carouselTrack.appendChild(slotB);
+        viewport.scrollLeft = 0;
+
+        neighborIdx = norm(currentIndex + 1);
+        neighborReady = false;
+
+        var myTicket = ++loadTicket;
+        preloadIndex(neighborIdx).then(function (res) {
+          if (myTicket !== loadTicket || !slotB) return;
+          var img = slotB.querySelector('img');
+          if (img) {
+            img.src = res.src;
+            img.style.visibility = 'visible';
+          }
+          slotB.classList.remove('loading');
+          neighborReady = true;
+          maybeFinalizeAfterReady();
+        });
+      }
+
+      viewport.scrollTo({ left: slideW, behavior: 'smooth' });
+      setTimeout(maybeFinalizeAfterReady, 220);
     }
+
     function prev() {
+      // Programmatic: behave like a committed left swipe
+      activeDir = -1;
+
+      // Inline neighbor creation if missing
+      if (!slotB || Number(slotB.dataset.dir) !== -1) {
+        if (slotB && slotB.parentNode === carouselTrack) carouselTrack.removeChild(slotB);
+        slotB = makeSlot();
+        slotB.dataset.dir = '-1';
+        slotB.classList.add('loading');
+        var imgB = slotB.querySelector('img');
+        if (imgB) imgB.style.visibility = 'hidden';
+        carouselTrack.insertBefore(slotB, slotA);
+        viewport.scrollLeft = slideW;
+
+        neighborIdx = norm(currentIndex - 1);
+        neighborReady = false;
+
+        var myTicket = ++loadTicket;
+        preloadIndex(neighborIdx).then(function (res) {
+          if (myTicket !== loadTicket || !slotB) return;
+          var img = slotB.querySelector('img');
+          if (img) {
+            img.src = res.src;
+            img.style.visibility = 'visible';
+          }
+          slotB.classList.remove('loading');
+          neighborReady = true;
+          maybeFinalizeAfterReady();
+        });
+      }
+
       viewport.scrollTo({ left: 0, behavior: 'smooth' });
+      setTimeout(maybeFinalizeAfterReady, 220);
     }
+
     function goTo(i) {
-      i = norm(i);
-      if (i === currentIndex) return;
-      // Rebuild window around the target and jump to center without animation
-      mountWindow(i);
+      // Instant jump (no transparent phase)
+      setCurrent(i);
     }
 
     buildMobileCarousel._next = next;
     buildMobileCarousel._prev = prev;
     buildMobileCarousel.goTo  = goTo;
 
-    // Resize/rotation
-    var ro = new ResizeObserver(function () {
-      recalc();
-      // keep middle page centered after resize
-      isAdjusting = true;
-      viewport.scrollLeft = slideW;
-      requestAnimationFrame(function(){ isAdjusting = false; });
-    });
-    ro.observe(viewport);
-
-    // Init
-    recalc();
-    mountWindow(typeof window.currentIndex === 'number' ? window.currentIndex : currentIndex);
-
-    // Preload all originals (already есть ниже в файле, но оставим локально для надёжности)
-    // imageList.forEach(src => { var im = new Image(); im.src = ORIG_DIR + src; });
-
-    // Scroll listener (passive)
-    viewport.addEventListener('scroll', onScroll, { passive: true });
-
-    // Keyboard (optional)
+    // Optional keyboard support
     viewport.setAttribute('tabindex', '0');
     viewport.addEventListener('keydown', function (e) {
       if (e.key === 'ArrowRight') { e.preventDefault(); next(); }

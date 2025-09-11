@@ -140,40 +140,42 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
 
 /* =========================================
    MOBILE CAROUSEL — native scroll (virtualized)
+   Uses IDs to match JS: #mobile-carousel, #carousel-track
    ========================================= */
 
-.mobile-carousel {
+/* Viewport */
+#mobile-carousel {
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
   overflow-x: auto;
   overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;        /* iOS momentum */
-  scroll-snap-type: x mandatory;            /* used in non-virtual mode; JS может отключать */
+  -webkit-overflow-scrolling: touch;     /* iOS momentum */
+  scroll-snap-type: x mandatory;         /* JS can temporarily disable via .no-snap */
   scroll-behavior: smooth;
-  touch-action: pan-x pan-y pinch-zoom;     /* включаем горизонтальные жесты */
-  overscroll-behavior-x: contain;           /* no horizontal chaining */
+  touch-action: pan-x pan-y pinch-zoom;  /* enable horizontal gestures + pinch */
+  overscroll-behavior-x: contain;        /* prevent horizontal chaining */
 }
 
-/* disable snap while programmatic scroll (JS toggles .no-snap) */
-.mobile-carousel.no-snap { scroll-snap-type: none !important; }
+/* Disable snap while programmatic scroll (JS toggles .no-snap) */
+#mobile-carousel.no-snap { scroll-snap-type: none !important; }
 
-/* hide native scrollbars */
-.mobile-carousel { scrollbar-width: none; }
-.mobile-carousel::-webkit-scrollbar { display: none; }
+/* Hide native scrollbars */
+#mobile-carousel { scrollbar-width: none; }
+#mobile-carousel::-webkit-scrollbar { display: none; }
 
-/* track */
-.carousel-track {
+/* Track */
+#carousel-track {
   display: inline-flex;
-  gap: 12px;                                /* будет обнулён в мобильном брейкпоинте */
+  gap: 12px;                     /* will be zeroed on mobile to keep exact page width */
   backface-visibility: hidden;
   will-change: scroll-position;
   transition: none;
-  padding: 0 4vw;                           /* будет обнулён в мобильном брейкпоинте */
+  padding: 0 4vw;                /* will be zeroed on mobile */
 }
 
-/* slide (desktop/tablet defaults; мобайл переопределит) */
-.slide {
+/* Slide (desktop/tablet defaults; mobile overrides below) */
+#carousel-track .slide {
   flex: 0 0 92vw;
   position: relative;
   scroll-snap-align: center;
@@ -184,21 +186,21 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   background: transparent;
 }
 
-/* media */
-.slide img,
-.slide video,
-.slide picture,
-.slide canvas {
+/* Media inside slide */
+#carousel-track .slide img,
+#carousel-track .slide video,
+#carousel-track .slide picture,
+#carousel-track .slide canvas {
   display: block;
   width: 100%;
   height: auto;
   object-fit: cover;
   -webkit-user-drag: none;
   user-select: none;
-  border-radius: 0;                          /* no rounding anywhere */
+  border-radius: 0;               /* no rounding anywhere */
 }
 
-/* dots */
+/* Dots */
 .carousel-dots { margin-top: 12px; text-align: center; }
 .carousel-dots button {
   all: unset;
@@ -215,10 +217,32 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
 .carousel-dots button[aria-current="true"] {
   background: #000; border-color: #000; opacity: 1;
 }
+/* Keyboard focus visibility */
+.carousel-dots button:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
 
-/* reduce motion */
+/* Transparent neighbor while loading (img hidden until ready) */
+#carousel-track .slide.loading img { visibility: hidden; }
+#carousel-track .slide.loading { background: transparent; }
+
+/* Mobile overrides: exact page width = 100vw; no gaps/padding */
+@media (max-width: 768px) {
+  #carousel-track {
+    gap: 0;
+    padding: 0;
+  }
+  #carousel-track .slide {
+    flex: 0 0 100vw;
+    width: 100vw;
+    scroll-snap-align: start;  /* page starts exactly at left edge */
+  }
+}
+
+/* Reduce motion preference */
 @media (prefers-reduced-motion: reduce) {
-  .mobile-carousel { scroll-behavior: auto; }
+  #mobile-carousel { scroll-b e havior: auto; } /* fallback to instant scroll */
 }
 
 /* =========================================
