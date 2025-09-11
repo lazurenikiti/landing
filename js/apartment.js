@@ -152,150 +152,104 @@ document.addEventListener('DOMContentLoaded', function () {
   function realignMobileCarousel() {}
 
   function buildMobileCarousel() {
-    if (!window.carouselTrack || !window.carouselDots) return;
+    if (!carouselTrack || !carouselDots) return;
 
-    var viewport = document.getElementById('mobile-carousel') || carouselTrack.parentNode;
-    var slides   = Array.from(carouselTrack.querySelectorAll('.slide'));
-    var n        = slides.length;
-    if (!viewport || n === 0) return;
+    const viewport = document.getElementById('mobile-carousel') || carouselTrack.parentNode;
+    const originals = Array.from(carouselTrack.querySelectorAll('.slide'));
+    const realN = originals.length;
+    if (!viewport || realN === 0) return;
 
-    // Build dots once
+    // Clear existing content to avoid duplicates on re-init
+    carouselTrack.innerHTML = '';
     carouselDots.innerHTML = '';
-    for (var i = 0; i < n; i++) {
-      (function (idx) {
-        var b = document.createElement('button');
-        b.type = 'button';
-        b.setAttribute('aria-label', 'Slide ' + (idx + 1));
-        b.addEventListener('click', function () { goTo(idx); });
-        carouselDots.appendChild(b);
-      })(i);
-    }
 
-    // Tap → fullscreen (optional)
-    slides.forEach(function (s, idx) {
-      var img = s.querySelector('img');
-      if (img && typeof window.openFullscreen === 'function') {
-        img.addEventListener('click', function () { openFullscreen(idx); }, false);
-      }
+    // Clone last slide -> prepend
+    const lastClone = originals[realN - 1].cloneNode(true);
+    lastClone.setAttribute('data-clone', 'last');
+    carouselTrack.appendChild(lastClone);
+
+    // Append all real slides
+    originals.forEach((s, i) => {
+      const clone = s.cloneNode(true);
+      clone.setAttribute('data-index', i);
+      carouselTrack.appendChild(clone);
+
+      // Build dot navigation
+      const dot = document.createElement('span');
+      dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+      dot.dataset.index = i;
+      dot.addEventListener('click', () => {
+        currentIndex = i;
+        updateCarousel(true);
+      });
+      carouselDots.appendChild(dot);
     });
 
-    // ----- State & measurement -----
-    var cur = (typeof window.currentIndex === 'number' ? window.currentIndex : 0);
-    cur = Math.max(0, Math.min(n - 1, cur));
+    // Clone first slide -> append
+    const firstClone = originals[0].cloneNode(true);
+    firstClone.setAttribute('data-clone', 'first');
+    carouselTrack.appendChild(firstClone);
 
-    var slideWidths = new Array(n);
-    var slideLefts  = new Array(n);
-    var ready = false;
-    var ticking = false;
+    let currentIndex = 0; // index among real slides
+    const slides = carouselTrack.querySelectorAll('.slide');
+    const total = slides.length;
 
-    function viewportW() { return viewport.clientWidth || window.innerWidth || 1; }
+    function updateCarousel(animate = true) {
+      const slideWidth = viewport.offsetWidth;
+      const target = (currentIndex + 1) * slideWidth; // +1 because of prepended clone
+      carouselTrack.style.transition = animate ? 'transform 0.3s ease' : 'none';
+      carouselTrack.style.transform = `translateX(${-target}px)`;
 
-    function layout() {
-      for (var i = 0; i < n; i++) {
-        var el = slides[i];
-        slideWidths[i] = el.getBoundingClientRect().width;
-        slideLefts[i]  = el.offsetLeft;
-      }
-      centerIndex(cur, 'auto');
-      ready = true;
-      paintDots(cur);
-    }
-
-    function paintDots(active) {
-      var ds = carouselDots.children;
-      for (var j = 0; j < ds.length; j++) {
-        if (j === active) ds[j].setAttribute('aria-current', 'true');
-        else ds[j].removeAttribute('aria-current');
-      }
-    }
-
-    function centerIndex(i, behavior) {
-      // NO WRAP: clamp to [0, n-1]
-      i = Math.max(0, Math.min(n - 1, i));
-      slides[i].scrollIntoView({ behavior: behavior || 'smooth', inline: 'center', block: 'nearest' });
-      cur = i;
-      window.currentIndex = cur;
-      paintDots(cur);
-    }
-
-    function onScroll() {
-      if (!ready || ticking) return;
-      ticking = true;
-      requestAnimationFrame(function () {
-        ticking = false;
-        var centerX = viewport.scrollLeft + viewportW() / 2;
-
-        var best = cur, bestDist = Infinity;
-        for (var i = 0; i < n; i++) {
-          var mid = slideLefts[i] + slideWidths[i] / 2;
-          var d = Math.abs(mid - centerX);
-          if (d < bestDist) { bestDist = d; best = i; }
-        }
-        if (best !== cur) {
-          cur = best;
-          window.currentIndex = cur;
-          paintDots(cur);
-        }
+      // Update dots
+      const dots = carouselDots.querySelectorAll('.carousel-dot');
+      dots.forEach((d, idx) => {
+        d.classList.toggle('active', idx === currentIndex);
       });
     }
 
-    // Public controls WITH wrap (instant jump at edges)
-    function next() {
-      if (cur < n - 1) {
-        centerIndex(cur + 1, 'smooth');
-      } else {
-        // jump instantly from last → first
-        centerIndex(0, 'auto');
+    function handleTransitionEnd() {
+      const slideWidth = viewport.offsetWidth;
+
+      // Jump from clone-first to real first
+      if (currentIndex >= realN) {
+        currentIndex = 0;
+        carouselTrack.style.transition = 'none';
+        carouselTrack.style.transform = `translateX(${-slideWidth}px)`;
       }
+
+      // Jump from clone-last to real last
+      if (currentIndex < 0) {
+        currentIndex = realN - 1;
+        carouselTrack.style.transition = 'none';
+        const target = (currentIndex + 1) * slideWidth;
+        carouselTrack.style.transform = `translateX(${-target}px)`;
+      }
+    }
+
+    function next() {
+      currentIndex++;
+      updateCarousel(true);
     }
 
     function prev() {
-      if (cur > 0) {
-        centerIndex(cur - 1, 'smooth');
-      } else {
-        // jump instantly from first → last
-        centerIndex(n - 1, 'auto');
-      }
+      currentIndex--;
+      updateCarousel(true);
     }
 
-    function goTo(i) {
-      if (i < 0) i = 0;
-      if (i > n - 1) i = n - 1;
-      centerIndex(i, 'smooth');
-    }
+    // Initial position (first real slide)
+    updateCarousel(false);
 
-    buildMobileCarousel._next = next;
-    buildMobileCarousel._prev = prev;
-    buildMobileCarousel.goTo  = goTo;
+    // Listen for transition end to fix position after clones
+    carouselTrack.addEventListener('transitionend', handleTransitionEnd);
 
-    function realign() { if (!ready) return; layout(); }
-    realignMobileCarousel = realign;
+    // Optional: attach to global buttons
+    const btnPrev = document.getElementById('carousel-prev');
+    const btnNext = document.getElementById('carousel-next');
+    if (btnPrev) btnPrev.onclick = prev;
+    if (btnNext) btnNext.onclick = next;
 
-    // init after images
-    var imgs = carouselTrack.querySelectorAll('img');
-    var pending = imgs.length;
-    if (pending === 0) layout();
-    else imgs.forEach(function (img) {
-      if (img.complete) { if (--pending === 0) layout(); }
-      else {
-        img.addEventListener('load',  function () { if (--pending === 0) layout(); }, { once: true });
-        img.addEventListener('error', function () { if (--pending === 0) layout(); }, { once: true });
-      }
-    });
-
-    new ResizeObserver(function () { realign(); }).observe(viewport);
-    viewport.addEventListener('scroll', onScroll, { passive: true });
-
-    // keyboard (опционально)
-    viewport.setAttribute('tabindex', '0');
-    viewport.addEventListener('keydown', function (e) {
-      if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
-      else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
-    });
-
-    if (pending === 0) { centerIndex(cur, 'auto'); }
-
-    return { next: next, prev: prev, goTo: goTo, realign: realign, get index() { return cur; } };
+    // Handle resize
+    window.addEventListener('resize', () => updateCarousel(false));
   }
 
   /* =================== Scroll locking helpers (fullscreen) =================== */
@@ -699,7 +653,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   buildMobileCarousel();
-  buildMobileCarouselInfinite();
 
   buildDesktopThumbsIfNeeded();
 
