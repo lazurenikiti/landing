@@ -163,6 +163,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var viewport = document.getElementById('mobile-carousel') || carouselTrack.parentNode;
 
     /* ---- SWIPE TUNING ---- */
+<<<<<<< HEAD
     var DEAD_PX      = 1;     // pixels to ignore before deciding gesture intent
     var INTENT_RATIO = 1.1;   // horizontal if |dx| > |dy| * ratio
     var SWIPE_FRAC   = 0.04;  // fraction of width for a "slow swipe"
@@ -171,6 +172,16 @@ document.addEventListener('DOMContentLoaded', function () {
     var PREDICT_MS   = 25;   // lookahead window for velocity projection
     var EARLY_FRAC   = 0.10;  // early trigger if dragged this fraction of width
     var MAX_DRAG_FR  = 0.90;  // max drag distance before resistance
+=======
+    var DEAD_PX      = 4;     // pixels to ignore before deciding gesture intent
+    var INTENT_RATIO = 1.1;   // horizontal if |dx| > |dy| * ratio
+    var SWIPE_FRAC   = 0.08;  // fraction of width for a "slow swipe"
+    var SWIPE_MIN    = 12;    // minimum px for a swipe
+    var FLICK_VEL    = 0.25;  // velocity threshold (px/ms) for a "flick"
+    var PREDICT_MS   = 140;   // lookahead window for velocity projection
+    var EARLY_FRAC   = 0.25;  // early trigger if dragged this fraction of width
+    var MAX_DRAG_FR  = 0.95;  // max drag distance before resistance
+>>>>>>> f88b1d1 (Files update)
 
     // Build 3 reusable slides: [prev | current | next]
     function makeSlide() {
@@ -181,6 +192,8 @@ document.addEventListener('DOMContentLoaded', function () {
       img.loading = 'lazy';
       s.appendChild(img);
       return { el: s, img: img };
+<<<<<<< HEAD
+=======
     }
     var Sprev = makeSlide(), Scurr = makeSlide(), Snext = makeSlide();
     Scurr.img.loading = 'eager'; // preload current
@@ -197,9 +210,33 @@ document.addEventListener('DOMContentLoaded', function () {
     function idx(i){ return (i % n + n) % n; }   // safe modulo
     function srcAt(i){ return ORIG_DIR + imageList[idx(i)]; }
 
+    function setTransition(on){
+      carouselTrack.style.transition = on ? 'transform 280ms cubic-bezier(.22,.61,.36,1)' : 'none';
+>>>>>>> f88b1d1 (Files update)
+    }
+    var Sprev = makeSlide(), Scurr = makeSlide(), Snext = makeSlide();
+    Scurr.img.loading = 'eager'; // preload current
+    carouselTrack.appendChild(Sprev.el);
+    carouselTrack.appendChild(Scurr.el);
+    carouselTrack.appendChild(Snext.el);
+
+<<<<<<< HEAD
+    // State
+    var cur = (typeof currentIndex === 'number' ? currentIndex : 0) % n;
+    var w   = () => (viewport && viewport.clientWidth) || window.innerWidth || 1;
+    var anim = false;
+
+    // Helpers
+    function idx(i){ return (i % n + n) % n; }   // safe modulo
+    function srcAt(i){ return ORIG_DIR + imageList[idx(i)]; }
+
     function setTransition(on){ carouselTrack.style.transition = on ? 'transform 240ms cubic-bezier(.22,.61,.36,1)' : 'none'; }
     function setX(px){ carouselTrack.style.transform = 'translate3d(' + px + 'px,0,0)'; }
 
+=======
+    function setX(px){ carouselTrack.style.transform = 'translate3d(' + px + 'px,0,0)'; }
+
+>>>>>>> f88b1d1 (Files update)
     function paintDots(){
       var ds = carouselDots.children;
       for (var j=0;j<ds.length;j++){
@@ -236,6 +273,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (di === idx(cur+1)) step(+1);
           else if (di === idx(cur-1)) step(-1);
           else { cur = di; renderTriplet(); } // jump instantly if far
+<<<<<<< HEAD
         });
         carouselDots.appendChild(b);
       })(i);
@@ -266,6 +304,67 @@ document.addEventListener('DOMContentLoaded', function () {
     var dragging=false, decided=false, horizontal=false;
     var sx=0, sy=0, dx=0, startX=0, t0=0;
 
+=======
+        });
+        carouselDots.appendChild(b);
+      })(i);
+    }
+
+    // Animate one step left/right
+    function step(dir) {
+      if (anim) return; // prevent double-triggering while animating
+      anim = true;
+
+      // enable smooth transition
+      setTransition(true);
+
+      // shift the track left (-200%) or reset to 0% depending on direction
+      carouselTrack.style.transform =
+        'translate3d(' + (dir > 0 ? -200 : 0) + '%,0,0)';
+
+      // handle animation end
+      function onEnd(e) {
+        if (e && e.propertyName && e.propertyName !== 'transform') return;
+
+        clearTimeout(fallback); // cancel fallback if transitionend fired
+        carouselTrack.removeEventListener('transitionend', onEnd);
+
+        // update current index
+        cur = idx(cur + (dir > 0 ? +1 : -1));
+
+        // re-render the triplet without transition
+        renderTriplet();
+
+        // reset transition and unlock for next step
+        requestAnimationFrame(function () {
+          setTransition(true);
+          anim = false;
+        });
+      }
+
+      // fallback in case transitionend is never fired
+      var fallback = setTimeout(onEnd, 360);
+
+      carouselTrack.addEventListener('transitionend', onEnd);
+    }
+
+    function setTransition(on) {
+      carouselTrack.style.transition = on
+        ? 'transform 280ms cubic-bezier(.22,.61,.36,1)'
+        : 'none';
+    }
+
+    // Tap current slide to open fullscreen
+    Scurr.img.addEventListener('click', function(){ openFullscreen(cur); }, false);
+
+    /* ---- GESTURES ----
+       - Vertical scroll of the page always passes through
+       - Horizontal swipe only when clearly detected
+    */
+    var dragging=false, decided=false, horizontal=false;
+    var sx=0, sy=0, dx=0, startX=0, t0=0;
+
+>>>>>>> f88b1d1 (Files update)
     function onDown(x,y){
       if (anim) return;
       dragging=true; decided=false; horizontal=false;
