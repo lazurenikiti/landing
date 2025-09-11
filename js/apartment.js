@@ -154,6 +154,9 @@ document.addEventListener('DOMContentLoaded', function () {
   function buildMobileCarousel() {
     if (!carouselTrack || !carouselDots) return;
 
+    // We do NOT rely on native horizontal scroll anymore.
+    // We position 2 absolutely stacked slides and animate with transforms.
+
     var viewport = document.getElementById('mobile-carousel') || carouselTrack.parentNode;
     if (!viewport) return;
 
@@ -164,16 +167,23 @@ document.addEventListener('DOMContentLoaded', function () {
     function norm(i) { return ((i % n) + n) % n; }
 
     function paintDots(active) {
-      var ds = carouselDots.children;
-      for (var j = 0; j < ds.length; j++) {
-        if (j === active) ds[j].setAttribute('aria-current', 'true');
-        else ds[j].removeAttribute('aria-current');
+      carouselDots.innerHTML = '';
+      for (var i = 0; i < n; i++) {
+        (function (idx) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.setAttribute('aria-label', 'Slide ' + (idx + 1));
+          if (idx === active) b.setAttribute('aria-current', 'true');
+          b.addEventListener('click', function () { goTo(idx); });
+          carouselDots.appendChild(b);
+        })(i);
       }
     }
 
-    function makeSlot() {
+    function makeLayer() {
+      // Each layer is a slide with an <img>, absolutely positioned to fill viewport.
       var s = document.createElement('div');
-      s.className = 'slide'; // CSS should make it 100% width (flex-basis:100%)
+      s.className = 'slide mc-layer';
       var img = document.createElement('img');
       img.decoding = 'async';
       img.loading = 'lazy';
@@ -185,12 +195,25 @@ document.addEventListener('DOMContentLoaded', function () {
       return s;
     }
 
-    function setSlotContent(slotEl, idx) {
+    function setLayerImage(layerEl, idx, { hideUntilReady } = { hideUntilReady: false }) {
       idx = norm(idx);
-      slotEl.dataset.idx = String(idx);
-      var img = slotEl.querySelector('img');
+      layerEl.dataset.idx = String(idx);
+      var img = layerEl.querySelector('img');
       var src = ORIG_DIR + imageList[idx];
-      if (img && img.src !== src) img.src = src;
+
+      // If we want transparent neighbor until ready: keep it invisible until loaded.
+      if (hideUntilReady) {
+        img.style.visibility = 'hidden';
+        preloadIndex(idx).then(function (res) {
+          // If layer still points to the same index, update and reveal
+          if (String(idx) === layerEl.dataset.idx) {
+            img.src = res.src;
+            img.style.visibility = 'visible';
+          }
+        });
+      } else {
+        if (img.src !== src) img.src = src;
+      }
     }
 
     function preloadIndex(idx) {
@@ -205,292 +228,278 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
-    // ---------- Dots ----------
-    carouselDots.innerHTML = '';
-    for (var i = 0; i < n; i++) {
-      (function (idx) {
-        var b = document.createElement('button');
-        b.type = 'button';
-        b.setAttribute('aria-label', 'Slide ' + (idx + 1));
-        b.addEventListener('click', function () {
-          // Direct jump (no transparent phase)
-          setCurrent(idx);
-        });
-        carouselDots.appendChild(b);
-      })(i);
+    function setTransform(el, px) {
+      el.style.transform = 'translateX(' + px + 'px)';
     }
+
+    function enableTransition(el) {
+      el.style.transition = 'transform 280ms cubic-bezier(.22,.61,.36,1)';
+    }
+    function disableTransition(el) {
+      el.style.transition = 'none';
+    }
+
+    function viewportWidth() {
+      return viewport.clientWidth || window.innerWidth || 1;
+    }
+
+    // ---------- DOM: 2 layers only ----------
+    carouselTrack.innerHTML = ''; // reuse track as a stacking context
+    carouselTrack.classList.add('mc-stack'); // CSS will make it relative/overflow-hidden
+
+    var layerA = makeLayer(); // current
+    var layerB = makeLayer(); // neighbor (appears from left/right)
+    carouselTrack.appendChild(layerA);
+    carouselTrack.appendChild(layerB);
 
     // ---------- State ----------
-    carouselTrack.innerHTML = '';
-
-    var slotA = makeSlot(); // permanent current slide
-    var slotB = null;       // temporary neighbor during swipe
-    carouselTrack.appendChild(slotA);
-
-    var slideW = 1;         // updated on resize
-    var isSwiping = false;
-    var activeDir = 0;      // -1 prev, +1 next, 0 none
+    var W = viewportWidth();
     var startX = 0;
-    var THRESHOLD = 0.28;   // commit when moving beyond 28% of width
-    var neighborReady = false;
-    var neighborIdx = null;
-    var loadTicket = 0;     // invalidates outdated preloads
+    var lastX = 0;
+    var lastT = 0;
+    var velocityX = 0;
+    var dragging = false;
+    var dir = 0;          // -1 prev, +1 next, 0 none
+    var neighborIdx = 0;  // which index belongs to neighbor layer
+    var committing = false;
 
-    function recalc() {
-      slideW = viewport.clientWidth || window.innerWidth || 1;
-    }
+    // Initialize current slide
+    setLayerImage(layerA, currentIndex, { hideUntilReady: false });
+    setTransform(layerA, 0);
+    disableTransition(layerA);
 
-    function setCurrent(idx) {
-      currentIndex = norm(idx);
-      paintDots(currentIndex);
+    // Hide neighbor offscreen initially
+    setTransform(layerB, W); // arbitrary offscreen; will be repositioned on swipe
+    disableTransition(layerB);
 
-      // Remove temporary neighbor if present
-      if (slotB && slotB.parentNode === carouselTrack) {
-        carouselTrack.removeChild(slotB);
-        slotB = null;
-      }
+    paintDots(currentIndex);
 
-      // Ensure slotA has the right image
-      setSlotContent(slotA, currentIndex);
-
-      // Align viewport to single-slide state
-      viewport.scrollLeft = 0;
-
-      // Reset swipe-related flags
-      activeDir = 0;
-      neighborReady = false;
-      neighborIdx = null;
-      loadTicket++; // cancel any pending preloads
-    }
-
-    // ---------- Init ----------
-    recalc();
-    setCurrent(typeof window.currentIndex === 'number' ? window.currentIndex : currentIndex);
-
-    // Keep width in sync with viewport changes
+    // ---------- Resize ----------
     var ro = new ResizeObserver(function () {
-      recalc();
-      // Keep current slide aligned
-      if (!slotB) viewport.scrollLeft = 0;
-      else {
-        // If swiping prev, current A is on the right page
-        viewport.scrollLeft = Number(slotB.dataset.dir) < 0 ? slideW : 0;
+      W = viewportWidth();
+      // Keep current layer at 0; reposition neighbor offscreen based on dir
+      setTransform(layerA, 0);
+      if (dir === 0) {
+        setTransform(layerB, W); // parked offscreen right
+      } else if (dir > 0) {
+        setTransform(layerB, W);
+      } else {
+        setTransform(layerB, -W);
       }
     });
     ro.observe(viewport);
 
-    // ---------- Touch swipe (inlined neighbor preparation) ----------
-    viewport.addEventListener('touchstart', function (e) {
-      if (!e.changedTouches || !e.changedTouches.length) return;
-      isSwiping = true;
-      startX = e.changedTouches[0].clientX;
-      activeDir = 0;
-    }, { passive: true });
+    // ---------- Gesture handling (touch + mouse) ----------
+    // For iOS-like feel we prevent horizontal page scroll during drag:
+    viewport.style.touchAction = 'pan-y pinch-zoom';
 
-    viewport.addEventListener('touchmove', function (e) {
-      if (!isSwiping || !e.changedTouches || !e.changedTouches.length) return;
-      var dx = e.changedTouches[0].clientX - startX;
-
-      // Decide direction once movement is clear
-      if (activeDir === 0 && Math.abs(dx) > 6) {
-        activeDir = dx < 0 ? +1 : -1; // left swipe => next; right swipe => prev
-
-        // ---- Inlined "prepare neighbor" ----
-        // Remove wrong-direction neighbor if any
-        if (slotB && Number(slotB.dataset.dir) !== activeDir && slotB.parentNode === carouselTrack) {
-          carouselTrack.removeChild(slotB);
-          slotB = null;
-        }
-
-        neighborIdx = norm(currentIndex + (activeDir > 0 ? +1 : -1));
-        neighborReady = false;
-
-        // Create transparent neighbor slot if missing
-        if (!slotB) {
-          slotB = makeSlot();
-          slotB.dataset.dir = String(activeDir);
-          slotB.classList.add('loading'); // CSS hides its <img>
-          var imgB = slotB.querySelector('img');
-          if (imgB) imgB.style.visibility = 'hidden';
-
-          // Place it on the correct side and position viewport so slotA is fully visible
-          if (activeDir > 0) {
-            // Next → order [A, B]; show A (left=0)
-            carouselTrack.appendChild(slotB);
-            viewport.scrollLeft = 0;
-          } else {
-            // Prev ← order [B, A]; show A on the right page
-            carouselTrack.insertBefore(slotB, slotA);
-            viewport.scrollLeft = slideW;
-          }
-        }
-
-        // Start (fresh) preload for neighbor
-        var myTicket = ++loadTicket;
-        preloadIndex(neighborIdx).then(function (res) {
-          if (myTicket !== loadTicket || !slotB) return; // ignore if superseded
-          var img = slotB.querySelector('img');
-          if (img) {
-            img.src = res.src;            // set when ready
-            img.style.visibility = 'visible';
-          }
-          slotB.classList.remove('loading');
-          neighborReady = true;
-
-          // If user already committed and is on the neighbor page, finalize now
-          maybeFinalizeAfterReady();
-        });
-        // ---- end inline ----
-      }
-    }, { passive: true });
-
-    function maybeFinalizeAfterReady() {
-      if (!slotB) return;
-      var dir = Number(slotB.dataset.dir) || 0;
-      var committed =
-        (dir > 0 && Math.abs(viewport.scrollLeft - slideW) < 2) ||
-        (dir < 0 && Math.abs(viewport.scrollLeft - 0) < 2);
-
-      if (!neighborReady || !committed) return;
-
-      // Make neighbor the new current, collapse to single-slide state
-      setSlotContent(slotA, neighborIdx);
-      setCurrent(neighborIdx);
+    function onDown(clientX) {
+      if (committing) return; // ignore if animating
+      dragging = true;
+      startX = lastX = clientX;
+      lastT = performance.now();
+      dir = 0;
+      disableTransition(layerA);
+      disableTransition(layerB);
     }
 
-    viewport.addEventListener('touchend', function () {
-      if (!isSwiping) return;
-      isSwiping = false;
+    function onMove(clientX) {
+      if (!dragging) return;
+      var now = performance.now();
+      var dx = clientX - lastX;
+      var dt = Math.max(1, now - lastT);
+      velocityX = dx / dt; // px/ms
+      lastX = clientX;
+      lastT = now;
 
-      if (activeDir === 0) {
-        // No direction chosen: tidy up to the current slide
-        viewport.scrollTo({ left: 0, behavior: 'smooth' });
-        if (slotB && slotB.parentNode === carouselTrack) {
-          setTimeout(function () {
-            if (slotB && slotB.parentNode === carouselTrack) {
-              carouselTrack.removeChild(slotB);
-              slotB = null;
-            }
-          }, 220);
-        }
+      var totalDx = clientX - startX;
+
+      // Lock direction once user actually moves
+      if (dir === 0 && Math.abs(totalDx) > 6) {
+        dir = totalDx < 0 ? +1 : -1; // left drag => next; right drag => prev
+
+        // Prepare neighbor layer offscreen and transparent until loaded
+        neighborIdx = norm(currentIndex + (dir > 0 ? +1 : -1));
+        setLayerImage(layerB, neighborIdx, { hideUntilReady: true });
+
+        if (dir > 0) setTransform(layerB, W);   // to the right
+        else setTransform(layerB, -W);          // to the left
+      }
+
+      if (dir !== 0) {
+        // Drag current and neighbor together
+        var curX = totalDx;
+        var nbX  = (dir > 0 ? W : -W) + totalDx;
+
+        setTransform(layerA, curX);
+        setTransform(layerB, nbX);
+      }
+    }
+
+    function onUp() {
+      if (!dragging) return;
+      dragging = false;
+
+      if (dir === 0) {
+        // Not enough movement: snap back (already at 0)
+        enableTransition(layerA);
+        setTransform(layerA, 0);
+        // park neighbor
+        enableTransition(layerB);
+        setTransform(layerB, dir > 0 ? W : -W);
+        setTimeout(() => {
+          disableTransition(layerA);
+          disableTransition(layerB);
+        }, 300);
         return;
       }
 
-      // Decide if the swipe crossed the commit threshold
-      var left = viewport.scrollLeft;
-      var commit = false;
+      // Decide commit using distance OR fling velocity
+      var endDelta = lastX - startX;
+      var distanceCommit = Math.abs(endDelta) > W * 0.28;
+      var velocityCommit = Math.abs(velocityX) > 0.6; // ~0.6 px/ms ≈ quick flick
+      var commit = distanceCommit || velocityCommit;
 
-      if (activeDir > 0) {
-        // Next: move from 0 toward slideW
-        commit = left > slideW * THRESHOLD;
-      } else {
-        // Prev: start at slideW, move back toward 0
-        commit = (slideW - left) > slideW * THRESHOLD;
-      }
+      enableTransition(layerA);
+      enableTransition(layerB);
 
       if (commit) {
-        // Snap to neighbor page; if image not ready, it remains transparent until ready
-        var targetLeft = activeDir > 0 ? slideW : 0;
-        viewport.scrollTo({ left: targetLeft, behavior: 'smooth' });
-        setTimeout(maybeFinalizeAfterReady, 220);
+        committing = true;
+        // Finish swipe: current moves out, neighbor moves to 0
+        setTransform(layerA, dir > 0 ? -W : W);
+        setTransform(layerB, 0);
+
+        // When transition ends, swap roles
+        var done = function () {
+          layerA.removeEventListener('transitionend', done);
+          // A becomes the new current content at 0; B is parked offscreen for later reuse
+          // Swap DOM roles by swapping references to keep order
+          var tmp = layerA; layerA = layerB; layerB = tmp;
+
+          currentIndex = neighborIdx;
+          paintDots(currentIndex);
+
+          // Park the (new) neighbor layer offscreen and clear its transform
+          disableTransition(layerB);
+          setTransform(layerB, dir > 0 ? W : -W);
+
+          // Reset state
+          dir = 0;
+          committing = false;
+        };
+        layerA.addEventListener('transitionend', done);
       } else {
-        // Revert to current slide
-        var backLeft = activeDir > 0 ? 0 : slideW;
-        viewport.scrollTo({ left: backLeft, behavior: 'smooth' });
-        setTimeout(function () {
-          if (slotB && slotB.parentNode === carouselTrack) {
-            carouselTrack.removeChild(slotB);
-            slotB = null;
-          }
-          viewport.scrollLeft = 0;
-          activeDir = 0;
-        }, 220);
+        // Cancel swipe: return both to their initial positions
+        setTransform(layerA, 0);
+        setTransform(layerB, dir > 0 ? W : -W);
+        setTimeout(() => {
+          disableTransition(layerA);
+          disableTransition(layerB);
+          dir = 0;
+        }, 300);
       }
+    }
+
+    // Touch
+    viewport.addEventListener('touchstart', function (e) {
+      if (!e.changedTouches || !e.changedTouches.length) return;
+      onDown(e.changedTouches[0].clientX);
     }, { passive: true });
 
-    // ---------- Public API ----------
+    viewport.addEventListener('touchmove', function (e) {
+      if (!e.changedTouches || !e.changedTouches.length) return;
+      onMove(e.changedTouches[0].clientX);
+      // We do not preventDefault to keep pinch; touch-action limits horizontal page scroll.
+    }, { passive: true });
+
+    viewport.addEventListener('touchend', function () { onUp(); }, { passive: true });
+    viewport.addEventListener('touchcancel', function () { onUp(); }, { passive: true });
+
+    // Mouse (optional — helpful for testing on desktop)
+    viewport.addEventListener('mousedown', function (e) { onDown(e.clientX); });
+    window.addEventListener('mousemove', function (e) { onMove(e.clientX); });
+    window.addEventListener('mouseup', function () { onUp(); });
+
+    // ---------- API ----------
     function next() {
-      // Programmatic: behave like a committed right swipe
-      activeDir = +1;
-
-      // Inline neighbor creation if missing
-      if (!slotB || Number(slotB.dataset.dir) !== +1) {
-        if (slotB && slotB.parentNode === carouselTrack) carouselTrack.removeChild(slotB);
-        slotB = makeSlot();
-        slotB.dataset.dir = '1';
-        slotB.classList.add('loading');
-        var imgB = slotB.querySelector('img');
-        if (imgB) imgB.style.visibility = 'hidden';
-        carouselTrack.appendChild(slotB);
-        viewport.scrollLeft = 0;
-
-        neighborIdx = norm(currentIndex + 1);
-        neighborReady = false;
-
-        var myTicket = ++loadTicket;
-        preloadIndex(neighborIdx).then(function (res) {
-          if (myTicket !== loadTicket || !slotB) return;
-          var img = slotB.querySelector('img');
-          if (img) {
-            img.src = res.src;
-            img.style.visibility = 'visible';
-          }
-          slotB.classList.remove('loading');
-          neighborReady = true;
-          maybeFinalizeAfterReady();
-        });
-      }
-
-      viewport.scrollTo({ left: slideW, behavior: 'smooth' });
-      setTimeout(maybeFinalizeAfterReady, 220);
+      if (committing) return;
+      dir = +1;
+      neighborIdx = norm(currentIndex + 1);
+      // Prepare neighbor
+      setLayerImage(layerB, neighborIdx, { hideUntilReady: true });
+      disableTransition(layerA); disableTransition(layerB);
+      setTransform(layerA, 0);
+      setTransform(layerB, W);
+      // Animate
+      requestAnimationFrame(function () {
+        enableTransition(layerA); enableTransition(layerB);
+        setTransform(layerA, -W);
+        setTransform(layerB, 0);
+        // finalize as in commit
+        var done = function () {
+          layerA.removeEventListener('transitionend', done);
+          var tmp = layerA; layerA = layerB; layerB = tmp;
+          currentIndex = neighborIdx;
+          paintDots(currentIndex);
+          disableTransition(layerB);
+          setTransform(layerB, W);
+          dir = 0;
+        };
+        layerA.addEventListener('transitionend', done);
+      });
     }
 
     function prev() {
-      // Programmatic: behave like a committed left swipe
-      activeDir = -1;
-
-      // Inline neighbor creation if missing
-      if (!slotB || Number(slotB.dataset.dir) !== -1) {
-        if (slotB && slotB.parentNode === carouselTrack) carouselTrack.removeChild(slotB);
-        slotB = makeSlot();
-        slotB.dataset.dir = '-1';
-        slotB.classList.add('loading');
-        var imgB = slotB.querySelector('img');
-        if (imgB) imgB.style.visibility = 'hidden';
-        carouselTrack.insertBefore(slotB, slotA);
-        viewport.scrollLeft = slideW;
-
-        neighborIdx = norm(currentIndex - 1);
-        neighborReady = false;
-
-        var myTicket = ++loadTicket;
-        preloadIndex(neighborIdx).then(function (res) {
-          if (myTicket !== loadTicket || !slotB) return;
-          var img = slotB.querySelector('img');
-          if (img) {
-            img.src = res.src;
-            img.style.visibility = 'visible';
-          }
-          slotB.classList.remove('loading');
-          neighborReady = true;
-          maybeFinalizeAfterReady();
-        });
-      }
-
-      viewport.scrollTo({ left: 0, behavior: 'smooth' });
-      setTimeout(maybeFinalizeAfterReady, 220);
+      if (committing) return;
+      dir = -1;
+      neighborIdx = norm(currentIndex - 1);
+      setLayerImage(layerB, neighborIdx, { hideUntilReady: true });
+      disableTransition(layerA); disableTransition(layerB);
+      setTransform(layerA, 0);
+      setTransform(layerB, -W);
+      requestAnimationFrame(function () {
+        enableTransition(layerA); enableTransition(layerB);
+        setTransform(layerA, W);
+        setTransform(layerB, 0);
+        var done = function () {
+          layerA.removeEventListener('transitionend', done);
+          var tmp = layerA; layerA = layerB; layerB = tmp;
+          currentIndex = neighborIdx;
+          paintDots(currentIndex);
+          disableTransition(layerB);
+          setTransform(layerB, -W);
+          dir = 0;
+        };
+        layerA.addEventListener('transitionend', done);
+      });
     }
 
-    function goTo(i) {
-      // Instant jump (no transparent phase)
-      setCurrent(i);
+    function goTo(target) {
+      target = norm(target);
+      if (target === currentIndex) return;
+      // If target is adjacent, animate swipe; otherwise do a quick crossfade-like swap.
+      var delta = target - currentIndex;
+      if (Math.abs(delta) === 1 || Math.abs(delta) === n - 1) {
+        // Adjacent — choose direction that matches ring
+        if ((delta === 1) || (delta === -(n - 1))) next();
+        else prev();
+        return;
+      }
+      // Non-adjacent: instant swap without swipe (no transforms fight)
+      disableTransition(layerA); disableTransition(layerB);
+      setLayerImage(layerA, target, { hideUntilReady: false });
+      setTransform(layerA, 0);
+      setTransform(layerB, W);
+      currentIndex = target;
+      paintDots(currentIndex);
+      dir = 0;
     }
 
     buildMobileCarousel._next = next;
     buildMobileCarousel._prev = prev;
     buildMobileCarousel.goTo  = goTo;
 
-    // Optional keyboard support
+    // Optional keyboard
     viewport.setAttribute('tabindex', '0');
     viewport.addEventListener('keydown', function (e) {
       if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
