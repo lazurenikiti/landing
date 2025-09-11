@@ -139,68 +139,64 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
 #fs-close:hover::after { background: #fff; }
 
 /* =========================================
-   MOBILE CAROUSEL — native scroll (virtualized)
+   MOBILE CAROUSEL — swipe illusion (no native scroll)
    Uses IDs to match JS: #mobile-carousel, #carousel-track
    ========================================= */
 
-/* Viewport */
+/* Viewport: no horizontal native scroll, JS drives transforms */
 #mobile-carousel {
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;     /* iOS momentum */
-  scroll-snap-type: x mandatory;         /* JS can temporarily disable via .no-snap */
-  scroll-behavior: smooth;
-  touch-action: pan-x pan-y pinch-zoom;  /* enable horizontal gestures + pinch */
-  overscroll-behavior-x: contain;        /* prevent horizontal chaining */
+  overflow: hidden;                 /* prevent native horizontal scroll */
+  -webkit-overflow-scrolling: auto; /* disable momentum scrolling */
+  scroll-snap-type: none;           /* we don't use snap in this mode */
+  scroll-behavior: auto;
+  touch-action: pan-y pinch-zoom;   /* vertical scroll + pinch, horizontal handled by JS */
+  overscroll-behavior-x: contain;   /* no horizontal chaining */
 }
 
-/* Disable snap while programmatic scroll (JS toggles .no-snap) */
-#mobile-carousel.no-snap { scroll-snap-type: none !important; }
-
-/* Hide native scrollbars */
-#mobile-carousel { scrollbar-width: none; }
-#mobile-carousel::-webkit-scrollbar { display: none; }
-
-/* Track */
-#carousel-track {
-  display: inline-flex;
-  gap: 12px;                     /* will be zeroed on mobile to keep exact page width */
-  backface-visibility: hidden;
-  will-change: scroll-position;
-  transition: none;
-  padding: 0 4vw;                /* will be zeroed on mobile */
-}
-
-/* Slide (desktop/tablet defaults; mobile overrides below) */
-#carousel-track .slide {
-  flex: 0 0 92vw;
+/* Track becomes a stacking context for two animated layers */
+#carousel-track.mc-stack {
   position: relative;
-  scroll-snap-align: center;
-  scroll-snap-stop: always;
-  contain: content;
-  width: 92vw;
-  line-height: 0;
-  background: transparent;
+  overflow: hidden;
+  width: 100%;
+  /* Stable height even with absolutely positioned layers.
+     JS updates --mc-ratio from the current image's natural size. */
+  aspect-ratio: var(--mc-ratio, 16/9);
 }
 
-/* Media inside slide */
-#carousel-track .slide img,
-#carousel-track .slide video,
-#carousel-track .slide picture,
-#carousel-track .slide canvas {
-  display: block;
-  width: 100%;
+/* Animated layers (current + neighbor) */
+#carousel-track .mc-layer {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateX(0);         /* JS updates */
+  transition: none;                 /* JS toggles transition on commit */
+  line-height: 0;
+}
+
+/* Media inside a layer */
+#carousel-track .mc-layer img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
   height: auto;
-  object-fit: cover;
+  object-fit: contain;              /* keep original aspect ratio */
   -webkit-user-drag: none;
   user-select: none;
-  border-radius: 0;               /* no rounding anywhere */
+  visibility: visible;              /* hidden while loading via .loading */
+  border-radius: 0;
 }
 
-/* Dots */
+/* Transparent neighbor until image is ready */
+#carousel-track .mc-layer.loading img { visibility: hidden; }
+
+/* Dots (kept for completeness; works with aria-current) */
 .carousel-dots { margin-top: 12px; text-align: center; }
 .carousel-dots button {
   all: unset;
@@ -214,35 +210,21 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   cursor: pointer;
   transition: background .2s ease, border .2s ease, opacity .2s ease;
 }
-.carousel-dots button[aria-current="true"] {
-  background: #000; border-color: #000; opacity: 1;
-}
-/* Keyboard focus visibility */
-.carousel-dots button:focus-visible {
-  outline: 2px solid #000;
-  outline-offset: 2px;
-}
+.carousel-dots button[aria-current="true"] { background: #000; border-color: #000; opacity: 1; }
+.carousel-dots button:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
 
-/* Transparent neighbor while loading (img hidden until ready) */
-#carousel-track .slide.loading img { visibility: hidden; }
-#carousel-track .slide.loading { background: transparent; }
-
-/* Mobile overrides: exact page width = 100vw; no gaps/padding */
-@media (max-width: 768px) {
-  #carousel-track {
-    gap: 0;
-    padding: 0;
-  }
-  #carousel-track .slide {
-    flex: 0 0 100vw;
-    width: 100vw;
-    scroll-snap-align: start;  /* page starts exactly at left edge */
+/* Phone tweaks (ensure full-bleed width; keep no-scroll behavior) */
+@media (max-width: 768px), (max-height: 500px) {
+  #mobile-carousel {
+    width: 100vw !important;
+    margin-left: calc(50% - 50vw) !important;
+    margin-right: calc(50% - 50vw) !important;
   }
 }
 
 /* Reduce motion preference */
 @media (prefers-reduced-motion: reduce) {
-  #mobile-carousel { scroll-b e havior: auto; } /* fallback to instant scroll */
+  #carousel-track .mc-layer { transition: none !important; }
 }
 
 /* =========================================
