@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* =================== Desktop thumbs =================== */
   function buildDesktopThumbsIfNeeded() {
-    if (!thumbsGrid || builtDesktopThumbs || mql.matches || isPhone) return;
+    if (!thumbsGrid || builtDesktopThumbs || mql.matches) return;
 
     var frag = document.createDocumentFragment();
     for (var i = 0; i < imageList.length; i++) {
@@ -145,12 +145,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  /* ============== MOBILE CAROUSEL — paged (snap + wrap by index). No clones. No DOM rebuilds during scroll. ============== */
+  /* =========================================
+     MOBILE CAROUSEL — paged (no wrap)
+     ========================================= */
 
-  // Public hook for resize/orientation
   function realignMobileCarousel() {}
 
-  // Main init
   function buildMobileCarousel() {
     if (!window.carouselTrack || !window.carouselDots) return;
 
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var n        = slides.length;
     if (!viewport || n === 0) return;
 
-    // Reset dots once
+    // Build dots once
     carouselDots.innerHTML = '';
     for (var i = 0; i < n; i++) {
       (function (idx) {
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function () {
       })(i);
     }
 
-    // Tap → open fullscreen (optional)
+    // Tap → fullscreen (optional)
     slides.forEach(function (s, idx) {
       var img = s.querySelector('img');
       if (img && typeof window.openFullscreen === 'function') {
@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ----- State & measurement -----
     var cur = (typeof window.currentIndex === 'number' ? window.currentIndex : 0);
-    cur = ((cur % n) + n) % n;
+    cur = Math.max(0, Math.min(n - 1, cur));
 
     var slideWidths = new Array(n);
     var slideLefts  = new Array(n);
@@ -190,7 +190,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function viewportW() { return viewport.clientWidth || window.innerWidth || 1; }
 
-    // Measure widths and positions
     function layout() {
       for (var i = 0; i < n; i++) {
         var el = slides[i];
@@ -202,7 +201,6 @@ document.addEventListener('DOMContentLoaded', function () {
       paintDots(cur);
     }
 
-    // Paint dots
     function paintDots(active) {
       var ds = carouselDots.children;
       for (var j = 0; j < ds.length; j++) {
@@ -211,23 +209,22 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    // Center slide i using native scroll-snap
     function centerIndex(i, behavior) {
-      i = ((i % n) + n) % n;
+      // NO WRAP: clamp to [0, n-1]
+      i = Math.max(0, Math.min(n - 1, i));
       slides[i].scrollIntoView({ behavior: behavior || 'smooth', inline: 'center', block: 'nearest' });
       cur = i;
       window.currentIndex = cur;
       paintDots(cur);
     }
 
-    // rAF-throttled detection of active index
     function onScroll() {
-      if (!ready) return;
-      if (ticking) return;
+      if (!ready || ticking) return;
       ticking = true;
       requestAnimationFrame(function () {
         ticking = false;
         var centerX = viewport.scrollLeft + viewportW() / 2;
+
         var best = cur, bestDist = Infinity;
         for (var i = 0; i < n; i++) {
           var mid = slideLefts[i] + slideWidths[i] / 2;
@@ -242,21 +239,39 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
-    // Public controls
-    function next() { centerIndex(cur + 1, 'smooth'); }
-    function prev() { centerIndex(cur - 1, 'smooth'); }
-    function goTo(i) { centerIndex(i, 'smooth'); }
+    // Public controls WITH wrap (instant jump at edges)
+    function next() {
+      if (cur < n - 1) {
+        centerIndex(cur + 1, 'smooth');
+      } else {
+        // jump instantly from last → first
+        centerIndex(0, 'auto');
+      }
+    }
 
-    // Export controls to global (desktop buttons use them)
+    function prev() {
+      if (cur > 0) {
+        centerIndex(cur - 1, 'smooth');
+      } else {
+        // jump instantly from first → last
+        centerIndex(n - 1, 'auto');
+      }
+    }
+
+    function goTo(i) {
+      if (i < 0) i = 0;
+      if (i > n - 1) i = n - 1;
+      centerIndex(i, 'smooth');
+    }
+
     buildMobileCarousel._next = next;
     buildMobileCarousel._prev = prev;
     buildMobileCarousel.goTo  = goTo;
 
-    // Realign on resize/orientation
     function realign() { if (!ready) return; layout(); }
     realignMobileCarousel = realign;
 
-    // Init after images load
+    // init after images
     var imgs = carouselTrack.querySelectorAll('img');
     var pending = imgs.length;
     if (pending === 0) layout();
@@ -268,21 +283,16 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-    // Watch resize
-    var ro = new ResizeObserver(function () { realign(); });
-    ro.observe(viewport);
-
-    // Scroll listener
+    new ResizeObserver(function () { realign(); }).observe(viewport);
     viewport.addEventListener('scroll', onScroll, { passive: true });
 
-    // Optional keyboard navigation
+    // keyboard (опционально)
     viewport.setAttribute('tabindex', '0');
     viewport.addEventListener('keydown', function (e) {
       if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
     });
 
-    // Initial paint if no images
     if (pending === 0) { centerIndex(cur, 'auto'); }
 
     return { next: next, prev: prev, goTo: goTo, realign: realign, get index() { return cur; } };
