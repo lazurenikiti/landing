@@ -145,21 +145,31 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  /* ============== MOBILE CAROUSEL — paged (snap + wrap by index). No clones. No DOM rebuilds during scroll. ============== */
+  /* ============== MOBILE CAROUSEL ============== */
 
   // Public hook for resize/orientation
   function realignMobileCarousel() {}
 
   // Main init
   function buildMobileCarousel() {
-    if (!window.carouselTrack || !window.carouselDots) return;
+    if (!carouselTrack || !carouselDots) return;
 
     var viewport = document.getElementById('mobile-carousel') || carouselTrack.parentNode;
-    var slides   = Array.from(carouselTrack.querySelectorAll('.slide'));
-    var n        = slides.length;
-    if (!viewport || n === 0) return;
+    if (!viewport) return;
 
-    // Reset dots once
+    var n = imageList.length;
+    if (!n) return;
+
+    // Wipe any existing children in track and build 3 reusable slots
+    carouselTrack.innerHTML = '';
+
+    var SLOT_COUNT = 3;                 // [0]=left, [1]=center, [2]=right
+    var slots = new Array(SLOT_COUNT);
+    var isAdjusting = false;            // guard when we tweak scrollLeft programmatically
+    var threshold = 4;                  // px hysteresis to detect page crossing
+    var slideW = 0;
+
+    // Dots
     carouselDots.innerHTML = '';
     for (var i = 0; i < n; i++) {
       (function (idx) {
@@ -171,46 +181,6 @@ document.addEventListener('DOMContentLoaded', function () {
       })(i);
     }
 
-    // Tap → open fullscreen (optional)
-    slides.forEach(function (s, idx) {
-      var img = s.querySelector('img');
-      if (img && typeof window.openFullscreen === 'function') {
-        img.addEventListener('click', function () { openFullscreen(idx); }, false);
-      }
-    });
-
-    // ----- State & measurement -----
-    var cur = (typeof window.currentIndex === 'number' ? window.currentIndex : 0);
-    cur = ((cur % n) + n) % n;
-
-    var slideWidths = new Array(n);
-    var slideLefts  = new Array(n);
-    var ready = false;
-    var ticking = false;
-
-    // ★ NEW: flag to ignore scroll observer during programmatic scroll
-    var programmatic = false;
-
-    // ★ NEW: helpers to temporarily disable scroll-snap (CSS: .mobile-carousel.no-snap)
-    function disableSnap() { viewport.classList.add('no-snap'); }
-    function enableSnap()  { viewport.classList.remove('no-snap'); }
-
-    function viewportW() { return viewport.clientWidth || window.innerWidth || 1; }
-
-    // Measure widths and positions
-    function layout() {
-      for (var i = 0; i < n; i++) {
-        var el = slides[i];
-        slideWidths[i] = el.getBoundingClientRect().width;
-        slideLefts[i]  = el.offsetLeft;
-      }
-      ready = true;
-      paintDots(cur);
-      // Use 'auto' to jump without animation on first layout
-      centerIndex(cur, 'auto');
-    }
-
-    // Paint dots
     function paintDots(active) {
       var ds = carouselDots.children;
       for (var j = 0; j < ds.length; j++) {
@@ -219,124 +189,159 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    // ★ REPLACED: center slide i using manual scrollTo + temporary no-snap (fixes flicker)
-    function centerIndex(i, behavior) {
-      if (!n) return;
-      i = ((i % n) + n) % n;
+    function norm(i) { return ((i % n) + n) % n; }
 
-      // Target left so that slide's center aligns with viewport center
-      var targetLeft = (slideLefts[i] || 0) + (slideWidths[i] || 0) / 2 - viewportW() / 2;
-
-      // Clamp within scroll range
-      var maxLeft = Math.max(0, (viewport.scrollWidth || 0) - (viewport.clientWidth || 0));
-      if (!isFinite(targetLeft)) targetLeft = 0;
-      targetLeft = Math.round(Math.min(Math.max(0, targetLeft), maxLeft));
-
-      var smooth = (behavior || 'smooth');
-
-      // During programmatic scroll: disable snap to prevent the mini "jump then snap" blink
-      programmatic = true;
-      if (smooth !== 'auto') disableSnap(); // keep snap during initial 'auto' jump
-
-      // Scroll
-      viewport.scrollTo({ left: targetLeft, behavior: smooth });
-
-      // Update UI immediately
-      cur = i;
-      window.currentIndex = cur;
-      paintDots(cur);
-
-      // Restore snap after scroll finishes
-      var restored = false;
-      function restoreOnce() {
-        if (restored) return;
-        restored = true;
-        enableSnap();
-        programmatic = false;
-        viewport.removeEventListener('scrollend', restoreOnce);
-      }
-
-      // browsers with 'scrollend'
-      if ('onscrollend' in window && smooth !== 'auto') {
-        viewport.addEventListener('scrollend', restoreOnce, { passive: true });
-      } else {
-        // fallback timer: match your visual duration (≈ 300–400ms)
-        setTimeout(restoreOnce, smooth === 'auto' ? 0 : 350);
-      }
+    function makeSlot() {
+      var s = document.createElement('div');
+      s.className = 'slide vslot';
+      var img = document.createElement('img');
+      img.decoding = 'async';
+      img.loading = 'lazy';
+      img.draggable = false;
+      img.addEventListener('click', function () {
+        if (typeof openFullscreen === 'function') openFullscreen(currentIndex);
+      }, false);
+      s.appendChild(img);
+      return s;
     }
 
-    // rAF-throttled detection of active index
+    function setSlotContent(slotEl, idx) {
+      idx = norm(idx);
+      slotEl.dataset.idx = String(idx);
+      var img = slotEl.querySelector('img');
+      var src = ORIG_DIR + imageList[idx];
+      if (img && img.src !== src) img.src = src;
+    }
+
+    // Build 3 slots
+    for (var k = 0; k < SLOT_COUNT; k++) {
+      var el = makeSlot();
+      carouselTrack.appendChild(el);
+      slots[k] = el;
+    }
+
+    // Initialize window: [currentIndex-1, currentIndex, currentIndex+1]
+    function mountWindow(centerIdx) {
+      currentIndex = norm(centerIdx);
+      setSlotContent(slots[0], currentIndex - 1);
+      setSlotContent(slots[1], currentIndex);
+      setSlotContent(slots[2], currentIndex + 1);
+      paintDots(currentIndex);
+
+      // center on middle slot
+      isAdjusting = true;
+      viewport.scrollLeft = slideW; // 0..slideW..2*slideW
+      // Defer release of guard to next frame
+      requestAnimationFrame(function(){ isAdjusting = false; });
+    }
+
+    function recalc() {
+      // Slot width = viewport width (we rely on CSS to make .slide 100vw)
+      slideW = viewport.clientWidth || window.innerWidth || 1;
+      // Ensure track has correct intrinsic width via flex, so nothing else to do
+    }
+
+    function advanceRight() {
+      // User paged to next (→). New center is old right slot’s index.
+      currentIndex = norm(currentIndex + 1);
+      paintDots(currentIndex);
+
+      // Recycle leftmost: move slots[0] to end, update its content to new "next+1"
+      var left = slots.shift();
+      slots.push(left);
+      carouselTrack.appendChild(left); // move DOM node to end
+
+      // Update contents of recycled (now rightmost) slot
+      setSlotContent(slots[2], currentIndex + 1);
+
+      // Correct scroll so visually we stay centered (we moved DOM)
+      isAdjusting = true;
+      viewport.scrollLeft -= slideW; // we were at 2*W; after recycle, bring back to W
+      requestAnimationFrame(function(){ isAdjusting = false; });
+    }
+
+    function advanceLeft() {
+      // User paged to prev (←)
+      currentIndex = norm(currentIndex - 1);
+      paintDots(currentIndex);
+
+      // Recycle rightmost: move slots[2] to front, update its content to new "prev-1"
+      var right = slots.pop();
+      slots.unshift(right);
+      carouselTrack.insertBefore(right, carouselTrack.firstChild);
+
+      setSlotContent(slots[0], currentIndex - 1);
+
+      // Correct scroll (we were at 0; after recycle, send to W)
+      isAdjusting = true;
+      viewport.scrollLeft += slideW;
+      requestAnimationFrame(function(){ isAdjusting = false; });
+    }
+
+    // Scroll watcher: detect when user crosses page boundaries
     function onScroll() {
-      if (!ready || ticking) return;
+      if (isAdjusting) return;
+      var x = viewport.scrollLeft;
 
-      // ★ NEW: ignore while we are doing a programmatic scroll
-      if (programmatic) return;
+      if (x >= (2 * slideW - threshold)) {
+        advanceRight();
+        return;
+      }
+      if (x <= (0 + threshold)) {
+        advanceLeft();
+        return;
+      }
 
-      ticking = true;
-      requestAnimationFrame(function () {
-        ticking = false;
-        var centerX = viewport.scrollLeft + viewportW() / 2;
-        var best = cur, bestDist = Infinity;
-        for (var i = 0; i < n; i++) {
-          var mid = (slideLefts[i] || 0) + (slideWidths[i] || 0) / 2;
-          var d = Math.abs(mid - centerX);
-          if (d < bestDist) { bestDist = d; best = i; }
-        }
-        if (best !== cur) {
-          cur = best;
-          window.currentIndex = cur;
-          paintDots(cur);
-        }
-      });
+      // Otherwise, in middle page — keep currentIndex as is.
     }
 
-    // Public controls
-    function next() { centerIndex(cur + 1, 'smooth'); }
-    function prev() { centerIndex(cur - 1, 'smooth'); }
-    function goTo(i) { centerIndex(i, 'smooth'); }
+    // Public API
+    function next() {
+      // Programmatic page right: smoothly scroll to 2*W, onScroll will recycle
+      viewport.scrollTo({ left: 2 * slideW, behavior: 'smooth' });
+    }
+    function prev() {
+      viewport.scrollTo({ left: 0, behavior: 'smooth' });
+    }
+    function goTo(i) {
+      i = norm(i);
+      if (i === currentIndex) return;
+      // Rebuild window around the target and jump to center without animation
+      mountWindow(i);
+    }
 
-    // Export controls to global (desktop buttons use them)
     buildMobileCarousel._next = next;
     buildMobileCarousel._prev = prev;
     buildMobileCarousel.goTo  = goTo;
 
-    // Realign on resize/orientation
-    function realign() {
-      if (!ready) return;
-      layout();
-    }
-    realignMobileCarousel = realign;
-
-    // Init after images load
-    var imgs = carouselTrack.querySelectorAll('img');
-    var pending = imgs.length;
-    if (pending === 0) layout();
-    else imgs.forEach(function (img) {
-      if (img.complete) { if (--pending === 0) layout(); }
-      else {
-        img.addEventListener('load',  function () { if (--pending === 0) layout(); }, { once: true });
-        img.addEventListener('error', function () { if (--pending === 0) layout(); }, { once: true });
-      }
+    // Resize/rotation
+    var ro = new ResizeObserver(function () {
+      recalc();
+      // keep middle page centered after resize
+      isAdjusting = true;
+      viewport.scrollLeft = slideW;
+      requestAnimationFrame(function(){ isAdjusting = false; });
     });
-
-    // Watch resize
-    var ro = new ResizeObserver(function () { realign(); });
     ro.observe(viewport);
 
-    // Scroll listener
+    // Init
+    recalc();
+    mountWindow(typeof window.currentIndex === 'number' ? window.currentIndex : currentIndex);
+
+    // Preload all originals (already есть ниже в файле, но оставим локально для надёжности)
+    // imageList.forEach(src => { var im = new Image(); im.src = ORIG_DIR + src; });
+
+    // Scroll listener (passive)
     viewport.addEventListener('scroll', onScroll, { passive: true });
 
-    // Optional keyboard navigation
+    // Keyboard (optional)
     viewport.setAttribute('tabindex', '0');
     viewport.addEventListener('keydown', function (e) {
       if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
     });
 
-    // Initial paint if no images
-    if (pending === 0) { centerIndex(cur, 'auto'); }
-
-    return { next: next, prev: prev, goTo: goTo, realign: realign, get index() { return cur; } };
+    return { next, prev, goTo, get index(){ return currentIndex; } };
   }
 
   /* =================== Scroll locking helpers (fullscreen) =================== */
