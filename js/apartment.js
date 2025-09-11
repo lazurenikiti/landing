@@ -150,6 +150,10 @@ document.addEventListener('DOMContentLoaded', function () {
   /* Safe placeholder so calls before init won't break */
   function realignMobileCarousel(){}
 
+  /**
+   * Infinite mobile carousel using native scroll + scroll-snap.
+   * Uses globals: carouselTrack, carouselDots, imageList, ORIG_DIR, currentIndex, openFullscreen
+   */
   function buildMobileCarouselInfinite() {
     if (!carouselTrack || !carouselDots) return;
 
@@ -196,8 +200,10 @@ document.addEventListener('DOMContentLoaded', function () {
     var slideWidths      = [];  // widths of all children (head+orig+tail)
     var origOffsets      = [];  // cumulative left offsets within originals
     var ready            = false;
+    var ticking          = false;
 
     function viewportW(){ return (viewport && viewport.clientWidth) || window.innerWidth || 1; }
+    function sum(arr){ return arr.reduce(function(a,b){ return a + b; }, 0); }
 
     // measure and align the current index in originals segment
     function layout() {
@@ -218,7 +224,8 @@ document.addEventListener('DOMContentLoaded', function () {
         acc += slideWidths[n + i];
       }
 
-      centerIndex(cur, 'auto'); // jump without animation
+      // jump without animation so current index is centered
+      centerIndex(cur, 'auto');
       ready = true;
     }
 
@@ -226,6 +233,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function centerIndex(i, behavior) {
       var el = originals[(i % n + n) % n];
       el.scrollIntoView({ behavior: behavior || 'smooth', inline: 'center', block: 'nearest' });
+      paintDots(i);
+      cur = i;
+      currentIndex = cur;
     }
 
     // keep infinite illusion by wrapping at clone zones
@@ -242,26 +252,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    // dots
-    function paintDots(active){
-      var ds = carouselDots.children;
-      for (var j=0;j<ds.length;j++){
-        if (j===active) ds[j].setAttribute('aria-current','true');
-        else ds[j].removeAttribute('aria-current');
-      }
-    }
-    for (var di=0; di<n; di++){
-      (function(idx){
-        var b = document.createElement('button');
-        b.type = 'button';
-        b.setAttribute('aria-label','Slide '+(idx+1));
-        b.addEventListener('click', function(){ cur = idx; centerIndex(cur, 'smooth'); paintDots(cur); });
-        carouselDots.appendChild(b);
-      })(di);
-    }
-
-    // track current index by viewport center (rAF-throttled)
-    var ticking = false;
+    // rAF-throttled index tracking by viewport center
     function onScroll(){
       if (ticking) return;
       ticking = true;
@@ -279,23 +270,37 @@ document.addEventListener('DOMContentLoaded', function () {
           var d    = Math.abs(mid - xInOriginals);
           if (d < bestDist) { bestDist = d; best = i; }
         }
-        if (best !== cur) { cur = best; currentIndex = cur; paintDots(cur); }
+        if (best !== cur) {
+          cur = best;
+          currentIndex = cur;
+          paintDots(cur);
+        }
       });
     }
 
-    // public controls (optional)
-    buildMobileCarouselInfinite._next = function(){ if (!ready) return; step(+1); };
-    buildMobileCarouselInfinite._prev = function(){ if (!ready) return; step(-1); };
-
-    function step(dir){
-      if (!ready) return;
-      var delta = (dir > 0 ? 1 : -1) * viewportW() * 0.9;
-      viewport.scrollBy({ left: delta, behavior: 'smooth' });
+    // dots
+    function paintDots(active){
+      var ds = carouselDots.children;
+      for (var j=0;j<ds.length;j++){
+        if (j===active) ds[j].setAttribute('aria-current','true');
+        else ds[j].removeAttribute('aria-current');
+      }
+    }
+    for (var di=0; di<n; di++){
+      (function(idx){
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('aria-label','Slide '+(idx+1));
+        b.addEventListener('click', function(){ cur = idx; centerIndex(cur, 'smooth'); });
+        carouselDots.appendChild(b);
+      })(di);
     }
 
-    function sum(arr){ return arr.reduce(function(a,b){ return a + b; }, 0); }
+    // public controls (keep API if you used them elsewhere)
+    buildMobileCarouselInfinite._next = function(){ if (!ready) return; viewport.scrollBy({ left:  0.9 * viewportW(), behavior: 'smooth' }); };
+    buildMobileCarouselInfinite._prev = function(){ if (!ready) return; viewport.scrollBy({ left: -0.9 * viewportW(), behavior: 'smooth' }); };
 
-    // realign on resize/orientation
+    // external realign hook for resize/orientation
     function realign(){
       if (!ready) return;
       layout();
@@ -316,10 +321,11 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
+    // observers & events
     new ResizeObserver(function(){ realign(); }).observe(viewport);
     viewport.addEventListener('scroll', onScroll, { passive: true });
 
-    // initial dots state (in case no images fire load)
+    // initial dots state
     paintDots(cur);
   }
 
