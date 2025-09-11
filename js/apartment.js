@@ -188,6 +188,13 @@ document.addEventListener('DOMContentLoaded', function () {
     var ready = false;
     var ticking = false;
 
+    // ★ NEW: flag to ignore scroll observer during programmatic scroll
+    var programmatic = false;
+
+    // ★ NEW: helpers to temporarily disable scroll-snap (CSS: .mobile-carousel.no-snap)
+    function disableSnap() { viewport.classList.add('no-snap'); }
+    function enableSnap()  { viewport.classList.remove('no-snap'); }
+
     function viewportW() { return viewport.clientWidth || window.innerWidth || 1; }
 
     // Measure widths and positions
@@ -197,9 +204,10 @@ document.addEventListener('DOMContentLoaded', function () {
         slideWidths[i] = el.getBoundingClientRect().width;
         slideLefts[i]  = el.offsetLeft;
       }
-      centerIndex(cur, 'auto');
       ready = true;
       paintDots(cur);
+      // Use 'auto' to jump without animation on first layout
+      centerIndex(cur, 'auto');
     }
 
     // Paint dots
@@ -211,26 +219,66 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    // Center slide i using native scroll-snap
+    // ★ REPLACED: center slide i using manual scrollTo + temporary no-snap (fixes flicker)
     function centerIndex(i, behavior) {
+      if (!n) return;
       i = ((i % n) + n) % n;
-      slides[i].scrollIntoView({ behavior: behavior || 'smooth', inline: 'center', block: 'nearest' });
+
+      // Target left so that slide's center aligns with viewport center
+      var targetLeft = (slideLefts[i] || 0) + (slideWidths[i] || 0) / 2 - viewportW() / 2;
+
+      // Clamp within scroll range
+      var maxLeft = Math.max(0, (viewport.scrollWidth || 0) - (viewport.clientWidth || 0));
+      if (!isFinite(targetLeft)) targetLeft = 0;
+      targetLeft = Math.round(Math.min(Math.max(0, targetLeft), maxLeft));
+
+      var smooth = (behavior || 'smooth');
+
+      // During programmatic scroll: disable snap to prevent the mini "jump then snap" blink
+      programmatic = true;
+      if (smooth !== 'auto') disableSnap(); // keep snap during initial 'auto' jump
+
+      // Scroll
+      viewport.scrollTo({ left: targetLeft, behavior: smooth });
+
+      // Update UI immediately
       cur = i;
       window.currentIndex = cur;
       paintDots(cur);
+
+      // Restore snap after scroll finishes
+      var restored = false;
+      function restoreOnce() {
+        if (restored) return;
+        restored = true;
+        enableSnap();
+        programmatic = false;
+        viewport.removeEventListener('scrollend', restoreOnce);
+      }
+
+      // browsers with 'scrollend'
+      if ('onscrollend' in window && smooth !== 'auto') {
+        viewport.addEventListener('scrollend', restoreOnce, { passive: true });
+      } else {
+        // fallback timer: match your visual duration (≈ 300–400ms)
+        setTimeout(restoreOnce, smooth === 'auto' ? 0 : 350);
+      }
     }
 
     // rAF-throttled detection of active index
     function onScroll() {
-      if (!ready) return;
-      if (ticking) return;
+      if (!ready || ticking) return;
+
+      // ★ NEW: ignore while we are doing a programmatic scroll
+      if (programmatic) return;
+
       ticking = true;
       requestAnimationFrame(function () {
         ticking = false;
         var centerX = viewport.scrollLeft + viewportW() / 2;
         var best = cur, bestDist = Infinity;
         for (var i = 0; i < n; i++) {
-          var mid = slideLefts[i] + slideWidths[i] / 2;
+          var mid = (slideLefts[i] || 0) + (slideWidths[i] || 0) / 2;
           var d = Math.abs(mid - centerX);
           if (d < bestDist) { bestDist = d; best = i; }
         }
@@ -253,7 +301,10 @@ document.addEventListener('DOMContentLoaded', function () {
     buildMobileCarousel.goTo  = goTo;
 
     // Realign on resize/orientation
-    function realign() { if (!ready) return; layout(); }
+    function realign() {
+      if (!ready) return;
+      layout();
+    }
     realignMobileCarousel = realign;
 
     // Init after images load

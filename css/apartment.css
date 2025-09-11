@@ -1,5 +1,5 @@
 /* =========================================
-   APARTMENT — CLEAN
+   APARTMENT — CLEAN (with mobile snap fixes)
    ========================================= */
 
 /* ---------- Header ---------- */
@@ -65,7 +65,7 @@
 }
 .thumb.active-thumb { border: 3px solid #000; }
 
-/* Focus */
+/* Focus rings */
 .slideshow-btn:focus,
 .thumb:focus,
 .carousel-dots button:focus {
@@ -85,6 +85,7 @@
   align-items: center;
   justify-content: center;
   isolation: isolate;
+  /* allow pinch-zoom; block 1-finger scroll is handled in JS */
   touch-action: pinch-zoom;
 }
 #fullscreen-overlay.active { display: flex; }
@@ -102,6 +103,7 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   touch-action: pinch-zoom;
 }
 
+/* When thumb strip is visible, keep max-height conservative (kept as 100dvh per spec) */
 #fullscreen-overlay.strip-visible #fs-image { max-height: 100dvh; }
 
 .fs-fade-out { opacity: 0; transition: opacity 220ms ease; }
@@ -138,6 +140,7 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
 
 /* =========================================
    MOBILE CAROUSEL — native scroll-snap (paged, with gaps)
+   + flicker fixes + programmatic no-snap
    ========================================= */
 
 .mobile-carousel {
@@ -146,37 +149,43 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   margin-right: calc(50% - 50vw);
   overflow-x: auto;
   overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;   /* iOS momentum */
-  scroll-snap-type: x mandatory;       /* snap slides on settle */
-  scroll-behavior: smooth;             /* smooth programmatic scrollBy */
-  touch-action: pan-y pinch-zoom;      /* allow vertical page scroll */
-  overscroll-behavior-x: contain;      /* stop horizontal scroll chaining */
+  -webkit-overflow-scrolling: touch;     /* iOS momentum */
+  scroll-snap-type: x mandatory;         /* snap on settle */
+  scroll-behavior: smooth;               /* smooth programmatic scroll */
+  touch-action: pan-y pinch-zoom;        /* allow vertical page scroll */
+  overscroll-behavior-x: contain;        /* stop horizontal scroll chaining */
 }
 
-/* hide native scrollbars (cosmetic) */
+/* Temporarily disable snap during programmatic scroll (JS toggles .no-snap) */
+.mobile-carousel.no-snap {
+  scroll-snap-type: none !important;
+}
+
+/* Hide native scrollbars (cosmetic) */
 .mobile-carousel { scrollbar-width: none; }
 .mobile-carousel::-webkit-scrollbar { display: none; }
 
-/* horizontal track */
+/* Horizontal track */
 .carousel-track {
   display: inline-flex;
-  gap: 12px;                           /* visual spacing between slides */
+  gap: 12px;                              /* visual spacing between slides */
   backface-visibility: hidden;
   will-change: scroll-position;
-  transition: none;                    /* no transform animations */
-  padding: 0 4vw;                      /* outer breathing room so first/last can center nicely */
+  transition: none;                       /* no transform animations */
+  padding: 0 4vw;                         /* breathing room so first/last can center */
 }
 
-/* single slide (slightly narrower than viewport) */
+/* Single slide — fixed basis to avoid layout shifts while images load */
 .slide {
-  flex: 0 0 92vw;                      /* peek neighbors: try 90–94vw */
+  flex: 0 0 92vw;                         /* peek neighbors: ~90–94vw */
   position: relative;
-  scroll-snap-align: center;           /* center on settle */
-  scroll-snap-stop: always;            /* avoid overshoot on fast flicks */
-  contain: content;                    /* isolate layout/paint */
+  scroll-snap-align: center;              /* center on settle */
+  scroll-snap-stop: always;               /* avoid overshoot on fast flicks */
+  contain: content;                       /* isolate layout/paint */
+  width: 92vw;                            /* hard width to prevent flicker */
 }
 
-/* media inside slides */
+/* Media inside slides — prevent reflow flicker */
 .slide img,
 .slide video,
 .slide picture,
@@ -184,13 +193,13 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   display: block;
   width: 100%;
   height: auto;
-  object-fit: cover;                   /* crop to fill card nicely */
-  -webkit-user-drag: none;             /* avoid image drag on iOS */
+  object-fit: cover;                      /* crop to fill card nicely */
+  -webkit-user-drag: none;                /* avoid image drag on iOS */
   user-select: none;
-  border-radius: 12px;                 /* card look */
+  border-radius: 12px;                    /* card look */
 }
 
-/* dots indicator */
+/* Dots indicator */
 .carousel-dots { margin-top: 12px; text-align: center; }
 .carousel-dots button {
   all: unset;
@@ -208,7 +217,7 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   background: #000; border-color: #000; opacity: 1;
 }
 
-/* accessibility: reduce motion */
+/* Accessibility: reduce motion */
 @media (prefers-reduced-motion: reduce) {
   .mobile-carousel { scroll-behavior: auto; }
 }
@@ -258,12 +267,13 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
     margin-right: calc(50% - 50vw) !important;
   }
 
+  /* keep slides/media non-distorting on small screens */
   .slide { height: auto !important; }
   .slide img { height: auto !important; object-fit: contain !important; }
 }
 
 /* =========================================
-   HOT FIX — FORCE MOBILE
+   HOT FIX — FORCE MOBILE (merged)
    ========================================= */
 .force-mobile .apartment-grid{ display:block !important; }
 .force-mobile #main-left,
