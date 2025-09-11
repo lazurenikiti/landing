@@ -154,343 +154,58 @@ document.addEventListener('DOMContentLoaded', function () {
   function buildMobileCarousel() {
     if (!carouselTrack || !carouselDots) return;
 
-    // We use a swipe illusion (no native horizontal scroll).
-    // Two layers: current (layerA) and neighbor (layerB). We animate with transforms.
+    carouselTrack.innerHTML = '';
+    carouselDots.innerHTML = '';
 
-    var viewport = document.getElementById('mobile-carousel') || carouselTrack.parentNode;
-    if (!viewport) return;
-
-    var n = imageList.length;
-    if (!n) return;
-
-    /* ----------------------- Utils ----------------------- */
-    function norm(i) { return ((i % n) + n) % n; }
-
-    function setTransform(el, px) { el.style.transform = 'translateX(' + px + 'px)'; }
-    function enableTransition(el) { el.style.transition = 'transform 280ms cubic-bezier(.22,.61,.36,1)'; }
-    function disableTransition(el){ el.style.transition = 'none'; }
-
-    function vw() { return viewport.clientWidth || window.innerWidth || 1; }
-
-    function preloadIndex(idx) {
-      return new Promise(function (resolve) {
-        idx = norm(idx);
-        var src = ORIG_DIR + imageList[idx];
-        var im = new Image();
-        im.src = src;
-        var done = function () { resolve({ idx: idx, src: src }); };
-        if (im.decode) im.decode().then(done).catch(done);
-        else im.onload = done;
-      });
-    }
-
-    function makeLayer() {
-      var s = document.createElement('div');
-      s.className = 'slide mc-layer'; // CSS makes it absolute and full-bleed
-      var img = document.createElement('img');
+    // Build slides
+    imageList.forEach((src, i) => {
+      const s = document.createElement('div');
+      s.className = 'slide';
+      const img = document.createElement('img');
+      img.src = ORIG_DIR + src;
+      img.alt = 'Slide ' + (i+1);
       img.decoding = 'async';
       img.loading = 'lazy';
       img.draggable = false;
-      img.addEventListener('click', function () {
-        if (typeof openFullscreen === 'function') openFullscreen(currentIndex);
-      }, false);
+      img.addEventListener('click', () => {
+        if (typeof openFullscreen === 'function') openFullscreen(i);
+      });
       s.appendChild(img);
-      return s;
-    }
+      carouselTrack.appendChild(s);
 
-    function setLayerImage(layerEl, idx, opts) {
-      var hideUntilReady = !!(opts && opts.hideUntilReady);
-      idx = norm(idx);
-      layerEl.dataset.idx = String(idx);
-      var img = layerEl.querySelector('img');
-      var src = ORIG_DIR + imageList[idx];
-
-      if (hideUntilReady) {
-        layerEl.classList.add('loading');
-        img.style.visibility = 'hidden';
-        preloadIndex(idx).then(function (res) {
-          if (layerEl.dataset.idx !== String(res.idx)) return; // out of date
-          img.src = res.src;
-          img.style.visibility = 'visible';
-          layerEl.classList.remove('loading');
-        });
-      } else {
-        if (img.src !== src) img.src = src;
-        img.style.visibility = 'visible';
-        layerEl.classList.remove('loading');
-      }
-    }
-
-    function buildDots() {
-      carouselDots.innerHTML = '';
-      for (var i = 0; i < n; i++) {
-        (function (idx) {
-          var b = document.createElement('button');
-          b.type = 'button';
-          b.setAttribute('aria-label', 'Slide ' + (idx + 1));
-          if (idx === currentIndex) b.setAttribute('aria-current', 'true');
-          b.addEventListener('click', function () { goTo(idx); });
-          carouselDots.appendChild(b);
-        })(i);
-      }
-    }
-
-    function paintDots(active) {
-      var ds = carouselDots.children;
-      for (var j = 0; j < ds.length; j++) {
-        if (j === active) ds[j].setAttribute('aria-current', 'true');
-        else ds[j].removeAttribute('aria-current');
-      }
-    }
-
-    /* ------------------- DOM: 2 layers ------------------- */
-    carouselTrack.innerHTML = '';
-    carouselTrack.classList.add('mc-stack'); // CSS uses this to make absolute layers
-
-    var layerA = makeLayer(); // current
-    var layerB = makeLayer(); // neighbor
-
-    carouselTrack.appendChild(layerA);
-    carouselTrack.appendChild(layerB);
-
-    var W = vw();
-
-    function hardResetPositions() {
-      // Park A at 0, B offscreen right by default. Kill transitions (iOS fix).
-      disableTransition(layerA); disableTransition(layerB);
-      setTransform(layerA, 0);
-      setTransform(layerB, W);
-      // force reflow to cancel any pending transitions
-      void layerA.offsetWidth; void layerB.offsetWidth;
-    }
-
-    setLayerImage(layerA, currentIndex, { hideUntilReady: false });
-    hardResetPositions();
-    buildDots();
-
-    /* -------------------- Gesture state ------------------- */
-    var startX = 0, startY = 0;
-    var lastX = 0, lastT = 0, velocityX = 0;
-    var dragging = false, committing = false;
-    var dir = 0;              // -1=prev, +1=next, 0=undecided
-    var neighborIdx = 0;
-
-    // Allow vertical scroll on the page
-    viewport.style.touchAction = 'pan-y pinch-zoom';
-
-    /* -------------------- Handlers -------------------- */
-    function onDown(clientX, clientY) {
-      if (committing) return;
-      dragging = true;
-      startX = lastX = clientX;
-      startY = clientY;
-      lastT = performance.now();
-      dir = 0;
-      hardResetPositions(); // kill any leftover transforms
-    }
-
-    function onMove(clientX, clientY) {
-      if (!dragging) return;
-
-      // Direction gate: decide only after user moves ~10px; if vertical dominates, release.
-      if (dir === 0) {
-        var dxGate = Math.abs(clientX - startX);
-        var dyGate = Math.abs(clientY - startY);
-        if (dxGate < 10 && dyGate < 10) return;           // not enough movement
-        if (dyGate > dxGate) { dragging = false; return; } // vertical → let page scroll
-        dir = (clientX - startX) < 0 ? +1 : -1;            // lock horizontal direction
-
-        // Prepare neighbor layer (transparent until loaded) on chosen side
-        neighborIdx = norm(currentIndex + (dir > 0 ? +1 : -1));
-        setLayerImage(layerB, neighborIdx, { hideUntilReady: true });
-        disableTransition(layerA); disableTransition(layerB);
-        setTransform(layerB, dir > 0 ? W : -W);
-      }
-
-      var now = performance.now();
-      var dx = clientX - lastX;
-      var dt = Math.max(1, now - lastT);
-      velocityX = dx / dt;
-      lastX = clientX; lastT = now;
-
-      var totalDx = clientX - startX;
-
-      // Drag both layers
-      setTransform(layerA, totalDx);
-      setTransform(layerB, (dir > 0 ? W : -W) + totalDx);
-    }
-
-    function onUp() {
-      if (!dragging) return;
-      dragging = false;
-
-      if (dir === 0) {
-        // No horizontal gesture → nothing to do
-        hardResetPositions();
-        return;
-      }
-
-      // Decide commit by distance or velocity
-      var endDelta = lastX - startX;
-      var distanceCommit = Math.abs(endDelta) > W * 0.28;
-      var velocityCommit = Math.abs(velocityX) > 0.6; // px/ms
-      var commit = distanceCommit || velocityCommit;
-
-      enableTransition(layerA); enableTransition(layerB);
-
-      if (commit) {
-        committing = true;
-        // Slide out current, slide in neighbor
-        setTransform(layerA, dir > 0 ? -W : W);
-        setTransform(layerB, 0);
-
-        var done = function () {
-          layerA.removeEventListener('transitionend', done);
-
-          // Swap layer refs: the neighbor becomes current
-          var tmp = layerA; layerA = layerB; layerB = tmp;
-
-          currentIndex = neighborIdx;
-          paintDots(currentIndex);
-
-          // Park the (new) neighbor offscreen for future swipes
-          disableTransition(layerB);
-          setTransform(layerB, dir > 0 ? W : -W);
-
-          dir = 0; committing = false;
-          hardResetPositions(); // final safety reset (prevents any stuck offset)
-        };
-        layerA.addEventListener('transitionend', done);
-      } else {
-        // Revert to original
-        setTransform(layerA, 0);
-        setTransform(layerB, dir > 0 ? W : -W);
-        setTimeout(function () {
-          dir = 0;
-          hardResetPositions();
-        }, 300);
-      }
-    }
-
-    /* -------------------- Listeners -------------------- */
-    // Touch (primary on mobile)
-    viewport.addEventListener('touchstart', function (e) {
-      if (!e.changedTouches || !e.changedTouches.length) return;
-      var t = e.changedTouches[0];
-      onDown(t.clientX, t.clientY);
-    }, { passive: true });
-
-    viewport.addEventListener('touchmove', function (e) {
-      if (!e.changedTouches || !e.changedTouches.length) return;
-      var t = e.changedTouches[0];
-      onMove(t.clientX, t.clientY);
-    }, { passive: true });
-
-    viewport.addEventListener('touchend', onUp, { passive: true });
-    viewport.addEventListener('touchcancel', onUp, { passive: true });
-
-    // Mouse (optional for desktop testing)
-    viewport.addEventListener('mousedown', function (e) { onDown(e.clientX, e.clientY); });
-    window.addEventListener('mousemove', function (e) { onMove(e.clientX, e.clientY); });
-    window.addEventListener('mouseup', onUp);
-
-    // Resize: recompute width and reset positions
-    var ro = new ResizeObserver(function () {
-      W = vw();
-      hardResetPositions();
-    });
-    ro.observe(viewport);
-
-    /* ---------------------- API ---------------------- */
-    function next() {
-      if (committing) return;
-      committing = true;
-      var dirLocal = +1;
-      neighborIdx = norm(currentIndex + 1);
-
-      setLayerImage(layerB, neighborIdx, { hideUntilReady: true });
-      hardResetPositions();
-      disableTransition(layerA); disableTransition(layerB);
-      setTransform(layerB, W);
-
-      requestAnimationFrame(function () {
-        enableTransition(layerA); enableTransition(layerB);
-        setTransform(layerA, -W);
-        setTransform(layerB, 0);
-        var done = function () {
-          layerA.removeEventListener('transitionend', done);
-          var tmp = layerA; layerA = layerB; layerB = tmp;
-          currentIndex = neighborIdx;
-          paintDots(currentIndex);
-          disableTransition(layerB);
-          setTransform(layerB, dirLocal > 0 ? W : -W);
-          committing = false;
-          hardResetPositions();
-        };
-        layerA.addEventListener('transitionend', done);
+      // Dot
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('aria-label', 'Slide ' + (i+1));
+      b.addEventListener('click', () => {
+        const slideEl = carouselTrack.children[i];
+        if (slideEl) slideEl.scrollIntoView({ behavior: 'smooth', inline: 'start' });
       });
-    }
-
-    function prev() {
-      if (committing) return;
-      committing = true;
-      var dirLocal = -1;
-      neighborIdx = norm(currentIndex - 1);
-
-      setLayerImage(layerB, neighborIdx, { hideUntilReady: true });
-      hardResetPositions();
-      disableTransition(layerA); disableTransition(layerB);
-      setTransform(layerB, -W);
-
-      requestAnimationFrame(function () {
-        enableTransition(layerA); enableTransition(layerB);
-        setTransform(layerA, W);
-        setTransform(layerB, 0);
-        var done = function () {
-          layerA.removeEventListener('transitionend', done);
-          var tmp = layerA; layerA = layerB; layerB = tmp;
-          currentIndex = neighborIdx;
-          paintDots(currentIndex);
-          disableTransition(layerB);
-          setTransform(layerB, dirLocal > 0 ? W : -W);
-          committing = false;
-          hardResetPositions();
-        };
-        layerA.addEventListener('transitionend', done);
-      });
-    }
-
-    function goTo(target) {
-      if (committing) return;
-      target = norm(target);
-      if (target === currentIndex) return;
-
-      var delta = target - currentIndex;
-      // Choose shortest circular direction
-      if (Math.abs(delta) === 1 || Math.abs(delta) === n - 1) {
-        return (delta === 1 || delta === -(n - 1)) ? next() : prev();
-      }
-
-      // Non-adjacent jump: instant swap without swipe
-      disableTransition(layerA); disableTransition(layerB);
-      setLayerImage(layerA, target, { hideUntilReady: false });
-      hardResetPositions();
-      currentIndex = target;
-      paintDots(currentIndex);
-    }
-
-    buildMobileCarousel._next = next;
-    buildMobileCarousel._prev = prev;
-    buildMobileCarousel.goTo  = goTo;
-
-    // Keyboard (optional)
-    viewport.setAttribute('tabindex', '0');
-    viewport.addEventListener('keydown', function (e) {
-      if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
-      else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+      carouselDots.appendChild(b);
     });
 
-    return { next, prev, goTo, get index(){ return currentIndex; } };
+    // Sync dots on scroll
+    function updateDots() {
+      const slides = carouselTrack.children;
+      let idx = 0;
+      let minDist = Infinity;
+      for (let i=0; i<slides.length; i++) {
+        const rect = slides[i].getBoundingClientRect();
+        const dist = Math.abs(rect.left);
+        if (dist < minDist) { minDist = dist; idx = i; }
+      }
+      const dots = carouselDots.children;
+      for (let j=0; j<dots.length; j++) {
+        if (j === idx) dots[j].setAttribute('aria-current','true');
+        else dots[j].removeAttribute('aria-current');
+      }
+      currentIndex = idx;
+    }
+
+    document.getElementById('mobile-carousel')
+            .addEventListener('scroll', updateDots, { passive:true });
+
+    updateDots(); // init
   }
 
   /* =================== Scroll locking helpers (fullscreen) =================== */

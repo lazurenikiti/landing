@@ -139,89 +139,74 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
 #fs-close:hover::after { background: #fff; }
 
 /* =========================================
-   MOBILE CAROUSEL — swipe illusion (full-bleed cover)
-   Uses IDs to match JS: #mobile-carousel, #carousel-track
+   MOBILE CAROUSEL — simple horizontal strip
    ========================================= */
 
-/* Viewport: no horizontal native scroll, JS drives transforms */
+/* Viewport */
 #mobile-carousel {
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  overflow: hidden;                 
-  -webkit-overflow-scrolling: auto; 
-  scroll-snap-type: none;           
-  scroll-behavior: auto;
-  touch-action: pan-y pinch-zoom;   
-  overscroll-behavior-x: contain;   
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;     /* snapping */
+  scroll-behavior: smooth;
+  touch-action: pan-x pan-y pinch-zoom;
+  overscroll-behavior-x: contain;
 }
 
-/* Track becomes a stacking context for two animated layers */
-#carousel-track.mc-stack {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  height: 100vh;                    /* full viewport height */
-}
+/* Hide native scrollbars */
+#mobile-carousel { scrollbar-width: none; }
+#mobile-carousel::-webkit-scrollbar { display: none; }
 
-/* Animated layers (current + neighbor) */
-#carousel-track .mc-layer {
-  position: absolute;
-  inset: 0;
-  will-change: transform;
-  background: #000;                 /* black background behind cover */
+/* Track: horizontal flex */
+#carousel-track {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: translateX(0);         
-  transition: none;                 
-  line-height: 0;
+  gap: 0;               /* no gaps between slides */
+  padding: 0;
 }
 
-/* Media inside a layer: stretch to cover full screen */
-#carousel-track .mc-layer img {
+/* Slide: full viewport width */
+#carousel-track .slide {
+  flex: 0 0 100vw;
+  width: 100vw;
+  height: 100vh;        /* make it fullscreen; or auto if you prefer aspect */
+  scroll-snap-align: start;
+  line-height: 0;
+  position: relative;
+}
+
+/* Media inside slide */
+#carousel-track .slide img,
+#carousel-track .slide video,
+#carousel-track .slide picture,
+#carousel-track .slide canvas {
   width: 100%;
   height: 100%;
-  object-fit: cover;                /* cover entire viewport, no gaps */
+  object-fit: cover;     /* edge to edge cover */
+  display: block;
+  border-radius: 0;
   -webkit-user-drag: none;
   user-select: none;
-  visibility: visible;              
-  border-radius: 0;
 }
-
-/* Transparent neighbor until image is ready */
-#carousel-track .mc-layer.loading img { visibility: hidden; }
 
 /* Dots */
 .carousel-dots { margin-top: 12px; text-align: center; }
 .carousel-dots button {
   all: unset;
   display: inline-block;
-  width: 12px; height: 12px; box-sizing: border-box;
+  width: 10px; height: 10px;
   border-radius: 50%;
-  margin: 0 5px;
-  background: transparent;
-  border: 2px solid #000;
-  opacity: .6;
+  margin: 0 4px;
+  background: rgba(0,0,0,.3);
   cursor: pointer;
-  transition: background .2s ease, border .2s ease, opacity .2s ease;
+  transition: background .2s;
 }
-.carousel-dots button[aria-current="true"] { background: #000; border-color: #000; opacity: 1; }
-.carousel-dots button:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
-
-/* Phone tweaks (force full-bleed) */
-@media (max-width: 768px), (max-height: 500px) {
-  #mobile-carousel {
-    width: 100vw !important;
-    height: 100vh !important;
-    margin-left: calc(50% - 50vw) !important;
-    margin-right: calc(50% - 50vw) !important;
-  }
-}
-
-/* Reduce motion preference */
-@media (prefers-reduced-motion: reduce) {
-  #carousel-track .mc-layer { transition: none !important; }
+.carousel-dots button[aria-current="true"] { background: #000; }
+.carousel-dots button:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 2px;
 }
 
 /* =========================================
