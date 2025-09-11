@@ -72,7 +72,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* =================== Desktop thumbs =================== */
   function buildDesktopThumbsIfNeeded() {
-    if (!thumbsGrid || builtDesktopThumbs || mql.matches || isPhone) return;
+    if (!thumbsGrid || builtDesktopThumbs) return;
+    if (mql.matches) return;
 
     var frag = document.createDocumentFragment();
     for (var i = 0; i < imageList.length; i++) {
@@ -708,9 +709,9 @@ document.addEventListener('DOMContentLoaded', function () {
   buildDesktopThumbsIfNeeded();
 
   if (mql.addEventListener) {
-    mql.addEventListener('change', buildDesktopThumbsIfNeeded);
+    mql.addEventListener('change', buildDesktopThumbsIfNeeded());
   } else if (mql.addListener) {
-    mql.addListener(buildDesktopThumbsIfNeeded);
+    mql.addListener(buildDesktopThumbsIfNeeded());
   }
 
   // Preload remaining originals
