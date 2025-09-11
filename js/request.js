@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 (function () {
   const form = document.getElementById('contact-form');
   if (!form) return;
@@ -72,6 +71,7 @@
 
   form.addEventListener('submit', handleSubmit);
 })();
+
 
 =======
 (function () {
