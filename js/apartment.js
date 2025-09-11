@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* =================== Desktop thumbs =================== */
   function buildDesktopThumbsIfNeeded() {
-    if (!thumbsGrid || builtDesktopThumbs || mql.matches) return;
+    if (!thumbsGrid || builtDesktopThumbs || isPhone) return;
 
     var frag = document.createDocumentFragment();
     for (var i = 0; i < imageList.length; i++) {
@@ -153,6 +153,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function buildMobileCarousel() {
     if (!carouselTrack || !carouselDots) return;
+
+    const viewport = document.getElementById('mobile-carousel') || carouselTrack.parentNode;
+
+    // Ensure required classes so CSS rules apply in Chrome
+    if (viewport && !viewport.classList.contains('mobile-carousel')) {
+      viewport.classList.add('mobile-carousel');
+    }
+    if (!carouselTrack.classList.contains('carousel-track')) {
+      carouselTrack.classList.add('carousel-track');
+    }
+    if (!carouselDots.classList.contains('carousel-dots')) {
+      carouselDots.classList.add('carousel-dots');
+    }
 
     const viewport = document.getElementById('mobile-carousel') || carouselTrack.parentNode;
     const originals = Array.from(carouselTrack.querySelectorAll('.slide'));
