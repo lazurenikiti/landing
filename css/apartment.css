@@ -1,5 +1,5 @@
 /* =========================================
-   APARTMENT — CLEAN
+   APARTMENT — CLEAN (mobile snap fixes + no rounding)
    ========================================= */
 
 /* ---------- Header ---------- */
@@ -23,6 +23,7 @@
   height: auto;
   object-fit: contain;
   display: block;
+  border-radius: 0; /* no rounding */
 }
 
 /* ---------- Arrows (desktop) ---------- */
@@ -65,7 +66,7 @@
 }
 .thumb.active-thumb { border: 3px solid #000; }
 
-/* Focus */
+/* Focus rings */
 .slideshow-btn:focus,
 .thumb:focus,
 .carousel-dots button:focus {
@@ -85,7 +86,7 @@
   align-items: center;
   justify-content: center;
   isolation: isolate;
-  touch-action: pinch-zoom;
+  touch-action: pinch-zoom;             /* allow pinch; 1-finger блокируется JS */
 }
 #fullscreen-overlay.active { display: flex; }
 
@@ -100,6 +101,7 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   display: block;
   will-change: opacity, transform;
   touch-action: pinch-zoom;
+  border-radius: 0;
 }
 
 #fullscreen-overlay.strip-visible #fs-image { max-height: 100dvh; }
@@ -137,50 +139,59 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
 #fs-close:hover::after { background: #fff; }
 
 /* =========================================
-   MOBILE CAROUSEL — native scroll-snap
+   MOBILE CAROUSEL — simple horizontal strip
    ========================================= */
 
-.mobile-carousel {
+/* Viewport */
+#mobile-carousel {
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: x mandatory;     /* snapping */
   scroll-behavior: smooth;
-  touch-action: pan-x pinch-zoom;
+  touch-action: pan-x pan-y pinch-zoom;
+  overscroll-behavior-x: contain;
 }
 
-.mobile-carousel {
-  scrollbar-width: none;          /* Firefox */
-}
-.mobile-carousel::-webkit-scrollbar {
-  display: none;                  /* Chrome/Safari/Edge */
+/* Hide native scrollbars */
+#mobile-carousel { scrollbar-width: none; }
+#mobile-carousel::-webkit-scrollbar { display: none; }
+
+/* Track: horizontal flex */
+#carousel-track {
+  display: flex;
+  gap: 0;               /* no gaps between slides */
+  padding: 0;
 }
 
-.carousel-track {
-  display: inline-flex;
-  transition: none !important;
-  will-change: scroll-position;
-  backface-visibility: hidden;
-}
-
-.slide {
+/* Slide: full viewport width */
+#carousel-track .slide {
   flex: 0 0 100vw;
+  width: 100vw;
+  height: 100vh;        /* make it fullscreen; or auto if you prefer aspect */
+  scroll-snap-align: start;
+  line-height: 0;
   position: relative;
-  scroll-snap-align: center;
 }
 
-.slide img {
+/* Media inside slide */
+#carousel-track .slide img,
+#carousel-track .slide video,
+#carousel-track .slide picture,
+#carousel-track .slide canvas {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;     /* edge to edge cover */
   display: block;
-  object-fit: contain;
+  border-radius: 0;
   -webkit-user-drag: none;
   user-select: none;
 }
 
+/* Dots */
 .carousel-dots { margin-top: 12px; text-align: center; }
 .carousel-dots button {
   all: unset;
@@ -196,6 +207,10 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
 }
 .carousel-dots button[aria-current="true"] {
   background: #000; border-color: #000; opacity: 1;
+}
+.carousel-dots button:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 2px;
 }
 
 /* =========================================
@@ -243,12 +258,30 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
     margin-right: calc(50% - 50vw) !important;
   }
 
-  .slide { height: auto !important; }
-  .slide img { height: auto !important; object-fit: contain !important; }
+  /* virtual 3-slot: exact pages, original aspect, no gaps */
+  .carousel-track { gap: 0 !important; padding: 0 !important; }
+
+  .slide {
+    flex: 0 0 100vw !important;
+    width: 100vw !important;
+    height: auto !important;       /* height follows media aspect ratio */
+    line-height: 0;
+    background: #000;              /* fill bars for contain */
+  }
+
+  .slide img,
+  .slide video,
+  .slide picture,
+  .slide canvas {
+    width: 100%;
+    height: auto;                  /* keep original aspect ratio */
+    object-fit: contain !important;
+    border-radius: 0 !important;
+  }
 }
 
 /* =========================================
-   HOT FIX — FORCE MOBILE
+   HOT FIX — FORCE MOBILE (merged)
    ========================================= */
 .force-mobile .apartment-grid{ display:block !important; }
 .force-mobile #main-left,
@@ -265,8 +298,24 @@ html.scroll-locked { overflow: hidden; overscroll-behavior: none; }
   margin-left: calc(50% - 50vw) !important;
   margin-right: calc(50% - 50vw) !important;
 }
-.force-mobile .slide { height:auto !important; }
-.force-mobile .slide img { height:auto !important; object-fit:contain !important; }
+
+.force-mobile .carousel-track { gap: 0 !important; padding: 0 !important; }
+.force-mobile .slide {
+  flex: 0 0 100vw !important;
+  width: 100vw !important;
+  height: auto !important;
+  line-height: 0;
+  background: #000;
+}
+.force-mobile .slide img,
+.force-mobile .slide video,
+.force-mobile .slide picture,
+.force-mobile .slide canvas {
+  width: 100%;
+  height: auto;
+  object-fit: contain !important;
+  border-radius: 0 !important;
+}
 
 /* =========================================
    SECTION PADDING (mobile)
@@ -334,4 +383,5 @@ html, body { overflow-x: clip; }
   width: auto;
   max-width: 100%;
   display: block;
+  border-radius: 0;
 }
