@@ -1,6 +1,8 @@
 /* =========================================
-   CONTACT — DESKTOP BASE (from your file)
+   CONTACT — DESKTOP BASE
    ========================================= */
+
+/* desktop grid of actions (unchanged) */
 .contact-actions-table { margin-top: 8px; }
 .contact-actions-table td { padding: 14px 10px; }
 
@@ -18,7 +20,7 @@
   gap: 10px;
   margin: 0;
   padding: 14px 10px;
-  border-radius: 12px;
+  border-radius: 12px; /* keep original rounded geometry */
   transition: transform .15s ease, box-shadow .15s ease;
 }
 
@@ -49,7 +51,7 @@
 }
 
 /* =========================================
-   CONTACT — VISIBILITY GATES (from your file)
+   CONTACT — VISIBILITY GATES
    ========================================= */
 @media (max-width: 576px), (max-height: 500px){
   #contact-section .desktop-row { display: none; }
@@ -60,15 +62,29 @@
 }
 
 /* =========================================
-   CONTACT — MOBILE (≤ 576px, from your file)
+   CONTACT — MOBILE ONLY (centered, framed, animated)
    ========================================= */
 @media (max-width: 576px), (max-height: 500px){
-  :root { --mobile-edge: 20px; }
+  :root{
+    --mobile-edge: 40px;
 
-  #contact-section .container{
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    /* per-button hover colors */
+    --btn-phone:    #111111;
+    --btn-whatsapp: #25D366;
+    --btn-viber:    #7360F2;
+    --btn-booking:  #003580;
+
+    /* shared frame color */
+    --frame-color:  #000000;
+
+    /* sizing tokens */
+    --icon-slot: 52px;     /* base icon box */
+    --gap: 8px;            /* space between icon and texts */
+    --vpad: 12px;          /* vertical paddings inside button */
+    --lh: 1.2em;           /* line-height used in min-height calc */
   }
+
+  /* full-bleed section (align to viewport, not parent container) */
   #contact-section .section-table{
     width: 100vw !important;
     margin-left: calc(50% - 50vw) !important;
@@ -80,53 +96,196 @@
   #contact-section .section-table colgroup{ display: table-column-group !important; }
   #contact-section .section-table tbody   { display: table-row-group !important; }
   #contact-section .section-table tr      { display: table-row !important; }
-  #contact-section .section-table td      { display: table-cell !important; padding-left:0 !important; padding-right:0 !important; }
+  #contact-section .section-table td      { display: table-cell !important; padding:0 !important; }
 
-  #contact-section .contact-actions-table{
-    display: none !important; visibility: hidden !important;
-    height: 0 !important; margin: 0 !important; padding: 0 !important; border: 0 !important;
+  /* remove container side paddings on mobile */
+  #contact-section .container{
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
+  /* hide desktop actions table on mobile */
+  #contact-section .contact-actions-table{
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+  }
+
+  /* mobile wrapper */
   #contact-section .contact-mobile-grid{
     width: 100% !important;
     margin: 0 auto !important;
     padding: 0 var(--mobile-edge) !important;
     box-sizing: border-box !important;
-    display: flex; flex-direction: column; gap: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
 
-  #contact-section .contact-action{
-    display: block; width: 100%; box-sizing: border-box;
-    background: #f7f7f9; border: 1px solid #ddd; border-radius: 12px;
-    transition: transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
-  }
-  #contact-section .contact-action:hover{
-    background:#f0f0f3; border-color:#cfcfd4; box-shadow:0 6px 18px rgba(0,0,0,.08);
-    transform: translateY(-2px);
-  }
-
-  #contact-section .phone-action figure,
-  #contact-section .email-action figure{
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    margin:0; padding:12px;
-  }
-  #contact-section .icon-stack{
-    display:flex; flex-direction:column; align-items:center; gap:6px; min-width:84px;
-  }
-  #contact-section .contact-action img{ width:52px; height:52px; }
-  #contact-section .contact-action figcaption{ font-weight:600; font-size:.9rem; line-height:1.2; margin:0; }
-  #contact-section .extra-text{ margin-left:12px; font-size:.95rem; font-weight:300; white-space:nowrap; text-align:right; flex:1 1 auto; }
-
+  /* two-column rows */
   #contact-section .contact-row-two,
   #contact-section .booking-row{
-    display:grid !important; grid-template-columns: 1fr 1fr !important; gap: 12px !important; width: 100% !important;
-  }
-  #contact-section .contact-row-two figure,
-  #contact-section .booking-row figure{
-    display:flex; flex-direction:column; align-items:center; gap:10px; margin:0; padding:14px 10px;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+    width: 100% !important;
   }
   #contact-section .booking-row .booking-action{ grid-column: 1; }
-  #contact-section .booking-row .spacer{ grid-column: 2; }
+  #contact-section .booking-row .spacer{ grid-column: 2; display: block; }
+
+  /* base button card */
+  #contact-section .contact-btn{
+    position: relative;                 /* anchor for hover visuals (no abs centering needed) */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--gap);
+
+    width: 100%;
+    padding: var(--vpad) 14px;
+    box-sizing: border-box;
+
+    border: 1.5px solid var(--frame-color);
+    border-radius: 12px;                /* keep original geometry */
+    background-color: transparent;
+    backdrop-filter: blur(8px);
+
+    color: #111;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 700;
+
+    transition: background-color .3s ease-in-out,
+                border-color .3s ease-in-out,
+                transform .06s ease-in-out;
+    overflow: hidden;
+
+    /* stable height: default is 1 text line */
+    --lines: 1;
+    min-height: calc(2*var(--vpad) + var(--icon-slot) + var(--gap) + var(--lines)*var(--lh));
+  }
+
+  /* Phone button is slightly bigger (bigger icon + 2 lines + a bit more padding) */
+  #contact-section .phone-action{
+    --icon-slot: 64px;
+    --lines: 2;                         /* label + extra-text */
+    padding: calc(var(--vpad) + 4px) 16px;
+    font-size: 1.05rem;
+  }
+
+  /* icon wrapper (kept in normal flow) */
+  #contact-section .contact-btn .svg-wrapper{
+    display: grid;
+    place-items: center;
+    width: var(--icon-slot);
+    height: var(--icon-slot);
+    margin-inline: auto;
+    transform-origin: center;
+    transition: transform .35s ease;    /* only transform -> no diagonal drift */
+  }
+
+  /* stacked icons (black→white crossfade) */
+  #contact-section .contact-btn .icon{
+    grid-area: 1 / 1;                   /* stack both imgs */
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;                      /* remove baseline gap */
+    transform-origin: center;
+    transition: opacity .3s ease-in-out, transform .3s ease-in-out;
+  }
+  #contact-section .contact-btn .icon-black{ opacity: 1; }
+  #contact-section .contact-btn .icon-white{ opacity: 0; }
+
+  /* labels */
+  #contact-section .contact-btn .label{
+    display: block;
+    font-size: 1rem;
+    line-height: 1.2;
+    transition: opacity .25s linear;
+  }
+  #contact-section .contact-btn .extra-text{
+    display: block;
+    font-size: .95rem;
+    font-weight: 300;
+    transition: opacity .25s linear;
+  }
+
+  /* interactive states */
+  #contact-section .contact-btn:hover,
+  #contact-section .contact-btn:focus-visible,
+  #contact-section .contact-btn:active{ outline: none; }
+
+  #contact-section .phone-action:hover,
+  #contact-section .phone-action:focus-visible,
+  #contact-section .phone-action:active{
+    background: var(--btn-phone); border-color: var(--btn-phone);
+  }
+  #contact-section .whatsapp-action:hover,
+  #contact-section .whatsapp-action:focus-visible,
+  #contact-section .whatsapp-action:active{
+    background: var(--btn-whatsapp); border-color: var(--btn-whatsapp);
+  }
+  #contact-section .viber-action:hover,
+  #contact-section .viber-action:focus-visible,
+  #contact-section .viber-action:active{
+    background: var(--btn-viber); border-color: var(--btn-viber);
+  }
+  #contact-section .booking-action:hover,
+  #contact-section .booking-action:focus-visible,
+  #contact-section .booking-action:active{
+    background: var(--btn-booking); border-color: var(--btn-booking);
+  }
+
+  /* hover: fade out texts (they keep layout height), lift icon towards the geometric center of the button */
+  #contact-section .contact-btn:hover .label,
+  #contact-section .contact-btn:focus-visible .label,
+  #contact-section .contact-btn:hover .extra-text,
+  #contact-section .contact-btn:focus-visible .extra-text{
+    opacity: 0;
+  }
+
+  /* vertical shift to center = -(half of text block + half gap)
+     lines = 1 for most buttons, = 2 for phone */
+  #contact-section .contact-btn:hover .svg-wrapper,
+  #contact-section .contact-btn:focus-visible .svg-wrapper{
+    transform:
+      translateY(calc( (var(--lines) * var(--lh) + var(--gap)) / 2 ))
+      scale(1.25);
+  }
+
+  /* slight scale on images + color crossfade */
+  #contact-section .contact-btn:hover .icon,
+  #contact-section .contact-btn:focus-visible .icon{
+    transform: scale(1.1);
+  }
+  #contact-section .contact-btn:hover .icon-black,
+  #contact-section .contact-btn:focus-visible .icon-black{ opacity: 0; }
+  #contact-section .contact-btn:hover .icon-white,
+  #contact-section .contact-btn:focus-visible .icon-white{ opacity: 1; }
+
+  /* press feedback */
+  #contact-section .contact-btn:active{ transform: scale(0.95); }
+
+  /* keyboard focus ring */
+  #contact-section .contact-btn:focus-visible{
+    box-shadow: 0 0 0 2px rgba(122,162,255,.35);
+  }
+
+  /* reduced motion support */
+  @media (prefers-reduced-motion: reduce){
+    #contact-section .contact-btn,
+    #contact-section .contact-btn .svg-wrapper,
+    #contact-section .contact-btn .icon,
+    #contact-section .contact-btn .label,
+    #contact-section .contact-btn .extra-text{
+      transition: none !important;
+    }
+  }
 }
 
 /* =========================================

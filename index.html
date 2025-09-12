@@ -472,22 +472,27 @@
                 <div class="location-actions">
                   <a href="https://maps.app.goo.gl/7jNZUGs3jN3QunUx8"
                      target="_blank" rel="noopener"
-                     class="location-action"
-                     aria-label="Open in Google Maps"
-                     data-i18n-attr="aria-label:location.aria.openGmaps">
-                    <img src="images/location/google_maps.webp"
+                     class="playstore-button location-btn"
+                     aria-label="Open in Google Maps">
+                    <!-- Two versions of the icon: black (default) and white (active) -->
+                    <img src="images/location/google_maps_black.webp"
                          alt="Google Maps"
-                         data-i18n-attr="alt:location.links.gmaps.img.alt" />
+                         class="btn-icon black" />
+                    <img src="images/location/google_maps_white.webp"
+                         alt="Google Maps"
+                         class="btn-icon white" />
                   </a>
 
                   <a href="https://waze.com/ul?ll=40.22282140754979%2C23.667385980137798&navigate=yes"
                      target="_blank" rel="noopener"
-                     class="location-action"
-                     aria-label="Open in Waze"
-                     data-i18n-attr="aria-label:location.aria.openWaze">
-                    <img src="images/location/waze.webp"
+                     class="playstore-button location-btn"
+                     aria-label="Open in Waze">
+                    <img src="images/location/waze_black.webp"
                          alt="Waze"
-                         data-i18n-attr="alt:location.links.waze.img.alt" />
+                         class="btn-icon black" />
+                    <img src="images/location/waze_white.webp"
+                         alt="Waze"
+                         class="btn-icon white" />
                   </a>
                 </div>
               </td>
@@ -544,7 +549,7 @@
                          aria-label="Call phone"
                          data-i18n-attr="aria-label:contact.aria.call">
                         <figure>
-                          <img src="images/contact/phone.webp" alt="Phone" data-i18n-attr="alt:contact.icons.phone.alt" />
+                          <img src="images/contact/phone_black.webp" alt="Phone" data-i18n-attr="alt:contact.icons.phone.alt" />
                           <figcaption data-i18n="contact.actions.phone.fig">Call</figcaption>
                         </figure>
                       </a>
@@ -554,7 +559,7 @@
                          aria-label="Open WhatsApp chat"
                          data-i18n-attr="aria-label:contact.aria.whatsapp">
                         <figure>
-                          <img src="images/contact/whatsapp.webp" alt="WhatsApp" data-i18n-attr="alt:contact.icons.whatsapp.alt" />
+                          <img src="images/contact/whatsapp_black.webp" alt="WhatsApp" data-i18n-attr="alt:contact.icons.whatsapp.alt" />
                           <figcaption data-i18n="contact.actions.whatsapp.fig">WhatsApp</figcaption>
                         </figure>
                       </a>
@@ -564,7 +569,7 @@
                          aria-label="Open Viber chat"
                          data-i18n-attr="aria-label:contact.aria.viber">
                         <figure>
-                          <img src="images/contact/viber.webp" alt="Viber" data-i18n-attr="alt:contact.icons.viber.alt" />
+                          <img src="images/contact/viber_black.webp" alt="Viber" data-i18n-attr="alt:contact.icons.viber.alt" />
                           <figcaption data-i18n="contact.actions.viber.fig">Viber</figcaption>
                         </figure>
                       </a>
@@ -574,7 +579,7 @@
                          aria-label="Open Booking.com page"
                          data-i18n-attr="aria-label:contact.aria.booking">
                         <figure>
-                          <img src="images/contact/booking.webp" alt="Booking.com" data-i18n-attr="alt:contact.icons.booking.alt" />
+                          <img src="images/contact/booking_black.webp" alt="Booking.com" data-i18n-attr="alt:contact.icons.booking.alt" />
                           <figcaption data-i18n="contact.actions.booking.fig">Booking.com</figcaption>
                         </figure>
                       </a>
@@ -599,51 +604,56 @@
             <tr class="mobile-row">
               <td>
                 <div class="contact-mobile-grid">
+
                   <!-- Phone (full width) -->
-                  <a class="contact-action phone-action" href="tel:+306997144061"
+                  <a class="contact-btn phone-action" href="tel:+306997144061"
                      aria-label="Call phone"
                      data-i18n-attr="aria-label:contact.aria.call">
-                    <figure>
-                      <div class="icon-stack">
-                        <img src="images/contact/phone.webp" alt="Phone" data-i18n-attr="alt:contact.icons.phone.alt" />
-                        <figcaption data-i18n="contact.actions.phone.fig">Call</figcaption>
-                      </div>
-                      <div class="extra-text" data-i18n="contact.phone.extra">+30 699 7144061</div>
-                    </figure>
+                    <div class="svg-wrapper" aria-hidden="true">
+                      <img src="images/contact/phone_black.webp"        alt="" class="icon icon-black">
+                      <img src="images/contact/phone_white.webp"  alt="" class="icon icon-white">
+                    </div>
+                    <span class="label" data-i18n="contact.actions.phone.fig">Call</span>
+                    <span class="extra-text" data-i18n="contact.phone.extra">+30 699 7144061</span>
                   </a>
 
                   <!-- WhatsApp + Viber (two columns) -->
                   <div class="contact-row-two">
-                    <a class="contact-action whatsapp-action" href="https://wa.me/306997144061" target="_blank" rel="noopener"
+                    <a class="contact-btn whatsapp-action" href="https://wa.me/306997144061" target="_blank" rel="noopener"
                        aria-label="Open WhatsApp chat"
                        data-i18n-attr="aria-label:contact.aria.whatsapp">
-                      <figure>
-                        <img src="images/contact/whatsapp.webp" alt="WhatsApp" data-i18n-attr="alt:contact.icons.whatsapp.alt" />
-                        <figcaption data-i18n="contact.actions.whatsapp.fig">WhatsApp</figcaption>
-                      </figure>
+                      <div class="svg-wrapper" aria-hidden="true">
+                        <img src="images/contact/whatsapp_black.webp"        alt="" class="icon icon-black">
+                        <img src="images/contact/whatsapp_white.webp"  alt="" class="icon icon-white">
+                      </div>
+                      <span class="label" data-i18n="contact.actions.whatsapp.fig">WhatsApp</span>
                     </a>
-                    <a class="contact-action viber-action" href="viber://chat?number=%2B306997144061"
+
+                    <a class="contact-btn viber-action" href="viber://chat?number=%2B306997144061"
                        aria-label="Open Viber chat"
                        data-i18n-attr="aria-label:contact.aria.viber">
-                      <figure>
-                        <img src="images/contact/viber.webp" alt="Viber" data-i18n-attr="alt:contact.icons.viber.alt" />
-                        <figcaption data-i18n="contact.actions.viber.fig">Viber</figcaption>
-                      </figure>
+                      <div class="svg-wrapper" aria-hidden="true">
+                        <img src="images/contact/viber_black.webp"        alt="" class="icon icon-black">
+                        <img src="images/contact/viber_white.webp"  alt="" class="icon icon-white">
+                      </div>
+                      <span class="label" data-i18n="contact.actions.viber.fig">Viber</span>
                     </a>
                   </div>
 
-                  <!-- Booking (left half; right spacer) -->
-                  <div class="booking-row">
-                    <a class="contact-action booking-action" href="https://www.booking.com/Share-Ue5fAng" target="_blank" rel="noopener"
+                  <!-- Booking (under WhatsApp, same width as WhatsApp) -->
+                  <div class="contact-row-two">
+                    <a class="contact-btn booking-action" href="https://www.booking.com/Share-Ue5fAng" target="_blank" rel="noopener"
                        aria-label="Open Booking.com page"
                        data-i18n-attr="aria-label:contact.aria.booking">
-                      <figure>
-                        <img src="images/contact/booking.webp" alt="Booking.com" data-i18n-attr="alt:contact.icons.booking.alt" />
-                        <figcaption data-i18n="contact.actions.booking.fig">Booking.com</figcaption>
-                      </figure>
+                      <div class="svg-wrapper" aria-hidden="true">
+                        <img src="images/contact/booking_black.webp"        alt="" class="icon icon-black">
+                        <img src="images/contact/booking_white.webp"  alt="" class="icon icon-white">
+                      </div>
+                      <span class="label" data-i18n="contact.actions.booking.fig">Booking.com</span>
                     </a>
                     <span class="spacer" aria-hidden="true"></span>
                   </div>
+
                 </div>
               </td>
             </tr>

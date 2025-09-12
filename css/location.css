@@ -6,7 +6,7 @@
 #location-section .section-title {
   display: block;
   max-height: 64px;
-  margin: 0 auto; /* same as amenities */
+  margin: 0 auto; /* align with amenities */
 }
 #location-section .section-header { margin-block: 8px; }
 
@@ -48,33 +48,31 @@
   vertical-align: top;
   padding: 20px;               /* keep same padding as map frame */
 }
-
-/* wrapper just holds two sub-blocks */
 #location-section .address-wrapper { height: 100%; }
 
 /* TOP: address text */
 #location-section .address-top {
-  text-align: right;   /* align everything inside to the right */
+  text-align: right;
   width: 100%;
 }
 #location-section .address-title {
   font-weight: 700;
   font-size: 1.2rem;
   margin-bottom: 4px;
-  text-align: center;  /* keep title centered */
+  text-align: center;
 }
 #location-section .address-line {
   font-size: 1rem;
   margin: 0;
-  text-align: right;   /* force each line to the right edge */
+  text-align: right;
 }
 
 /* BOTTOM: QR and caption pinned to the bottom of the cell */
 #location-section .address-bottom {
   position: absolute;
-  left: 20px;                  /* match cell padding */
+  left: 20px;
   right: 20px;
-  bottom: 20px;                /* aligns labels with map bottom edge */
+  bottom: 20px;
   text-align: center;
 }
 #location-section .links-title {
@@ -106,10 +104,11 @@
    MOBILE (≤ 768px) — compact layout
    ========================================= */
 @media (max-width: 768px), (max-height: 500px) {
-  /* In mobile layout: show mobile rows, hide desktop rows */
+  /* Switch to mobile rows only on small screens */
   #location-section .desktop-row { display: none; }
   #location-section .mobile-row  { display: table-row; }
 
+  /* Full-bleed table for mobile */
   #location-section .container { padding-left: 0; padding-right: 0; }
   #location-section .section-table {
     width: 100vw;
@@ -119,10 +118,10 @@
     border-spacing: 0;
   }
   #location-section .section-table td {
-    padding: 6px 0;  /* compact vertical spacing instead of 20px */
+    padding: 6px 0;
   }
 
-  /* Reset Bootstrap wrapper to prevent map from "jumping" on orientation change */
+  /* Reset Bootstrap wrapper to prevent map jumping */
   #location-section .map-frame.embed-responsive {
     position: static !important;
     padding: 0 !important;
@@ -138,42 +137,94 @@
     display: block !important;
   }
 
-  /* Mobile map: keep tall geometry for portrait orientation */
+  /* Mobile map: tall portrait */
   #location-section .map-frame.mobile-map {
-    box-shadow: none; padding: 0; background: transparent; border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
   }
   #location-section .map-frame.mobile-map iframe {
     width: 100vw;
-    height: 125vw;   /* tall map for portrait screens */
-    border: 0; border-radius: 0; display: block;
+    height: 125vw;
+    border: 0;
+    border-radius: 0;
+    display: block;
   }
 
   #location-section .section-title { margin: 6px auto; }
   #location-section .cell-subtitle { margin: 4px 0; padding: 0; font-size: 1.05rem; }
 
-  /* Mobile quick links */
+  /* -----------------------------------------
+     Mobile quick links (glass pill buttons)
+     ----------------------------------------- */
   #location-section .location-actions {
-    display: flex; flex-direction: column; align-items: center;
-    gap: 12px; margin: 10px 0; padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0;
+    padding: 0 16px;
   }
-  #location-section .location-action {
-    display: inline-block; width: 100%; max-width: 300px;
-    background: #f7f7f9; border: 1px solid #ddd; border-radius: 12px;
-    padding: 12px 14px; text-align: center;
-    transition: transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+
+  #location-section .playstore-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    max-width: 300px;
+
+    border: 1.5px solid #000;
+    border-radius: 9999px;
+
+    /* frosted glass background */
+    background-color: rgba(0, 0, 0, 0); /* fully transparent */
+    backdrop-filter: blur(4px);
+
+    padding: 0.625rem 1.5rem;
+    text-decoration: none;
+
+    transition: background-color 0.2s ease, transform 0.06s ease;
   }
-  #location-section .location-action:hover {
-    background: #f0f0f3; border-color: #cfcfd4;
-    box-shadow: 0 6px 18px rgba(0,0,0,.08); transform: translateY(-2px);
+
+  /* Hover / focus / active / pressed */
+  #location-section .playstore-button:hover,
+  #location-section .playstore-button:focus-visible,
+  #location-section .playstore-button:active,
+  #location-section .playstore-button.is-pressed {
+    background-color: #000;
+    outline: none;
   }
-  #location-section .location-action img {
-    max-height: 40px; width: auto; display: block; margin: 0 auto;
+  #location-section .playstore-button:active {
+    transform: translateY(1px);
+  }
+
+  /* Icons: default = black, pressed = white */
+  #location-section .playstore-button .btn-icon {
+    max-height: 40px;
+    width: auto;
+    height: auto;
+    display: block;
+  }
+  #location-section .playstore-button .btn-icon.white { display: none; }
+
+  #location-section .playstore-button:hover   .btn-icon.black,
+  #location-section .playstore-button:focus   .btn-icon.black,
+  #location-section .playstore-button:active  .btn-icon.black,
+  #location-section .playstore-button.is-pressed .btn-icon.black {
+    display: none;
+  }
+  #location-section .playstore-button:hover   .btn-icon.white,
+  #location-section .playstore-button:focus   .btn-icon.white,
+  #location-section .playstore-button:active  .btn-icon.white,
+  #location-section .playstore-button.is-pressed .btn-icon.white {
+    display: block;
   }
 }
 
 /* =========================================
-   PHONE LOCK — force mobile view on phones
-   even in landscape orientation
+   PHONE LOCK — force mobile view even in landscape
    ========================================= */
 html.force-mobile #location-section .desktop-row { display: none !important; }
 html.force-mobile #location-section .mobile-row  { display: table-row !important; }
