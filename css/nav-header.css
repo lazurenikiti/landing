@@ -137,6 +137,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  max-width: calc(100% - 80px);
+  margin-left: auto;
+  padding-right: 0;        
 }
 
 .nav-desktop {
