@@ -255,6 +255,7 @@ body.menu-open .mobile-panel {
 
 /* Responsive rules */
 @media (max-width: 992px) {
+  .header-nav .nav-inner { max-width: calc(100% - 0px); }
   .nav-desktop { display: none; }
   .nav-burger { display: inline-flex; }
 }
