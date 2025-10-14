@@ -192,6 +192,7 @@
         "message": "Mesaj çok kısa"
       },
       "submit": "Gönder",
+      "сonsent": "Bu talebi göndererek sağladığınız bilgilerin işlenmesine izin vermiş oluyorsunuz. Verileriniz ÜÇÜNCÜ taraflarla PAYLAŞILMAYACAKTIR.",
       "sending": "Gönderiliyor…",
       "success": "Teşekkürler! En kısa sürede size döneceğiz."
     }

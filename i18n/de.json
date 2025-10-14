@@ -194,6 +194,7 @@
         "message": "Die Nachricht ist zu kurz"
       },
       "submit": "Senden",
+      "сonsent": "Mit dem Absenden dieser Anfrage stimmen Sie der Verarbeitung Ihrer angegebenen Daten zu. Ihre Daten werden NICHT an Dritte weitergegeben.",
       "sending": "Senden …",
       "success": "Danke! Wir melden uns in Kürze."
     }

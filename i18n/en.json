@@ -194,6 +194,7 @@
         "message": "Message is too short"
       },
       "submit": "Send",
+      "сonsent": "By sending this request, you permit us to process your submitted information. Your data will NOT be shared with third parties.",
       "sending": "Sending…",
       "success": "Thank you! We’ll get back to you shortly."
     }

@@ -3,52 +3,74 @@
   if (!form) return;
 
   const sending = document.getElementById('cf-sending');
-  const statusEl = document.getElementById('cf-status');
   const successBox = document.getElementById('contact-success');
 
-  // API endpoint (change here if needed)
-  const API_URL = "https://api.lazure-nikiti.gr/request";
+  const nameInput = document.getElementById('cf-name');
+  const emailInput = document.getElementById('cf-email');
+  const messageInput = document.getElementById('cf-message');
 
-  // Honeypot field (hidden, anti-bot)
-  let honeypot = document.getElementById('cf-company');
-  if (!honeypot) {
-    honeypot = document.createElement('input');
-    honeypot.type = 'text';
-    honeypot.id = 'cf-company';
-    honeypot.name = 'company';  // bots will fill this, humans will not
-    honeypot.autocomplete = 'off';
-    honeypot.tabIndex = -1;
-    honeypot.style.position = 'absolute';
-    honeypot.style.left = '-5000px';
-    form.appendChild(honeypot);
-  }
+  const errName = document.getElementById('err-name');
+  const errEmail = document.getElementById('err-email');
+  const errMessage = document.getElementById('err-message');
+
+  const API_URL = "https://api.lazure-nikiti.gr/request";
 
   function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
+  function showError(input, errorEl, show) {
+    errorEl.hidden = !show;
+    if (show) {
+      input.classList.add('error');
+    } else {
+      input.classList.remove('error');
+    }
+  }
+
+  function validateFields() {
+    let valid = true;
+
+    if (!nameInput.value.trim()) {
+      showError(nameInput, errName, true);
+      valid = false;
+    } else {
+      showError(nameInput, errName, false);
+    }
+
+    if (!isValidEmail(emailInput.value.trim())) {
+      showError(emailInput, errEmail, true);
+      valid = false;
+    } else {
+      showError(emailInput, errEmail, false);
+    }
+
+    if (messageInput.value.trim().length < 5) {
+      showError(messageInput, errMessage, true);
+      valid = false;
+    } else {
+      showError(messageInput, errMessage, false);
+    }
+
+    return valid;
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
 
-    const name = document.getElementById('cf-name').value.trim();
-    const email = document.getElementById('cf-email').value.trim();
-    const message = document.getElementById('cf-message').value.trim();
-    const company = honeypot.value.trim();
-
-    // Client-side validation
-    if (!name || !isValidEmail(email) || message.length < 5) {
-      statusEl.textContent = 'Please fill in all fields correctly.';
-      return;
-    }
+    if (!validateFields()) return;
 
     sending.hidden = false;
-    statusEl.textContent = '';
 
     try {
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, message, company })
+        body: JSON.stringify({
+          name: nameInput.value.trim(),
+          email: emailInput.value.trim(),
+          message: messageInput.value.trim(),
+        })
       });
 
       const data = await res.json().catch(() => ({}));
@@ -60,12 +82,12 @@
         successBox.hidden = false;
       } else {
         console.error('[contact][error]', res.status, data);
-        statusEl.textContent = data.error || 'Failed to send. Please try again.';
+        alert(data.error || 'Failed to send. Please try again.');
       }
     } catch (err) {
       sending.hidden = true;
       console.error('[contact][network]', err);
-      statusEl.textContent = 'Network error. Please try again.';
+      alert('Network error. Please try again.');
     }
   }
 
