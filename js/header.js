@@ -47,11 +47,11 @@
 
     // 3) Fallback — English captions from the original code
     return [
-      'Explore the Beauties of Sithonia.',
-      'Stunning Views.',
-      'Relax.',
-      'Visit the Lazure Beaches.',
-      'Feel the Greece.'
+      'Explore the Beauty of Sithonia',
+      'Endless Blue Horizons',
+      'Relax the Way You Deserve',
+      'Visit the Lazure Beaches',
+      'Discover Halkidiki'
     ];
   }
 
