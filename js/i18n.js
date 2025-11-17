@@ -5,9 +5,9 @@
   const LANGS = [
     // code  label  flag file       titles folder  json file
     { code: 'en', label: 'EN', flag: 'en.webp', folder: 'en', json: 'en.json' },
-    { code: 'ua', label: 'UA', flag: 'ua.webp', folder: 'ua', json: 'ua.json' },
-    { code: 'de', label: 'DE', flag: 'de.webp', folder: 'de', json: 'de.json' },
     { code: 'el', label: 'EL', flag: 'gr.webp', folder: 'gr', json: 'gr.json' },
+    { code: 'de', label: 'DE', flag: 'de.webp', folder: 'de', json: 'de.json' },
+    { code: 'ua', label: 'UA', flag: 'ua.webp', folder: 'ua', json: 'ua.json' },
     { code: 'tr', label: 'TR', flag: 'tr.webp', folder: 'tr', json: 'tr.json' },
     { code: 'sr', label: 'SR', flag: 'sr.webp', folder: 'sr', json: 'sr.json' },
     { code: 'bg', label: 'BG', flag: 'bg.webp', folder: 'bg', json: 'bg.json' }
